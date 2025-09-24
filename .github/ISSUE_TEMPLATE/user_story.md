@@ -6,6 +6,7 @@ labels: US
 assignees: ''
 
 ---
+
 >Adaptez le patron des "US" en fonction de vos choix (il se trouve dans votre dépôt sous _.github/ISSUE_TEMPLATE_
 
 :star: **Title :** En quelques mots, résumez l'objectif de l'US par exemple _Ajout d'un produit dans le panier_.

@@ -6,9 +6,13 @@ _Template for classroom SI4-COO_
 >. Vous l'organisez comme bon vous semble, mais comme un vrai projet.
 
 
-## TEAM
+## TEAM O
 
-Présentez-vous! 
+PO : BOULET Olivier  (FISA)
+SA : GUERRAOUI Ismail  (FISE)
+QA : MENOU Clement  (FISE)
+OPS : KARBAL Adam  (FISE)
+QA & PO : MADANDAR ARANI Ali  (FISE)
 
 ## doc
 Contient vos rapports et les documents qui présentent votre projet.

@@ -23,6 +23,9 @@ class RestaurantFilterTest {
     void setUp() throws Exception {
 
         //Dish
+        Dish dishSansGlutenEtVegan = new Dish();
+        dishSansGlutenEtVegan.getTags().addAll(List.of(DishTag.SANS_GLUTEN, DishTag.VEGAN));
+
         Dish dishVegan = new Dish();
         dishVegan.getTags().add(DishTag.VEGAN);
 
@@ -58,7 +61,7 @@ class RestaurantFilterTest {
                 .name("Pizza Palace")
                 .establishmentType(establishmentType.RESTAURANT)
                 .restaurantSchedules(List.of(alwaysOpen))     // always
-                .dishes(List.of(dishSansGluten, dishVegan))
+                .dishes(List.of(dishSansGluten, dishVegan,dishSansGlutenEtVegan))
                 .cuisineType(List.of(cuisineType.ITALIENNE))
                 .build();
 
@@ -200,7 +203,15 @@ class RestaurantFilterTest {
         assertTrue(result.isEmpty());
     }
 
+    @Test
+    void filterByAllTags_shouldReturnRestaurantsWithAllTags() {
+        List<Restaurant> result = filter.filterByAllTags(List.of(DishTag.SANS_GLUTEN, DishTag.VEGAN));
+        assertEquals(1, result.size());
+        assertTrue(result.contains(restoA));
+    }
 
+
+    //filter by price
 
 
 }

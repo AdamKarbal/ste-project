@@ -1,5 +1,8 @@
 package Restaurant;
 
+
+import Dish.DishTag;
+import Dish.Dish;
 import Utils.Date;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -19,7 +22,17 @@ class RestaurantFilterTest {
     @BeforeEach
     void setUp() throws Exception {
 
-        // Restaurant toujours ouvert
+        //Dish
+        Dish dishVegan = new Dish();
+        dishVegan.getTags().add(DishTag.VEGAN);
+
+        Dish dishSansGluten = new Dish();
+        dishSansGluten.getTags().add(DishTag.SANS_GLUTEN);
+
+        Dish dishEpice = new Dish();
+        dishEpice.getTags().add(DishTag.EPICE);
+
+        // Restaurant always open
         Date alwaysOpenStart = new Date.Builder()
                 .day(1).month(1).year(2025)
                 .hour(0).minute(0)
@@ -30,7 +43,7 @@ class RestaurantFilterTest {
                 .build();
         RestaurantSchedule alwaysOpen = new RestaurantSchedule(alwaysOpenStart, alwaysOpenEnd, 100);
 
-        // Restaurant jamais ouvert
+        // Restaurant never open
         Date neverOpenStart = new Date.Builder()
                 .day(1).month(1).year(2025)
                 .hour(1).minute(0)
@@ -44,35 +57,39 @@ class RestaurantFilterTest {
         restoA = new Restaurant.Builder()
                 .name("Pizza Palace")
                 .establishmentType(establishmentType.RESTAURANT)
-                .restaurantSchedules(List.of(alwaysOpen)) // ouvert tout le temps
-                .dishes(new ArrayList<>())
+                .restaurantSchedules(List.of(alwaysOpen))     // always
+                .dishes(List.of(dishSansGluten, dishVegan))
+                .cuisineType(List.of(cuisineType.ITALIENNE))
                 .build();
 
         restoB = new Restaurant.Builder()
                 .name("La pizza roma")
                 .establishmentType(establishmentType.RESTAURANT)
-                .restaurantSchedules(List.of(neverOpen)) // jamais ouvert
-                .dishes(new ArrayList<>())
+                .restaurantSchedules(List.of(neverOpen))      // never
+                .dishes(List.of(dishVegan))
+                .cuisineType(List.of(cuisineType.ITALIENNE))
                 .build();
-
 
         restoC = new Restaurant.Builder()
                 .name("Burger King")
                 .establishmentType(establishmentType.FAST_FOOD)
                 .restaurantSchedules(new ArrayList<>())
-                .dishes(new ArrayList<>())
+                .dishes(List.of(dishEpice))
+                .cuisineType(List.of(cuisineType.AMERICAINE))
                 .build();
 
         restoD = new Restaurant.Builder()
                 .name("Pasta House")
                 .establishmentType(establishmentType.RESTAURANT)
                 .restaurantSchedules(new ArrayList<>())
-                .dishes(new ArrayList<>())
+                .dishes(List.of(dishSansGluten))
+                .cuisineType(List.of(cuisineType.FRANCAISE))
                 .build();
 
         restaurantRepo = new RestaurantRepo(List.of(restoA, restoB, restoC, restoD));
         filter = new RestaurantFilter(restaurantRepo);
     }
+
 
     // Filter by name
     @Test
@@ -140,6 +157,49 @@ class RestaurantFilterTest {
         assertEquals(1, result.size());
         assertTrue(result.get(0).getName().equals("Pizza Palace"));
     }
+
+
+    // Filter by CuisineType
+
+    @Test
+    void filterByCuisineType_shouldReturnMatchingRestaurants() {
+        // On ajoute un type de cuisine à certains restos
+        restoA.setCuisineTypes(List.of(cuisineType.ITALIENNE, cuisineType.FRANCAISE));
+        restoB.setCuisineTypes(List.of(cuisineType.AMERICAINE));
+        restoC.setCuisineTypes(List.of(cuisineType.ITALIENNE));
+
+        List<Restaurant> result = filter.filterByCuisineType(cuisineType.ITALIENNE);
+        assertEquals(2, result.size());
+        assertTrue(result.contains(restoA));
+        assertTrue(result.contains(restoC));
+    }
+
+    @Test
+    void filterByCuisineType_shouldReturnEmptyIfNoMatch() {
+        restoA.setCuisineTypes(List.of(cuisineType.FRANCAISE));
+        restoB.setCuisineTypes(List.of(cuisineType.AMERICAINE));
+        restoC.setCuisineTypes(List.of(cuisineType.CHINOISE));
+
+        List<Restaurant> result = filter.filterByCuisineType(cuisineType.MEXICAINE);
+        assertTrue(result.isEmpty());
+    }
+
+    //Filter by tag
+
+    @Test
+    void filterByTag_shouldReturnRestaurantsWithGivenTag() {
+        List<Restaurant> result = filter.filterByTag(DishTag.SANS_GLUTEN);
+        assertEquals(2, result.size());
+        assertTrue(result.contains(restoA));
+        assertTrue(result.contains(restoD));
+    }
+
+    @Test
+    void filterByTag_shouldReturnEmptyIfNoRestaurantHasTag() {
+        List<Restaurant> result = filter.filterByTag(DishTag.HALAL);
+        assertTrue(result.isEmpty());
+    }
+
 
 
 

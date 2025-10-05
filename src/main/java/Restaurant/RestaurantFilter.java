@@ -67,5 +67,37 @@ public class RestaurantFilter {
                 )
                 .toList();
     }
-    
+
+    public List<Restaurant> filterByPriceMin(double minPrice) {
+        return restaurantRepo.getRestaurants()
+                .stream()
+                .filter(restaurant ->
+                        restaurant.getDishes().stream()
+                                .anyMatch(dish -> dish.getPrice() >= minPrice)
+                )
+                .toList();
+    }
+
+    public List<Restaurant> filterByPriceMax(double maxPrice) {
+        return restaurantRepo.getRestaurants()
+                .stream()
+                .filter(restaurant ->
+                        restaurant.getDishes().stream()
+                                .anyMatch(dish -> dish.getPrice() <= maxPrice)
+                )
+                .toList();
+    }
+
+    public List<Restaurant> filterByPriceRange(double minPrice, double maxPrice) {
+        return restaurantRepo.getRestaurants()
+                .stream()
+                .filter(restaurant ->
+                        restaurant.getDishes().stream()
+                                .anyMatch(dish ->
+                                        dish.getPrice() >= minPrice && dish.getPrice() <= maxPrice
+                                )
+                )
+                .toList();
+    }
+
 }

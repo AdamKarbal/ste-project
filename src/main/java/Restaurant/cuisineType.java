@@ -1,4 +1,23 @@
 package Restaurant;
 
 public enum cuisineType {
+    ITALIENNE,
+    FRANCAISE,
+    JAPONAISE,
+    CHINOISE,
+    INDIENNE,
+    MEXICAINE,
+    AMERICAINE,
+    THAILANDAISE,
+    VIETNAMIENNE,
+    MAROCAINE,
+    ESPAGNOLE,
+    GRECQUE,
+    TURQUE,
+    LIBANAISE,
+    AFRICAINE,
+    BRÉSILIENNE,
+    CORÉENNE,
+    ALLEMANDE,
+    RUSSE,
 }

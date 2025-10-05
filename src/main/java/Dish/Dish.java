@@ -19,4 +19,8 @@ public class Dish {
     public double getPrice() {
         return price;
     }
+
+    public void setPrice(double v) {
+        this.price = v;
+    }
 }

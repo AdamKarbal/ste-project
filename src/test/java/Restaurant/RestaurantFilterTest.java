@@ -35,6 +35,16 @@ class RestaurantFilterTest {
         Dish dishEpice = new Dish();
         dishEpice.getTags().add(DishTag.EPICE);
 
+        Dish cheapDish = new Dish();
+        cheapDish.setPrice(10.0);
+
+        Dish mediumDish = new Dish();
+        mediumDish.setPrice(20.0);
+
+        Dish expensiveDish = new Dish();
+        expensiveDish.setPrice(30.0);
+
+
         // Restaurant always open
         Date alwaysOpenStart = new Date.Builder()
                 .day(1).month(1).year(2025)
@@ -88,6 +98,13 @@ class RestaurantFilterTest {
                 .dishes(List.of(dishSansGluten))
                 .cuisineType(List.of(cuisineType.FRANCAISE))
                 .build();
+
+        restoA.setDishes(List.of(
+                cheapDish, mediumDish, dishSansGluten, dishVegan, dishSansGlutenEtVegan
+        ));
+        restoB.setDishes(List.of(expensiveDish, dishVegan));
+        restoC.setDishes(List.of(mediumDish, dishEpice));
+        restoD.setDishes(List.of(dishSansGluten));
 
         restaurantRepo = new RestaurantRepo(List.of(restoA, restoB, restoC, restoD));
         filter = new RestaurantFilter(restaurantRepo);
@@ -213,5 +230,35 @@ class RestaurantFilterTest {
 
     //filter by price
 
+    @Test
+    void filterByPriceMin_shouldReturnRestaurantsWithDishAboveMinPrice() {
+        List<Restaurant> result = filter.filterByPriceMin(25.0);
+        assertEquals(1, result.size());
+        assertTrue(result.contains(restoB)); // seul restoB a un plat à 30€
+    }
+
+    @Test
+    void filterByPriceMax_shouldReturnRestaurantsWithDishBelowMaxPrice() {
+        restoA.setDishes(List.of(
+                new Dish() {{ setPrice(10); getTags().addAll(List.of(DishTag.SANS_GLUTEN, DishTag.VEGAN)); }},
+                new Dish() {{ setPrice(20); getTags().add(DishTag.VEGAN); }}));
+        restoB.setDishes(List.of(
+                new Dish() {{ setPrice(30); getTags().add(DishTag.VEGAN); }}));
+        restoC.setDishes(List.of(
+                new Dish() {{ setPrice(20); getTags().add(DishTag.EPICE); }}));
+        restoD.setDishes(List.of(
+                new Dish() {{ setPrice(16); getTags().add(DishTag.SANS_GLUTEN); }}));
+        List<Restaurant> result = filter.filterByPriceMax(15.0);
+        assertEquals(1, result.size());
+        assertTrue(result.contains(restoA));
+    }
+
+    @Test
+    void filterByPriceRange_shouldReturnRestaurantsWithDishInRange() {
+        List<Restaurant> result = filter.filterByPriceRange(10.0, 20.0);
+        assertEquals(2, result.size());
+        assertTrue(result.contains(restoA));
+        assertTrue(result.contains(restoC));
+    }
 
 }

@@ -1,5 +1,7 @@
 package Restaurant;
 
+import Dish.DishTag;
+import Dish.DishType;
 import Utils.Date;
 
 import java.util.List;
@@ -44,4 +46,26 @@ public class RestaurantFilter {
                 .filter(restaurant -> restaurant.getCuisineTypes().stream().anyMatch(cuisineType -> cuisineType.equals(type)))
                 .toList() ;
     }
+
+    public List<Restaurant> filterByTag(DishTag tag) {
+        return restaurantRepo.getRestaurants()
+                .stream()
+                .filter(restaurant ->
+                        restaurant.getDishes().stream()
+                                .flatMap(dish -> dish.getTags().stream())
+                                .anyMatch(t -> t.equals(tag))
+                )
+                .toList();
+    }
+
+    public List<Restaurant> filterByAllTags(List<DishTag> tags) {
+        return restaurantRepo.getRestaurants()
+                .stream()
+                .filter(restaurant ->
+                        restaurant.getDishes().stream()
+                                .anyMatch(dish -> dish.getTags().containsAll(tags))
+                )
+                .toList();
+    }
+    
 }

@@ -30,4 +30,18 @@ public class RestaurantFilter {
                 .filter(r -> r.isOpenAt(targetTime))
                 .toList();
     }
+
+    public List<Restaurant> findName(String name) {
+        return restaurantRepo.getRestaurants()
+                .stream()
+                .filter(restaurant -> restaurant.getName().equals(name))
+                .toList() ;
+    }
+
+    public List<Restaurant> filterByCuisineType(cuisineType type) {
+        return restaurantRepo.getRestaurants()
+                .stream()
+                .filter(restaurant -> restaurant.getCuisineTypes().stream().anyMatch(cuisineType -> cuisineType.equals(type)))
+                .toList() ;
+    }
 }

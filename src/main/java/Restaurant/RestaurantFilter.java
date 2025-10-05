@@ -1,5 +1,7 @@
 package Restaurant;
 
+import Utils.Date;
+
 import java.util.List;
 
 public class RestaurantFilter {
@@ -13,5 +15,19 @@ public class RestaurantFilter {
                 .stream()
                 .filter(restaurant -> restaurant.getEstablishmentType().equals(type))
                 .toList() ;
+    }
+
+    public List<Restaurant> filterByAvailibility() {
+        return restaurantRepo.getRestaurants()
+                .stream()
+                .filter(Restaurant::isOpenNow)
+                .toList();
+    }
+
+    public List<Restaurant> filterByAvailibility(Date targetTime) {
+        return restaurantRepo.getRestaurants()
+                .stream()
+                .filter(r -> r.isOpenAt(targetTime))
+                .toList();
     }
 }

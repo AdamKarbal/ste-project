@@ -4,6 +4,7 @@ import Utils.*;
 
 import java.util.List;
 
+
 public class Restaurant {
     // Instances
     private String name;
@@ -99,6 +100,29 @@ public class Restaurant {
     public String toString(){
         return name + " " + establishmentType + "\n.";
     }
+
+    public boolean isOpenNow() {
+        Date now = Date.now();      // ← au lieu de new Date()
+        return isOpenAt(now);
+    }
+
+    public boolean isOpenAt(Date dt) {
+        if (restaurantSchedules == null || restaurantSchedules.isEmpty()) return false;
+        return restaurantSchedules.stream()
+                .anyMatch(s -> isWithin(dt, s.getStart(), s.getEnd()));
+    }
+
+    private static boolean isWithin(Date dt, Date start, Date end) {
+        boolean overnight = end.isBefore(start);
+
+        if (overnight) {
+            return !dt.isBefore(start) || dt.isBefore(end); //
+        } else {
+            return !dt.isBefore(start) && dt.isBefore(end);
+        }
+    }
+
+
 
     // InnerClass builder pour éviter d'avoir à faire plusieurs constructeurs en fonction du nombre de paramètre qu'on entre
 

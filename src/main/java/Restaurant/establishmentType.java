@@ -23,4 +23,5 @@ public enum establishmentType {
     MARCHÉ,
     BUFFET,
     PUB
+
 }

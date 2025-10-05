@@ -37,7 +37,7 @@ public class RestaurantSchedule {
     }
 
     public void setCapacity(int capacity) {
-        capacity = capacity;
+        this.capacity = capacity;
     }
 
     @Override

@@ -9,6 +9,9 @@ public class RestaurantFilter {
     }
 
     public List<Restaurant> filterByType(establishmentType type) {
-
+        return restaurantRepo.getRestaurants()
+                .stream()
+                .filter(restaurant -> restaurant.getEstablishmentType().equals(type))
+                .toList() ;
     }
 }

@@ -36,7 +36,7 @@ public class RestaurantFilter {
     public List<Restaurant> findName(String name) {
         return restaurantRepo.getRestaurants()
                 .stream()
-                .filter(restaurant -> restaurant.getName().equals(name))
+                .filter(restaurant -> restaurant.getName().toLowerCase().contains(name.toLowerCase()))
                 .toList() ;
     }
 

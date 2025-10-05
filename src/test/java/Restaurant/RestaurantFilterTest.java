@@ -3,63 +3,144 @@ package Restaurant;
 import Utils.Date;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
+import java.util.ArrayList;
 import java.util.List;
-
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
 
 class RestaurantFilterTest {
 
-    private RestaurantRepo mockRepo;
+    private RestaurantRepo restaurantRepo;
     private RestaurantFilter filter;
-    private Restaurant openRestaurant;
-    private Restaurant closedRestaurant;
+    private Restaurant restoA;
+    private Restaurant restoB;
+    private Restaurant restoC;
+    private Restaurant restoD;
 
     @BeforeEach
     void setUp() throws Exception {
-        // --- Création de deux restaurants ---
-        openRestaurant = mock(Restaurant.class);
-        when(openRestaurant.getEstablishmentType()).thenReturn(establishmentType.RESTAURANT);
-        when(openRestaurant.isOpenNow()).thenReturn(true);
-        when(openRestaurant.isOpenAt(any())).thenReturn(true);
 
-        closedRestaurant = mock(Restaurant.class);
-        when(closedRestaurant.getEstablishmentType()).thenReturn(establishmentType.CAFE);
-        when(closedRestaurant.isOpenNow()).thenReturn(false);
-        when(closedRestaurant.isOpenAt(any())).thenReturn(false);
+        // Restaurant toujours ouvert
+        Date alwaysOpenStart = new Date.Builder()
+                .day(1).month(1).year(2025)
+                .hour(0).minute(0)
+                .build();
+        Date alwaysOpenEnd = new Date.Builder()
+                .day(1).month(1).year(2030)
+                .hour(23).minute(59)
+                .build();
+        RestaurantSchedule alwaysOpen = new RestaurantSchedule(alwaysOpenStart, alwaysOpenEnd, 100);
 
-        // --- Mock du repo ---
-        mockRepo = mock(RestaurantRepo.class);
-        when(mockRepo.getRestaurants()).thenReturn(List.of(openRestaurant, closedRestaurant));
+        // Restaurant jamais ouvert
+        Date neverOpenStart = new Date.Builder()
+                .day(1).month(1).year(2025)
+                .hour(1).minute(0)
+                .build();
+        Date neverOpenEnd = new Date.Builder()
+                .day(1).month(1).year(2025)
+                .hour(1).minute(0)
+                .build();
+        RestaurantSchedule neverOpen = new RestaurantSchedule(neverOpenStart, neverOpenEnd, 0);
 
-        filter = new RestaurantFilter(mockRepo);
+        restoA = new Restaurant.Builder()
+                .name("Pizza Palace")
+                .establishmentType(establishmentType.RESTAURANT)
+                .restaurantSchedules(List.of(alwaysOpen)) // ouvert tout le temps
+                .dishes(new ArrayList<>())
+                .build();
+
+        restoB = new Restaurant.Builder()
+                .name("La pizza roma")
+                .establishmentType(establishmentType.RESTAURANT)
+                .restaurantSchedules(List.of(neverOpen)) // jamais ouvert
+                .dishes(new ArrayList<>())
+                .build();
+
+
+        restoC = new Restaurant.Builder()
+                .name("Burger King")
+                .establishmentType(establishmentType.FAST_FOOD)
+                .restaurantSchedules(new ArrayList<>())
+                .dishes(new ArrayList<>())
+                .build();
+
+        restoD = new Restaurant.Builder()
+                .name("Pasta House")
+                .establishmentType(establishmentType.RESTAURANT)
+                .restaurantSchedules(new ArrayList<>())
+                .dishes(new ArrayList<>())
+                .build();
+
+        restaurantRepo = new RestaurantRepo(List.of(restoA, restoB, restoC, restoD));
+        filter = new RestaurantFilter(restaurantRepo);
+    }
+
+    // Filter by name
+    @Test
+    void findName_partialMatchPizza() {
+        List<Restaurant> result = filter.findName("pizza");
+        assertEquals(2, result.size());
+        assertTrue(result.contains(restoA));
+        assertTrue(result.contains(restoB));
     }
 
     @Test
-    void filterByType() {
+    void findName_caseInsensitive() {
+        List<Restaurant> result = filter.findName("PIZZA");
+        assertEquals(2, result.size());
+    }
+
+    @Test
+    void findName_noMatch() {
+        List<Restaurant> result = filter.findName("sushi");
+        assertTrue(result.isEmpty());
+    }
+
+    //Filter by type
+
+    @Test
+    void filterByType_returnAllRestaurants() {
         List<Restaurant> result = filter.filterByType(establishmentType.RESTAURANT);
-        assertEquals(1, result.size());
-        assertTrue(result.contains(openRestaurant));
+        assertEquals(3, result.size());
+        assertTrue(result.contains(restoA));
+        assertTrue(result.contains(restoB));
     }
 
     @Test
-    void filterByAvailibility() {
+    void filterByType_noMatch() {
+        List<Restaurant> result = filter.filterByType(establishmentType.HOTEL);
+        assertTrue(result.isEmpty());
+    }
+
+    //Filter by availibility
+
+    @Test
+    void filterByAvailibility_shouldReturnOnlyAlwaysOpenRestaurant() {
         List<Restaurant> result = filter.filterByAvailibility();
         assertEquals(1, result.size());
-        assertTrue(result.contains(openRestaurant));
-        assertFalse(result.contains(closedRestaurant));
+        assertTrue(result.get(0).getName().equals("Pizza Palace"));
     }
 
     @Test
-    void testFilterByAvailibilityAtSpecificTime() throws Exception {
-        Date targetTime = new Date.Builder()
-                .day(5).month(10).year(2025)
+    void filterByAvailibility_shouldReturnEmptyIfAllClosed() {
+        // on rend tous les restaurants "jamais ouverts"
+        restoA.setRestaurantSchedules(restoB.getRestaurantSchedules());
+        List<Restaurant> result = filter.filterByAvailibility();
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    void filterByAvailibility_atSpecificTime() throws Exception {
+        // On choisit une date comprise dans le créneau du resto toujours ouvert
+        Date target = new Date.Builder()
+                .day(1).month(6).year(2026)
                 .hour(12).minute(0)
                 .build();
 
-        List<Restaurant> result = filter.filterByAvailibility(targetTime);
+        List<Restaurant> result = filter.filterByAvailibility(target);
         assertEquals(1, result.size());
-        assertTrue(result.contains(openRestaurant));
+        assertTrue(result.get(0).getName().equals("Pizza Palace"));
     }
+
+
+
 }

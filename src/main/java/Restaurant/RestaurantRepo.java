@@ -6,8 +6,8 @@ import java.util.List;
 public class RestaurantRepo {
     private List<Restaurant> restaurants;
 
-    public RestaurantRepo() {
-        restaurants = new ArrayList<Restaurant>();
+    public RestaurantRepo(List<Restaurant> restaurants) {
+        this.restaurants = restaurants;
     }
 
     public List<Restaurant> getRestaurants() {

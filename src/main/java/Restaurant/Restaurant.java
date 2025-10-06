@@ -12,4 +12,8 @@ public class Restaurant {
     private RestaurantType restaurantType;
     private RestaurantAvailability restaurantAvailability;
     private RestaurantCapacityStatus restaurantCapacityStatus;
+
+    public Restaurant(String name) {
+        this.name = name;
+    }
 }

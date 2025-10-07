@@ -5,6 +5,7 @@ import Restaurant.RestaurantSchedule;
 import Utils.Date;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import Restaurant.*;
 
 import java.util.List;
 
@@ -122,4 +123,102 @@ public class RestaurantTest {
         Date current = d(6, 10, 2025, 1, 0); // dans 22–02
         assertTrue(restaurant.isOpenAt(current));
     }
+
+    @Test
+    void testAlreadyCuisineType_WhenTypeAlreadyPresent() {
+        Restaurant r = new Restaurant.Builder()
+                .name("R")
+                .cuisineType(List.of(cuisineType.ITALIENNE, cuisineType.JAPONAISE))
+                .build();
+
+        assertTrue(r.alreadyCuisineType(cuisineType.ITALIENNE));
+    }
+
+    @Test
+    void testAlreadyCuisineType_WhenTypeNotPresent() {
+        Restaurant r = new Restaurant.Builder()
+                .name("R")
+                .cuisineType(List.of(cuisineType.ITALIENNE, cuisineType.JAPONAISE))
+                .build();
+
+        assertFalse(r.alreadyCuisineType(cuisineType.MEXICAINE));
+    }
+
+    @Test
+    void testAlreadyScheduled_WhenScheduleExists() throws Exception {
+        Date start = d(5, 10, 2025, 10, 0);
+        Date end = d(5, 10, 2025, 14, 0);
+        RestaurantSchedule s1 = new RestaurantSchedule(start, end, 20);
+
+        Restaurant r = new Restaurant.Builder()
+                .name("R")
+                .restaurantSchedules(List.of(s1))
+                .build();
+
+        assertTrue(r.alreadyScheduled(start, end));
+    }
+
+    @Test
+    void testAlreadyScheduled_WhenNoMatchingSchedule() throws Exception {
+        Date start = d(5, 10, 2025, 10, 0);
+        Date end = d(5, 10, 2025, 14, 0);
+        RestaurantSchedule s1 = new RestaurantSchedule(start, end, 20);
+
+        Restaurant r = new Restaurant.Builder()
+                .name("R")
+                .restaurantSchedules(List.of(s1))
+                .build();
+
+        Date otherStart = d(5, 10, 2025, 15, 0);
+        Date otherEnd = d(5, 10, 2025, 18, 0);
+
+        assertFalse(r.alreadyScheduled(otherStart, otherEnd));
+    }
+
+    @Test
+    void testAlreadyScheduled_WhenListEmpty() throws Exception {
+        Restaurant r = new Restaurant.Builder()
+                .name("R")
+                .restaurantSchedules(List.of())
+                .build();
+
+        Date start = d(5, 10, 2025, 10, 0);
+        Date end = d(5, 10, 2025, 14, 0);
+
+        assertFalse(r.alreadyScheduled(start, end));
+    }
+
+    @Test
+    void testSetNewCapacity_UpdatesMatchingSchedule() throws Exception {
+        Date start = d(5, 10, 2025, 10, 0);
+        Date end = d(5, 10, 2025, 14, 0);
+
+        RestaurantSchedule s1 = new RestaurantSchedule(start, end, 20);
+        Restaurant r = new Restaurant.Builder()
+                .name("R")
+                .restaurantSchedules(List.of(s1))
+                .build();
+
+        r.setNewCapacity(start, end, 50);
+        assertEquals(50, s1.getCapacity());
+    }
+
+    @Test
+    void testSetNewCapacity_NoChangeIfNoMatch() throws Exception {
+        Date start1 = d(5, 10, 2025, 10, 0);
+        Date end1 = d(5, 10, 2025, 14, 0);
+        Date start2 = d(5, 10, 2025, 15, 0);
+        Date end2 = d(5, 10, 2025, 18, 0);
+
+        RestaurantSchedule s1 = new RestaurantSchedule(start1, end1, 20);
+        Restaurant r = new Restaurant.Builder()
+                .name("R")
+                .restaurantSchedules(List.of(s1))
+                .build();
+
+        r.setNewCapacity(start2, end2, 99);
+        assertEquals(20, s1.getCapacity());
+    }
+
+
 }

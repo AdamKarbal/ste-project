@@ -13,4 +13,12 @@ public class RestaurantRepo {
     public List<Restaurant> getRestaurants() {
         return restaurants;
     }
+
+    public void addRestaurant(Restaurant resto){
+        restaurants.add(resto);
+    }
+
+    public boolean restaurantExist(Restaurant resto){
+        return restaurants.contains(resto);
+    }
 }

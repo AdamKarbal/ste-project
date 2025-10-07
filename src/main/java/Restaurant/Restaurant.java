@@ -76,6 +76,10 @@ public class Restaurant {
         dishes.remove(dish);
     }
 
+    public boolean alreadyDish(Dish dish){
+        if(dishes.contains(dish)) return true;
+        return false;
+    }
     public void addSchedule(RestaurantSchedule schedule){
         this.restaurantSchedules.add(schedule);
     }
@@ -93,6 +97,18 @@ public class Restaurant {
                 .forEach(s -> s.setCapacity(capacity));
     }
 
+    public void addCuisineType(cuisineType c) {
+        cuisineTypes.add(c);
+    }
+
+    public void removeCuisineType(cuisineType c) {
+        cuisineTypes.remove(c);
+    }
+
+    public boolean alreadyCuisineType(cuisineType c) {
+        return cuisineTypes.contains(c);
+    }
+
 
 
 
@@ -105,6 +121,20 @@ public class Restaurant {
         Date now = Date.now();      // ← au lieu de new Date()
         return isOpenAt(now);
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        Restaurant other = (Restaurant) obj;
+        return name != null && name.equals(other.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return name != null ? name.hashCode() : 0;
+    }
+
 
     public boolean isOpenAt(Date dt) {
         if (restaurantSchedules == null || restaurantSchedules.isEmpty()) return false;

@@ -18,7 +18,7 @@ public class InternalPayment extends Payment{
         else
         {
             setStatus(PaymentState.FAILED);
-            throw new NotEnoughMoney("Vous n'avez pas assez d'argent");
+            throw new NotEnoughMoney("Vous n'avez pas assez de crédits");
         }
     }
     private PaymentState paymentCorrect(AccountUser client){

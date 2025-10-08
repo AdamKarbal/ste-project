@@ -34,11 +34,29 @@ public class Order {
     public AccountUser getClient(){
         return client;
     }
-    public void setPrice(float price){
-        this.price=price;
+
+    public AccountUser getClient() { return client; }
+
+    public void setPrice(float price) { this.price = price; }
+
+    public float getPrice() { return price; }
+
+    public OrderState getState() { return state; }
+
+    public OrderDeliveryPoint getDeliveryPoint() { return deliveryPoint; }
+
+    public void setDeliveryPoint(OrderDeliveryPoint deliveryPoint) {
+        this.deliveryPoint = deliveryPoint;
     }
-    public float getPrice(){
-        return price;
+
+    public void setState(OrderState newState) {
+        if (deliveryPoint == null && newState != OrderState.CREATED) {
+            throw new InvalidOrderStateException(
+                    "Impossible de changer l'état " + newState + " car le point de livraison manque"
+            );
+        }
+        this.state = newState;
+        System.out.println("L'état de la commande a bien changé pour : " + newState);
     }
     public void setState(OrderState state){
         this.state=state;

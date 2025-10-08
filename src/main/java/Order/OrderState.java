@@ -1,4 +1,8 @@
 package Order;
 
 public enum OrderState {
+    CREATED,
+    IN_PREPARATION,
+    COMPLETED,
+    DELIVERED
 }

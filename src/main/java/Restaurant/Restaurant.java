@@ -5,7 +5,13 @@ import Utils.*;
 import java.util.List;
 
 
+import Dish.Dish;
+import Dish.DishType;
+
+import java.util.List;
+
 public class Restaurant {
+
     // Instances
     private String name;
     private List<Dish> dishes;

@@ -4,6 +4,7 @@ import Restaurant.Enum.cuisineType;
 import Restaurant.Enum.establishmentType;
 import Restaurant.Exception.dishNoInDishes;
 import Utils.*;
+import Restaurant.Enum.*;
 
 import java.util.List;
 
@@ -14,7 +15,7 @@ public class Restaurant {
     private List<Dish> dishes;
     private List<RestaurantSchedule> restaurantSchedules;
     private List<cuisineType> cuisineTypes;
-    private Restaurant.Enum.establishmentType establishmentType;
+    private establishmentType establishmentType;
 
     //Constructeur
 

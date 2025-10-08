@@ -11,11 +11,11 @@ public class Dish {
     private String description;
     private DishCategory category;
     private DishType type;
-    private DishTag dishTag;
+    private List<DishTag> dishTag;
     private List<DishTopping> toppings;
     private Restaurant restaurant;
 
-    public Dish(float price, String name, String description, DishCategory category, DishType type, Restaurant restaurant, DishTag dishTag) {
+    public Dish(float price, String name, String description, DishCategory category, DishType type, Restaurant restaurant, List<DishTag> dishTag) {
         this.price = price;
         this.name = name;
         this.description = description;
@@ -62,12 +62,16 @@ public class Dish {
     public void setType(DishType type) {
         this.type = type;
     }
-    public DishTag getDishTag() {
+    public List<DishTag> getDishTag() {
         return dishTag;
     }
-    public void setDishTag(DishTag dishTag) {
+    public void setDishTag(List<DishTag> dishTag) {
         this.dishTag = dishTag;
     }
+    public boolean addDishTag(DishTag dishTag) {
+        return this.dishTag.add(dishTag);
+    }
+
     public List<DishTopping> getToppings() {
         return toppings;
     }

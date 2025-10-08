@@ -53,7 +53,7 @@ public class RestaurantFilter {
                 .stream()
                 .filter(restaurant ->
                         restaurant.getDishes().stream()
-                                .flatMap(dish -> dish.getTags().stream())
+                                .flatMap(dish -> dish.getDishTag().stream())
                                 .anyMatch(t -> t.equals(tag))
                 )
                 .toList();
@@ -64,7 +64,7 @@ public class RestaurantFilter {
                 .stream()
                 .filter(restaurant ->
                         restaurant.getDishes().stream()
-                                .anyMatch(dish -> dish.getTags().containsAll(tags))
+                                .anyMatch(dish -> dish.getDishTag().containsAll(tags))
                 )
                 .toList();
     }

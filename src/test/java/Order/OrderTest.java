@@ -5,6 +5,8 @@ import Restaurant.Restaurant;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class OrderTest {
@@ -14,7 +16,9 @@ class OrderTest {
     @BeforeEach
     void setup() {
         client = new AccountUser();
-        restaurant = new Restaurant("Campus Cafeteria");
+        restaurant = new Restaurant.Builder()
+                .name("Campus Cafeteria")
+                .build();
     }
 
     @Test

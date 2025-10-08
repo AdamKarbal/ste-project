@@ -53,10 +53,10 @@ public class RestaurantManagerTest {
 
     @Test
     void testUpdateDish_ReplacesOldDishWithNewOne() throws Exception {
-        Dish oldDish = new Dish();
-        oldDish.setPrice(10.0);
-        Dish newDish = new Dish();
-        newDish.setPrice(12.0);
+        Dish oldDish = new Dish(10f, "Old Dish", "", null, null, null, new ArrayList<>());
+
+        Dish newDish = new Dish(12f, "New Dish", "", null, null, null, new ArrayList<>());
+
         restaurant.setDishes(new ArrayList<>(List.of(oldDish)));
         manager.updateDish(oldDish, newDish);
         assertFalse(restaurant.getDishes().contains(oldDish));

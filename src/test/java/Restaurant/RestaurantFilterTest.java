@@ -25,26 +25,26 @@ class RestaurantFilterTest {
     void setUp() throws Exception {
 
         //Dish
-        Dish dishSansGlutenEtVegan = new Dish();
-        dishSansGlutenEtVegan.getTags().addAll(List.of(DishTag.SANS_GLUTEN, DishTag.VEGAN));
+        Dish dishSansGlutenEtVegan = new Dish(0f, "Dish SG+V", "", null, null, null,
+                new ArrayList<>(List.of(DishTag.GLUTEN_FREE, DishTag.VEGAN)));
 
-        Dish dishVegan = new Dish();
-        dishVegan.getTags().add(DishTag.VEGAN);
+        Dish dishVegan = new Dish(0f, "Dish Vegan", "", null, null, null,
+                new ArrayList<>(List.of(DishTag.VEGAN)));
 
-        Dish dishSansGluten = new Dish();
-        dishSansGluten.getTags().add(DishTag.SANS_GLUTEN);
+        Dish dishSansGluten = new Dish(0f, "Dish SG", "", null, null, null,
+                new ArrayList<>(List.of(DishTag.GLUTEN_FREE)));
 
-        Dish dishEpice = new Dish();
-        dishEpice.getTags().add(DishTag.EPICE);
+        Dish dishEpice = new Dish(0f, "Dish Spicy", "", null, null, null,
+                new ArrayList<>(List.of(DishTag.SPICY)));
 
-        Dish cheapDish = new Dish();
-        cheapDish.setPrice(10.0);
+        Dish cheapDish = new Dish(10f, "Dish Cheap", "", null, null, null,
+                new ArrayList<>());
 
-        Dish mediumDish = new Dish();
-        mediumDish.setPrice(20.0);
+        Dish mediumDish = new Dish(20f, "Dish Medium", "", null, null, null,
+                new ArrayList<>());
 
-        Dish expensiveDish = new Dish();
-        expensiveDish.setPrice(30.0);
+        Dish expensiveDish = new Dish(30f, "Dish Expensive", "", null, null, null,
+                new ArrayList<>());
 
 
         // Restaurant always open
@@ -210,7 +210,7 @@ class RestaurantFilterTest {
 
     @Test
     void filterByTag_shouldReturnRestaurantsWithGivenTag() {
-        List<Restaurant> result = filter.filterByTag(DishTag.SANS_GLUTEN);
+        List<Restaurant> result = filter.filterByTag(DishTag.GLUTEN_FREE);
         assertEquals(2, result.size());
         assertTrue(result.contains(restoA));
         assertTrue(result.contains(restoD));
@@ -224,7 +224,7 @@ class RestaurantFilterTest {
 
     @Test
     void filterByAllTags_shouldReturnRestaurantsWithAllTags() {
-        List<Restaurant> result = filter.filterByAllTags(List.of(DishTag.SANS_GLUTEN, DishTag.VEGAN));
+        List<Restaurant> result = filter.filterByAllTags(List.of(DishTag.GLUTEN_FREE, DishTag.VEGAN));
         assertEquals(1, result.size());
         assertTrue(result.contains(restoA));
     }
@@ -242,14 +242,27 @@ class RestaurantFilterTest {
     @Test
     void filterByPriceMax_shouldReturnRestaurantsWithDishBelowMaxPrice() {
         restoA.setDishes(List.of(
-                new Dish() {{ setPrice(10); getTags().addAll(List.of(DishTag.SANS_GLUTEN, DishTag.VEGAN)); }},
-                new Dish() {{ setPrice(20); getTags().add(DishTag.VEGAN); }}));
+                new Dish(10f, "Dish A1", "", null, null, null,
+                        new ArrayList<>(List.of(DishTag.GLUTEN_FREE, DishTag.VEGAN))),
+                new Dish(20f, "Dish A2", "", null, null, null,
+                        new ArrayList<>(List.of(DishTag.VEGAN)))
+        ));
+
         restoB.setDishes(List.of(
-                new Dish() {{ setPrice(30); getTags().add(DishTag.VEGAN); }}));
+                new Dish(30f, "Dish B1", "", null, null, null,
+                        new ArrayList<>(List.of(DishTag.VEGAN)))
+        ));
+
         restoC.setDishes(List.of(
-                new Dish() {{ setPrice(20); getTags().add(DishTag.EPICE); }}));
+                new Dish(20f, "Dish C1", "", null, null, null,
+                        new ArrayList<>(List.of(DishTag.SPICY)))
+        ));
+
         restoD.setDishes(List.of(
-                new Dish() {{ setPrice(16); getTags().add(DishTag.SANS_GLUTEN); }}));
+                new Dish(16f, "Dish D1", "", null, null, null,
+                        new ArrayList<>(List.of(DishTag.GLUTEN_FREE)))
+        ));
+
         List<Restaurant> result = filter.filterByPriceMax(15.0);
         assertEquals(1, result.size());
         assertTrue(result.contains(restoA));

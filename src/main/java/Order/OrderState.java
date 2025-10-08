@@ -3,5 +3,7 @@ package Order;
 public enum OrderState {
     CREATED,
     IN_PREPARATION,
-    COMPLETED
+    PAID,
+    COMPLETED,
+    CANCELED
 }

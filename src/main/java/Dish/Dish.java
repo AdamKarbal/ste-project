@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Dish {
-    private float price;
+    private double price;
     private String name;
     private String description;
     private DishCategory category;
@@ -15,7 +15,7 @@ public class Dish {
     private List<DishTopping> toppings;
     private Restaurant restaurant;
 
-    public Dish(float price, String name, String description, DishCategory category, DishType type, Restaurant restaurant, List<DishTag> dishTag) {
+    public Dish(double price, String name, String description, DishCategory category, DishType type, Restaurant restaurant, List<DishTag> dishTag) {
         this.price = price;
         this.name = name;
         this.description = description;
@@ -26,7 +26,7 @@ public class Dish {
         this.toppings = new ArrayList<>();
     }
 
-    public float getPrice() {
+    public double getPrice() {
         return price;
     }
     public void setPrice(float price) {

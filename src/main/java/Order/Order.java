@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 public class Order {
-    private float price;
+    private double price;
     private OrderState state;
     private final Map<Dish, Integer> dishes;
     private Restaurant restaurant;
@@ -38,7 +38,7 @@ public class Order {
 
     public void setPrice(float price) { this.price = price; }
 
-    public float getPrice() { return price; }
+    public double getPrice() { return price; }
 
     public OrderDeliveryPoint getDeliveryPoint() { return deliveryPoint; }
 

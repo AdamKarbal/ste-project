@@ -2,9 +2,12 @@ package Restaurant;
 
 public class RestaurantService {
     private static RestaurantRepo repo;
+    private RestaurantFilter restaurantFilter;
 
     public RestaurantService(RestaurantRepo r){
         repo = r;
+        this.restaurantFilter=new RestaurantFilter(repo);
+
     }
 
     public static void addRestaurant(Restaurant restaurant) throws RestaurantExist {

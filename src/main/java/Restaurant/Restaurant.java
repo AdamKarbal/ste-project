@@ -1,12 +1,9 @@
 package Restaurant;
 import Dish.Dish;
+import Restaurant.Enum.cuisineType;
+import Restaurant.Enum.establishmentType;
+import Restaurant.Exception.dishNoInDishes;
 import Utils.*;
-
-import java.util.List;
-
-
-import Dish.Dish;
-import Dish.DishType;
 
 import java.util.List;
 
@@ -17,7 +14,7 @@ public class Restaurant {
     private List<Dish> dishes;
     private List<RestaurantSchedule> restaurantSchedules;
     private List<cuisineType> cuisineTypes;
-    private establishmentType establishmentType;
+    private Restaurant.Enum.establishmentType establishmentType;
 
     //Constructeur
 
@@ -77,7 +74,7 @@ public class Restaurant {
         dishes.add(dish);
     }
 
-    public void removeDish(Dish dish) throws dishNoInDishes{
+    public void removeDish(Dish dish) throws dishNoInDishes {
         if(!(dishes.contains(dish))) throw new dishNoInDishes("Le plat : " + dish + "est déjà pas dans le restaurant");
         dishes.remove(dish);
     }

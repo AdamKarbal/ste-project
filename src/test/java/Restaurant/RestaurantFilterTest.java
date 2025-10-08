@@ -3,6 +3,8 @@ package Restaurant;
 
 import Dish.DishTag;
 import Dish.Dish;
+import Restaurant.Enum.cuisineType;
+import Restaurant.Enum.establishmentType;
 import Utils.Date;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

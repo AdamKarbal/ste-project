@@ -1,4 +1,4 @@
-package Restaurant;
+package Restaurant.Exception;
 
 public class ScheduleNoExist extends RuntimeException {
     public ScheduleNoExist(String message) {

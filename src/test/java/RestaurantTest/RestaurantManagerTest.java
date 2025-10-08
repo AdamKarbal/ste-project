@@ -2,6 +2,7 @@ package RestaurantTest;
 
 import Dish.Dish;
 import Restaurant.*;
+import Restaurant.Enum.cuisineType;
 import Utils.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

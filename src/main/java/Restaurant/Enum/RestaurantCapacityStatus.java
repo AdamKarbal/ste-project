@@ -1,4 +1,4 @@
-package Restaurant;
+package Restaurant.Enum;
 
 public enum RestaurantCapacityStatus {
     AVAILABLE,

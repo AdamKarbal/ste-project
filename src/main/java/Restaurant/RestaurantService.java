@@ -1,5 +1,7 @@
 package Restaurant;
 
+import Restaurant.Exception.RestaurantExist;
+
 public class RestaurantService {
     private static RestaurantRepo repo;
     private RestaurantFilter restaurantFilter;

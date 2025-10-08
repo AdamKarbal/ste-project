@@ -1,5 +1,8 @@
 package Restaurant;
 import Dish.*;
+import Restaurant.Enum.cuisineType;
+import Restaurant.Enum.establishmentType;
+import Restaurant.Exception.*;
 import Utils.*;
 
 import java.util.ArrayList;
@@ -52,12 +55,12 @@ public class RestaurantManager {
         restaurant.setNewCapacity(start,end,capacity);
     }
 
-    public void addDish(Dish d) throws DishInDishes{
+    public void addDish(Dish d) throws DishInDishes {
         if(restaurant.alreadyDish(d)) throw new DishInDishes("Le plat "+ d+ " est déjà dans le restaurant." ) ;
         restaurant.addDish(d);
     }
 
-    public void updateDish(Dish old, Dish young) throws dishNoInDishes{
+    public void updateDish(Dish old, Dish young) throws dishNoInDishes {
         if(!(restaurant.alreadyDish(old))) throw new dishNoInDishes("Impossible de mettre à jour le plat, il n'est pas présent.");
         restaurant.removeDish(old);
         restaurant.addDish(young);

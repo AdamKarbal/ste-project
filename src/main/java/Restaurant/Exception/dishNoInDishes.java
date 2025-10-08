@@ -1,4 +1,4 @@
-package Restaurant;
+package Restaurant.Exception;
 
 public class dishNoInDishes extends RuntimeException {
     public dishNoInDishes(String message) {

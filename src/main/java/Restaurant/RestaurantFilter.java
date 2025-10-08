@@ -1,7 +1,8 @@
 package Restaurant;
 
 import Dish.DishTag;
-import Dish.DishType;
+import Restaurant.Enum.cuisineType;
+import Restaurant.Enum.establishmentType;
 import Utils.Date;
 
 import java.util.List;

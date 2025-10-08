@@ -1,11 +1,11 @@
 package RestaurantTest;
 
+import Restaurant.Enum.cuisineType;
 import Restaurant.Restaurant;
 import Restaurant.RestaurantSchedule;
 import Utils.Date;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import Restaurant.*;
 
 import java.util.List;
 

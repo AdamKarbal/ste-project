@@ -1,17 +1,18 @@
 # SopiaTech Eats-Team-25-26 #template
 _Template for classroom SI4-COO_
 
->. CETTE PAGE DOIT ÊTRE MISE À JOUR POUR CORRESPONDRE À VOTRE PROJET.  
->. C'est seulement un modèle !!
->. Vous l'organisez comme bon vous semble, mais comme un vrai projet.
 
+## TEAM O
 
-## TEAM
-
-Présentez-vous! 
+PO : BOULET Olivier  (FISA)
+SA : GUERRAOUI Ismail  (FISE)
+QA : MENOU Clement  (FISE)
+OPS : KARBAL Adam  (FISE)
+QA & PO : MADANDAR ARANI Ali  (FISE)
 
 ## doc
-Contient vos rapports et les documents qui présentent votre projet.
+- [Rendue TD1](./doc/RenduTD1.pdf)  
+
 
 
 ## .github

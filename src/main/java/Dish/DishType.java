@@ -1,13 +1,24 @@
 package Dish;
 
 public enum DishType {
-    ITALIAN,
-    FRENCH,
-    JAPANESE,
-    CHINESE,
-    INDIAN,
-    MEXICAN,
-    VIETNAMESE,
-    KOREAN,
-    MOROCCAN
+    PASTA("Pasta"),
+    MEAT("Meat"),
+    PIZZA("Pizza"),
+    ICE_CREAM("Ice Cream"),
+    CAKE("Cake"),
+    SALAD("Salad"),
+    SOUP("Soup"),
+    SEAFOOD("Seafood"),
+    SANDWICH("Sandwich"),
+    OTHER("Other");
+
+    private final String label;
+
+    DishType(String label) {
+        this.label = label;
+    }
+
+    public String getLabel() {
+        return label;
+    }
 }

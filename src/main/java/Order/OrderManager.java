@@ -2,6 +2,7 @@ package Order;
 
 import Account.AccountUser;
 import Dish.Dish;
+import Payment.PaymentMethod;
 import Restaurant.Restaurant;
 
 import java.util.HashMap;
@@ -42,7 +43,7 @@ public class OrderManager {
         order.addDish(dish, quantity);
     }
 
-    public void proceedPayment(AccountUser client, String paymentType)
+    public void proceedPayment(AccountUser client, PaymentMethod paymentType)
             throws OrderNotFoundException {
         Order order = activeOrders.get(client);
         if (order == null)

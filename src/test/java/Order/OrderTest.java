@@ -15,7 +15,7 @@ class OrderTest {
 
     @BeforeEach
     void setup() {
-        client = new AccountUser();
+        client = new AccountUser("Adam");
         restaurant = new Restaurant.Builder()
                 .name("Campus Cafeteria")
                 .build();

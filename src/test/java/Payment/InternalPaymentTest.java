@@ -14,7 +14,7 @@ class InternalPaymentTest {
     Order order;
     @BeforeEach
     void setUp(){
-        client=new AccountUser();
+        client=new AccountUser("Adam");
         order=new Order(client,null);
         payment=new InternalPayment(order);
     }

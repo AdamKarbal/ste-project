@@ -25,5 +25,5 @@ public abstract class Payment {
     public PaymentState getStatus(){
         return status;
     }
-    public abstract void processPayment(PaymentMethod method);
+    public abstract PaymentState processPayment(PaymentMethod method);
 }

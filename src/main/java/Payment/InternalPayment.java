@@ -9,11 +9,12 @@ public class InternalPayment extends Payment{
 
     }
     @Override
-    public void processPayment(PaymentMethod paymentMethod){ // Paiement avec l'accompte dans le compte du client
+    public PaymentState processPayment(PaymentMethod paymentMethod){ // Paiement avec l'accompte dans le compte du client
         setStatus(PaymentState.PROCESSING);
         AccountUser currentClient= getOrder().getClient();
         if(currentClient.getCredit() >= getOrder().getPrice()){
             setStatus(paymentCorrect(currentClient));
+            return getStatus();
         }
         else
         {

@@ -20,7 +20,7 @@ public class AccountUser extends Account {
     public void setCredit(double newCredit){
         credit+=newCredit;
     }
-    public void addOrder(Order order,Payment payment){
+    public void registerOrder(Order order,Payment payment){
         if(orderHistory.keySet().contains(order)) throw new AlreadyExistingOrder("La commande existe déjà");
         orderHistory.put(order,payment);
     }

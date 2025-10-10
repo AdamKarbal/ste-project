@@ -11,7 +11,7 @@ public final class PaymentService {
         }
         return instance;
     }
-    public void handleCompletedOrder(Order order,PaymentMethod paymentWay) {
+    public OrderState handleCompletedOrder(Order order,PaymentMethod paymentWay) {
         if (order == null || order.getState()!= OrderState.COMPLETED) {
             throw new IllegalArgumentException("Order invalide.");
         }
@@ -28,11 +28,13 @@ public final class PaymentService {
         PaymentState paymentState=payment.processPayment(paymentWay);
         if(paymentState.equals(PaymentState.PAID)){
             addHistory(order,payment);
+            return OrderState.PAID;
         }
+        return OrderState.PAYMENT_FAILED;
     }
 
     private void addHistory(Order order,Payment payment){
-        order.getClient().addOrder(order,payment);
+        order.getClient().registerOrder(order,payment);
     }
 
 }

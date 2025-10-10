@@ -47,24 +47,26 @@ public class Order {
     }
 
     public void setState(OrderState newState) {
-        if (deliveryPoint == null && newState != OrderState.CREATED && newState != OrderState.CANCELED){
+        /*if (deliveryPoint == null && newState != OrderState.CREATED && newState != OrderState.CANCELED){
             throw new InvalidOrderStateException(
                     "Impossible de changer l'état " + newState + " car le point de livraison manque"
             );
+        }*/
+        if(this.state!=newState){
+            this.state = newState;
+            System.out.println("L'état de la commande a bien changé pour : " + newState);
         }
-        this.state = newState;
-        System.out.println("L'état de la commande a bien changé pour : " + newState);
     }
 
     public Map<Dish, Integer> getDishes() {
         return dishes;
     }
     public boolean addDish(Dish dish, int quantity) throws DifferentRestaurantException {
-        if (dish == null || quantity <= 0) return false;
+        /*if (dish == null || quantity <= 0) return false;
 
         if (!dish.getRestaurant().equals(this.restaurant)) {
             throw new DifferentRestaurantException("Impossible d'ajouter le plat '" + dish.getName() + "' : il provient d'un autre restaurant ");
-        }
+        }*/
 
         dishes.put(dish, dishes.getOrDefault(dish, 0) + quantity);
         updatePrice();

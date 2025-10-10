@@ -3,6 +3,7 @@ package Order;
 import Account.AccountUser;
 import Dish.Dish;
 import Payment.PaymentMethod;
+import Payment.PaymentService;
 import Restaurant.Restaurant;
 
 import java.util.HashMap;
@@ -10,8 +11,10 @@ import java.util.Map;
 
 public class OrderManager {
     private final Map<AccountUser, Order> activeOrders;
+    private Order order;
 
-    public OrderManager() {
+    public OrderManager(Order order) {
+        this.order=order;
         this.activeOrders = new HashMap<>();
     }
 
@@ -41,6 +44,11 @@ public class OrderManager {
         if (order == null)
             throw new OrderNotFoundException("Aucune commande trouvée pour cet utilisateur.");
         order.addDish(dish, quantity);
+    }
+
+    public OrderState proceedPayement(PaymentMethod paymentMethod){
+        order.setState(OrderState.COMPLETED);
+        return PaymentService.getInstance().handleCompletedOrder(this.order,paymentMethod);
     }
 
     public void proceedPayment(AccountUser client, PaymentMethod paymentType)

@@ -94,6 +94,12 @@ public class RestaurantFilterSteps {
         throw new IllegalArgumentException("Format attendu: \"HH:mm\" (ex: 11:30) ou \"ouvert\"");
     }
 
+    @When("je filtre les restaurants par etablissement {string}")
+    public void je_filtre_par_etablissement(String etablissement) {
+        establishmentType e = establishmentType.valueOf(etablissement.toUpperCase());
+        resultats = service.filterByType(e);
+    }
+
 
 
     // --- Helpers SCHEDULES ---

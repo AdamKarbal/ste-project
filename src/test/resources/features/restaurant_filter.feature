@@ -23,3 +23,22 @@ Feature: Filtrer les restaurants
       When je filtre les restaurants par etablissement "fast_food"
       Then je vois exactement 1 restaurants
       And la liste contient "KebabKorner"
+
+      Scenario: Filtre par prix max
+        When je filtre les restaurants avec un prix max de 10 euros
+        Then je vois exactement 1 restaurants
+        And la liste contient "SushiZen"
+
+      Scenario: Filtre par gamme de prix
+        When je filtre les restaurants avec un prix entre 8 et 11 euros
+        Then je vois exactement 3 restaurants
+        And la liste contient "SushiZen"
+        And la liste contient "KebabKorner"
+        And la liste contient "MammaRita"
+
+      Scenario: Filtre par prix min
+        When je filtre les restaurants avec un prix min de 12 euros
+        Then je vois exactement 3 restaurants
+        And la liste contient "SushiZen"
+        And la liste contient "KebabKorner"
+        And la liste contient "MammaRita"

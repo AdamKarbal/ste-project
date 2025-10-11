@@ -100,6 +100,21 @@ public class RestaurantFilterSteps {
         resultats = service.filterByType(e);
     }
 
+    @When("je filtre les restaurants avec un prix max de {double} euros")
+    public void je_filtre_par_prix_max(double p) {
+        resultats = service.filterByPriceMax(p);
+    }
+
+    @When("je filtre les restaurants avec un prix entre {double} et {double} euros")
+    public void je_filtre_par_prix_min_et_max(double p1, double p2) {
+        resultats = service.filterByPriceRange(p1,p2);
+    }
+
+    @When("je filtre les restaurants avec un prix min de {double} euros")
+    public void je_filtre_par_prix_min(double p) {
+        resultats = service.filterByPriceMax(p);
+    }
+
 
 
     // --- Helpers SCHEDULES ---
@@ -127,6 +142,5 @@ public class RestaurantFilterSteps {
             throw new RuntimeException("Heure invalide: " + s, e);
         }
     }
-
 
 }

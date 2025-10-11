@@ -78,6 +78,21 @@ public class RestaurantFilterSteps {
         );
     }
 
+    @When("je filtre les restaurants par horaire {string}")
+    public void je_filtre_par_horaire(String s) {
+        // "HH:mm" → filtre à une heure précise
+        if (s.matches("\\d{2}:\\d{2}")) {
+            Utils.Date t = hhmm(s);
+            resultats = service.filterByAvailability(t);
+            return;
+        }
+        // "ouvert" → fallback non déterministe (voir Option B)
+        if (s.trim().equalsIgnoreCase("ouvert")) {
+            resultats = service.filterByAvailability();
+            return;
+        }
+        throw new IllegalArgumentException("Format attendu: \"HH:mm\" (ex: 11:30) ou \"ouvert\"");
+    }
 
 
 

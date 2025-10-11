@@ -1,5 +1,7 @@
 package steps;
 
+import Utils.Date;
+import Utils.InvalidDate;
 import io.cucumber.java.Before;
 import io.cucumber.java.en.*;
 import io.cucumber.datatable.DataTable;
@@ -12,8 +14,9 @@ import java.util.stream.Collectors;
 import Restaurant.Restaurant;
 import Restaurant.RestaurantRepo;
 import Restaurant.RestaurantService;
-import Restaurant.Enum.cuisineType;
-import Restaurant.Enum.establishmentType;
+import Restaurant.Enum.*;
+import Dish.*;
+import  Restaurant.*;
 
 public class RestaurantFilterSteps {
 
@@ -21,93 +24,88 @@ public class RestaurantFilterSteps {
     private RestaurantService service;
     private List<Restaurant> resultats = new ArrayList<>();
 
-    // Ré-initialise un repo propre pour CHAQUE scénario
     @Before
     public void setup() {
         repo = new RestaurantRepo(new ArrayList<>());
-        service = new RestaurantService(repo); // assigne le repo statique et crée le filtre
+        service = new RestaurantService(repo);
     }
 
     @Given("un catalogue de restaurants")
     public void un_catalogue_de_restaurants(DataTable table) {
-        // Table: | nom | cuisines | type |
-        for (Map<String, String> row : table.asMaps()) {
-            String nom = row.get("nom").trim();
-            String cuisinesCell = row.getOrDefault("cuisines", "").trim();
-            String typeCell = row.getOrDefault("type", "RESTAURANT").trim();
-
-            List<cuisineType> cuisines = parseCuisines(cuisinesCell);
-            establishmentType etabType = parseEstablishmentType(typeCell);
-
+        for(Map<String,String> row : table.asMaps()){
+            String name = row.get("name");
+            List<cuisineType> c = List.of(cuisineType.valueOf(row.get("cuisineType").toUpperCase()));
+            establishmentType e = establishmentType.valueOf(row.get("establishmentType").toUpperCase());
+            Dish d1 = new Dish(Double.parseDouble(row.get("price1")),row.get("dish1"),null,null,null,null,null);
+            Dish d2 = new Dish(Double.parseDouble(row.get("price2")),row.get("dish2"),null,null,null,null,null);
+            List<Dish> dishes = List.of(d1,d2);
+            List<RestaurantSchedule> schedules = new ArrayList<>();
+            schedules.add(makeSchedule(row.get("start1"), row.get("end1"), row.get("capacity1")));
+            schedules.add(makeSchedule(row.get("start2"), row.get("end2"), row.get("capacity2")));
             Restaurant r = new Restaurant.Builder()
-                    .name(nom)
-                    .dishes(new ArrayList<>())
-                    .restaurantSchedules(new ArrayList<>())
-                    .cuisineType(cuisines)
-                    .establishmentType(etabType)
+                    .name(name)
+                    .dishes(dishes)
+                    .restaurantSchedules(schedules)
+                    .cuisineType(c)
+                    .establishmentType(e)
                     .build();
-
-            try {
-                RestaurantService.addRestaurant(r); // passe par ton service et ton repo réel
-            } catch (Exception e) {
-                throw new RuntimeException("Ajout restaurant impossible: " + nom, e);
-            }
+            service.addRestaurant(r);
         }
     }
 
     @When("je filtre les restaurants par cuisine {string}")
     public void je_filtre_les_restaurants_par_cuisine(String cuisine) {
-        cuisineType type = resolveCuisineEnum(cuisine);
+        cuisineType type = cuisineType.valueOf(cuisine.toUpperCase());
         resultats = service.filterByCuisine(type);
     }
 
     @Then("je vois exactement {int} restaurants")
-    public void je_vois_exactement_n_restaurants(int attendu) {
-        Assertions.assertEquals(attendu, resultats.size(),
-                "Taille inattendue. Présents: " + names(resultats));
+    public void je_vois_exactement_restaurants(int count) {
+        Assertions.assertEquals(count, resultats.size(),"Taille inattendue, il y a : " + resultats.toString() );
     }
 
-    @Then("la liste contient {string}")
-    public void la_liste_contient(String nom) {
-        Assertions.assertTrue(resultats.stream().anyMatch(r -> r.getName().equals(nom)),
-                "La liste ne contient pas: " + nom + " ; présents: " + names(resultats));
+    @And("la liste contient {string}")
+    public void la_liste_contient(String name) {
+        String attendu = name.trim();
+        boolean present = resultats.stream()
+                .map(Restaurant::getName)
+                .anyMatch(n -> n != null && n.trim().equalsIgnoreCase(attendu));
+
+        Assertions.assertTrue(
+                present,
+                "La liste ne contient pas " + attendu +
+                        " ; présents: " + resultats.stream().map(Restaurant::getName).toList()
+        );
     }
 
-    // ------- Helpers (normalisation accents/espaces/majuscules) -------
 
-    private static List<cuisineType> parseCuisines(String cell) {
-        if (cell.isBlank()) return new ArrayList<>();
-        return Arrays.stream(cell.split(","))
-                .map(String::trim)
-                .filter(s -> !s.isEmpty())
-                .map(RestaurantFilterSteps::resolveCuisineEnum)
-                .collect(Collectors.toList());
-    }
 
-    private static cuisineType resolveCuisineEnum(String s) {
-        String norm = normalizeEnumToken(s);
-        for (cuisineType ct : cuisineType.values()) {
-            if (normalizeEnumToken(ct.name()).equals(norm)) return ct;
+
+    // --- Helpers SCHEDULES ---
+
+    private static RestaurantSchedule makeSchedule(String start, String end, String capStr) {
+        if (start == null || end == null || start.isBlank() || end.isBlank()) {
+            // pas de créneau fourni : on met un créneau neutre capacité 0
+            return new RestaurantSchedule(hhmm("00:00"), hhmm("00:00"), 0);
         }
-        throw new IllegalArgumentException("Cuisine inconnue: " + s + " (attendues: " +
-                Arrays.toString(cuisineType.values()) + ")");
+        int cap = (capStr == null || capStr.isBlank()) ? 0 : Integer.parseInt(capStr.trim());
+        return new RestaurantSchedule(hhmm(start.trim()), hhmm(end.trim()), cap);
     }
 
-    private static establishmentType parseEstablishmentType(String s) {
-        String norm = normalizeEnumToken(s.isBlank() ? "RESTAURANT" : s);
-        for (establishmentType et : establishmentType.values()) {
-            if (normalizeEnumToken(et.name()).equals(norm)) return et;
+    /** Convertit "HH:mm" -> Utils.Date via ton Builder. */
+    private static Date hhmm(String s) {
+        String[] p = s.split(":");
+        int h = Integer.parseInt(p[0].trim());
+        int m = Integer.parseInt(p[1].trim());
+        try {
+            return new Date.Builder()
+                    .day(1).month(1).year(1970)   // date factice, on ne compare que les heures
+                    .hour(h).minute(m)
+                    .build();
+        } catch (InvalidDate e) {
+            throw new RuntimeException("Heure invalide: " + s, e);
         }
-        throw new IllegalArgumentException("Type d'établissement inconnu: " + s);
     }
 
-    private static String normalizeEnumToken(String raw) {
-        String up = raw.trim().toUpperCase().replace(' ', '_').replace('-', '_');
-        // supprime les accents (BRÉSILIENNE -> BRESILIENNE)
-        return Normalizer.normalize(up, Normalizer.Form.NFD).replaceAll("\\p{M}+", "");
-    }
 
-    private static String names(List<Restaurant> rs) {
-        return rs.stream().map(Restaurant::getName).collect(Collectors.joining(", "));
-    }
 }

@@ -4,8 +4,8 @@ import Dish.DishTag;
 import Restaurant.Enum.cuisineType;
 import Restaurant.Enum.establishmentType;
 import Restaurant.Exception.RestaurantExist;
-import Utils.Date;
 
+import java.time.LocalTime;
 import java.util.List;
 
 public class RestaurantService {
@@ -35,11 +35,11 @@ public class RestaurantService {
     }
 
     public List<Restaurant> filterByAvailability(){
-        return filter.filterByAvailibility();
+        return filter.filterByAvailability();
     }
 
-    public List<Restaurant> filterByAvailability(Date at){
-        return filter.filterByAvailibility(at);
+    public List<Restaurant> filterByAvailability(LocalTime at){
+        return filter.filterByAvailability(at);
     }
 
     public List<Restaurant> filterByCuisine(cuisineType type){

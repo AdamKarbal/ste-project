@@ -4,7 +4,6 @@ import Restaurant.Enum.DayOfTheWeek;
 import Restaurant.Enum.cuisineType;
 import Restaurant.Restaurant;
 import Restaurant.RestaurantSchedule;
-import Utils.Date;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -17,13 +16,6 @@ import static org.junit.jupiter.api.Assertions.*;
 public class RestaurantTest {
 
     private Restaurant restaurant;
-
-    private static Date d(int day, int month, int year, int hour, int minute) throws Exception {
-        return new Date.Builder()
-                .day(day).month(month).year(year)
-                .hour(hour).minute(minute)
-                .build();
-    }
 
     private static Restaurant restaurantWithSingleSlot(DayOfTheWeek dayOfTheWeek, LocalTime start, LocalTime end) {
         RestaurantSchedule slot = new RestaurantSchedule(dayOfTheWeek, start, end, 10);

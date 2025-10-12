@@ -4,8 +4,7 @@ import Utils.*;
 
 import java.time.LocalTime;
 
-public class
-RestaurantSchedule {
+public class RestaurantSchedule {
     //Instances
     private final DayOfTheWeek day;
     private LocalTime start;

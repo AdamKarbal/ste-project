@@ -1,15 +1,13 @@
 package steps;
 
-import Utils.Date;
 import Utils.InvalidDate;
 import io.cucumber.java.Before;
 import io.cucumber.java.en.*;
 import io.cucumber.datatable.DataTable;
 import org.junit.jupiter.api.Assertions;
 
-import java.text.Normalizer;
+import java.time.LocalTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import Restaurant.Restaurant;
 import Restaurant.RestaurantRepo;
@@ -44,8 +42,19 @@ public class RestaurantFilterSteps {
             d2.setDishTag(new ArrayList<>(t2));
             List<Dish> dishes = List.of(d1,d2);
             List<RestaurantSchedule> schedules = new ArrayList<>();
-            schedules.add(makeSchedule(row.get("start1"), row.get("end1"), row.get("capacity1")));
-            schedules.add(makeSchedule(row.get("start2"), row.get("end2"), row.get("capacity2")));
+            schedules.add(makeSchedule(DayOfTheWeek.MONDAY, row.get("start1"), row.get("end1"), row.get("capacity1")));
+            schedules.add(makeSchedule(DayOfTheWeek.MONDAY, row.get("start2"), row.get("end2"), row.get("capacity2")));
+            schedules.add(makeSchedule(DayOfTheWeek.TUESDAY, row.get("start1"), row.get("end1"), row.get("capacity1")));
+            schedules.add(makeSchedule(DayOfTheWeek.TUESDAY, row.get("start2"), row.get("end2"), row.get("capacity2")));
+            schedules.add(makeSchedule(DayOfTheWeek.WEDNESDAY, row.get("start1"), row.get("end1"), row.get("capacity1")));
+            schedules.add(makeSchedule(DayOfTheWeek.WEDNESDAY, row.get("start2"), row.get("end2"), row.get("capacity2")));
+            schedules.add(makeSchedule(DayOfTheWeek.THURSDAY, row.get("start1"), row.get("end1"), row.get("capacity1")));
+            schedules.add(makeSchedule(DayOfTheWeek.THURSDAY, row.get("start2"), row.get("end2"), row.get("capacity2")));
+            schedules.add(makeSchedule(DayOfTheWeek.FRIDAY, row.get("start1"), row.get("end1"), row.get("capacity1")));
+            schedules.add(makeSchedule(DayOfTheWeek.FRIDAY, row.get("start2"), row.get("end2"), row.get("capacity2")));
+            schedules.add(makeSchedule(DayOfTheWeek.SATURDAY, row.get("start1"), row.get("end1"), row.get("capacity1")));
+            schedules.add(makeSchedule(DayOfTheWeek.SUNDAY, row.get("start1"), row.get("end1"), row.get("capacity1")));
+            schedules.add(makeSchedule(DayOfTheWeek.SUNDAY, row.get("start2"), row.get("end2"), row.get("capacity2")));
             Restaurant r = new Restaurant.Builder()
                     .name(name)
                     .dishes(dishes)
@@ -86,7 +95,7 @@ public class RestaurantFilterSteps {
     public void je_filtre_par_horaire(String s) {
         // "HH:mm" → filtre à une heure précise
         if (s.matches("\\d{2}:\\d{2}")) {
-            Utils.Date t = hhmm(s);
+            LocalTime t = hhmm(s);
             resultats = service.filterByAvailability(t);
             return;
         }
@@ -143,25 +152,21 @@ public class RestaurantFilterSteps {
 
     // --- Helpers SCHEDULES ---
 
-    private static RestaurantSchedule makeSchedule(String start, String end, String capStr) {
+    private static RestaurantSchedule makeSchedule(DayOfTheWeek day, String start, String end, String capStr) {
         if (start == null || end == null || start.isBlank() || end.isBlank()) {
             // pas de créneau fourni : on met un créneau neutre capacité 0
-            return new RestaurantSchedule(hhmm("00:00"), hhmm("00:00"), 0);
+            return new RestaurantSchedule(day, hhmm("00:00"), hhmm("00:00"), 0);
         }
         int cap = (capStr == null || capStr.isBlank()) ? 0 : Integer.parseInt(capStr.trim());
-        return new RestaurantSchedule(hhmm(start.trim()), hhmm(end.trim()), cap);
+        return new RestaurantSchedule(day, hhmm(start.trim()), hhmm(end.trim()), cap);
     }
 
-    /** Convertit "HH:mm" -> Utils.Date via ton Builder. */
-    private static Date hhmm(String s) {
+    private static LocalTime hhmm(String s) {
         String[] p = s.split(":");
         int h = Integer.parseInt(p[0].trim());
         int m = Integer.parseInt(p[1].trim());
         try {
-            return new Date.Builder()
-                    .day(1).month(1).year(1970)   // date factice, on ne compare que les heures
-                    .hour(h).minute(m)
-                    .build();
+            return LocalTime.of(h, m);
         } catch (InvalidDate e) {
             throw new RuntimeException("Heure invalide: " + s, e);
         }

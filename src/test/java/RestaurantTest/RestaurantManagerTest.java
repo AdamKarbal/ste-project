@@ -19,13 +19,6 @@ public class RestaurantManagerTest {
     private RestaurantManager manager;
     private Restaurant restaurant;
 
-    private static Date d(int day, int month, int year, int hour, int minute) throws Exception {
-        return new Date.Builder()
-                .day(day).month(month).year(year)
-                .hour(hour).minute(minute)
-                .build();
-    }
-
     @BeforeEach
     void setUp() throws Exception {
         RestaurantRepo repo = new RestaurantRepo(new ArrayList<>());

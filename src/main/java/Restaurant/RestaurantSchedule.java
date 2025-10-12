@@ -1,34 +1,43 @@
 package Restaurant;
+import Restaurant.Enum.DayOfTheWeek;
 import Utils.*;
-public class RestaurantSchedule {
+
+import java.time.LocalTime;
+
+public class
+RestaurantSchedule {
     //Instances
-    private Date start;
-    private Date end;
+    private final DayOfTheWeek day;
+    private LocalTime start;
+    private LocalTime end;
     private int capacity;
 
     //Constructeur
-    public RestaurantSchedule(Date start, Date end, int capacity){
+    public RestaurantSchedule(DayOfTheWeek day, LocalTime start, LocalTime end, int capacity){
+        this.day = day;
         this.start=start;
         this.end=end;
         this.capacity=capacity;
     }
 
     //Getter & setter
+    public DayOfTheWeek getDay() {
+        return day;
+    }
 
-
-    public Date getStart() {
+    public LocalTime getStart() {
         return start;
     }
 
-    public void setStart(Date start) {
+    public void setStart(LocalTime start) {
         this.start = start;
     }
 
-    public Date getEnd() {
+    public LocalTime getEnd() {
         return end;
     }
 
-    public void setEnd(Date end) {
+    public void setEnd(LocalTime end) {
         this.end = end;
     }
 

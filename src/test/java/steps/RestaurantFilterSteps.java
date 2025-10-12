@@ -36,8 +36,12 @@ public class RestaurantFilterSteps {
             String name = row.get("name");
             List<cuisineType> c = List.of(cuisineType.valueOf(row.get("cuisineType").toUpperCase()));
             establishmentType e = establishmentType.valueOf(row.get("establishmentType").toUpperCase());
+            List<DishTag> t1 = parseTags(row.get("tags1"));
+            List<DishTag> t2 = parseTags(row.get("tags2"));
             Dish d1 = new Dish(Double.parseDouble(row.get("price1")),row.get("dish1"),null,null,null,null,null);
             Dish d2 = new Dish(Double.parseDouble(row.get("price2")),row.get("dish2"),null,null,null,null,null);
+            d1.setDishTag(new ArrayList<>(t1));
+            d2.setDishTag(new ArrayList<>(t2));
             List<Dish> dishes = List.of(d1,d2);
             List<RestaurantSchedule> schedules = new ArrayList<>();
             schedules.add(makeSchedule(row.get("start1"), row.get("end1"), row.get("capacity1")));
@@ -112,8 +116,28 @@ public class RestaurantFilterSteps {
 
     @When("je filtre les restaurants avec un prix min de {double} euros")
     public void je_filtre_par_prix_min(double p) {
-        resultats = service.filterByPriceMax(p);
+        resultats = service.filterByPriceMin(p);
     }
+
+    @When("je filtre les restaurants par nom {string}")
+    public void je_filtre_par_nom(String name) {
+        resultats = service.findByName(name);
+    }
+
+    // 1) Un seul tag (enum OU label)
+    @When("je filtre les restaurants par tag {string}")
+    public void je_filtre_les_restaurants_par_tag(String tagText) {
+        DishTag tag = toTag(tagText);           // convertit "VEGAN" ou "Vegan" ou "Gluten-free"
+        resultats = service.filterByTag(tag);   // -> List<Restaurant>
+    }
+
+    // 2) Tous les tags (séparés par , ou ;)
+    @When("je filtre les restaurants par tous les tags {string}")
+    public void je_filtre_par_tous_les_tags(String tagsText) {
+        List<DishTag> tags = parseTags(tagsText);   // ex: "VEGETARIAN, LACTOSE_FREE" ou "Vegan; Organic"
+        resultats = service.filterByAllTags(tags);
+    }
+
 
 
 
@@ -142,5 +166,31 @@ public class RestaurantFilterSteps {
             throw new RuntimeException("Heure invalide: " + s, e);
         }
     }
+
+    private static List<DishTag> parseTags(String cell) {
+        if (cell == null || cell.isBlank()) return List.of();
+        return Arrays.stream(cell.split("[,;]"))
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
+                .map(RestaurantFilterSteps::toTag)
+                .toList();
+    }
+
+    private static DishTag toTag(String raw) {
+        // essai direct par nom d'enum (VEGAN, GLUTEN_FREE, ...)
+        String candidate = raw.trim().toUpperCase().replace(' ', '_').replace('-', '_');
+        try { return DishTag.valueOf(candidate); } catch (IllegalArgumentException ignore) {}
+
+        // essai par label ("Vegan", "Gluten-free", ...) en normalisant
+        String norm = java.text.Normalizer.normalize(raw.trim(), java.text.Normalizer.Form.NFD)
+                .replaceAll("\\p{M}+", "").toUpperCase().replace(' ', '_').replace('-', '_');
+        for (DishTag t : DishTag.values()) {
+            String lab = java.text.Normalizer.normalize(t.getLabel(), java.text.Normalizer.Form.NFD)
+                    .replaceAll("\\p{M}+", "").toUpperCase().replace(' ', '_').replace('-', '_');
+            if (lab.equals(norm)) return t;
+        }
+        throw new IllegalArgumentException("Tag inconnu: " + raw);
+    }
+
 
 }

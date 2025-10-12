@@ -54,7 +54,7 @@ public class RestaurantService {
         return filter.filterByAllTags(tags);
     }
 
-    public List<Restaurant> filterByPriceMin(float min){
+    public List<Restaurant> filterByPriceMin(double min){
         return filter.filterByPriceMin(min);
     }
 

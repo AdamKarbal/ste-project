@@ -3,8 +3,10 @@ package Restaurant;
 import Dish.DishTag;
 import Restaurant.Enum.cuisineType;
 import Restaurant.Enum.establishmentType;
-import Utils.Date;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 
 public class RestaurantFilter {
@@ -20,17 +22,19 @@ public class RestaurantFilter {
                 .toList() ;
     }
 
-    public List<Restaurant> filterByAvailibility() {
+    public List<Restaurant> filterByAvailability() {
         return restaurantRepo.getRestaurants()
                 .stream()
                 .filter(Restaurant::isOpenNow)
                 .toList();
     }
 
-    public List<Restaurant> filterByAvailibility(Date targetTime) {
+    public List<Restaurant> filterByAvailability(LocalTime targetTime) {
+        LocalDateTime targetDateTime = LocalDateTime.of(LocalDate.now(), targetTime);
+
         return restaurantRepo.getRestaurants()
                 .stream()
-                .filter(r -> r.isOpenAt(targetTime))
+                .filter(r -> r.isOpenAt(targetDateTime)) // ← utilise la version LocalDateTime de isOpenAt
                 .toList();
     }
 

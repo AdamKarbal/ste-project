@@ -3,17 +3,18 @@ package Restaurant;
 
 import Dish.DishTag;
 import Dish.Dish;
+import Restaurant.Enum.DayOfTheWeek;
 import Restaurant.Enum.cuisineType;
 import Restaurant.Enum.establishmentType;
-import Utils.Date;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 class RestaurantFilterTest {
-
     private RestaurantRepo restaurantRepo;
     private RestaurantFilter filter;
     private Restaurant restoA;
@@ -48,31 +49,35 @@ class RestaurantFilterTest {
 
 
         // Restaurant always open
-        Date alwaysOpenStart = new Date.Builder()
-                .day(1).month(1).year(2025)
-                .hour(0).minute(0)
-                .build();
-        Date alwaysOpenEnd = new Date.Builder()
-                .day(1).month(1).year(2030)
-                .hour(23).minute(59)
-                .build();
-        RestaurantSchedule alwaysOpen = new RestaurantSchedule(alwaysOpenStart, alwaysOpenEnd, 100);
+        DayOfTheWeek monday = DayOfTheWeek.MONDAY;
+        DayOfTheWeek tuesday = DayOfTheWeek.TUESDAY;
+        DayOfTheWeek wednesday = DayOfTheWeek.WEDNESDAY;
+        DayOfTheWeek thursday = DayOfTheWeek.THURSDAY;
+        DayOfTheWeek friday = DayOfTheWeek.FRIDAY;
+        DayOfTheWeek saturday = DayOfTheWeek.SATURDAY;
+        DayOfTheWeek sunday = DayOfTheWeek.SUNDAY;
+
+        LocalTime alwaysOpenStart = LocalTime.of(0, 0);
+        LocalTime alwaysOpenEnd = LocalTime.of(23, 59);
+
+        RestaurantSchedule mondayAlwaysOpen = new RestaurantSchedule(monday, alwaysOpenStart, alwaysOpenEnd, 100);
+        RestaurantSchedule tuesdayAlwaysOpen = new RestaurantSchedule(tuesday, alwaysOpenStart, alwaysOpenEnd, 100);
+        RestaurantSchedule wednesdayAlwaysOpen = new RestaurantSchedule(wednesday, alwaysOpenStart, alwaysOpenEnd, 100);
+        RestaurantSchedule thursdayAlwaysOpen = new RestaurantSchedule(thursday, alwaysOpenStart, alwaysOpenEnd, 100);
+        RestaurantSchedule fridayAlwaysOpen = new RestaurantSchedule(friday, alwaysOpenStart, alwaysOpenEnd, 100);
+        RestaurantSchedule saturdayAlwaysOpen = new RestaurantSchedule(saturday, alwaysOpenStart, alwaysOpenEnd, 100);
+        RestaurantSchedule sundayAlwaysOpen = new RestaurantSchedule(sunday, alwaysOpenStart, alwaysOpenEnd, 100);
 
         // Restaurant never open
-        Date neverOpenStart = new Date.Builder()
-                .day(1).month(1).year(2025)
-                .hour(1).minute(0)
-                .build();
-        Date neverOpenEnd = new Date.Builder()
-                .day(1).month(1).year(2025)
-                .hour(1).minute(0)
-                .build();
-        RestaurantSchedule neverOpen = new RestaurantSchedule(neverOpenStart, neverOpenEnd, 0);
+        LocalTime neverOpenStart = LocalTime.of(0, 0);
+        LocalTime neverOpenEnd = LocalTime.of(0, 0);
+
+        RestaurantSchedule neverOpen = new RestaurantSchedule(monday, neverOpenStart, neverOpenEnd, 0);
 
         restoA = new Restaurant.Builder()
                 .name("Pizza Palace")
                 .establishmentType(establishmentType.RESTAURANT)
-                .restaurantSchedules(List.of(alwaysOpen))     // always
+                .restaurantSchedules(List.of(mondayAlwaysOpen, tuesdayAlwaysOpen, wednesdayAlwaysOpen, thursdayAlwaysOpen, fridayAlwaysOpen, sundayAlwaysOpen, saturdayAlwaysOpen))     // always
                 .dishes(List.of(dishSansGluten, dishVegan,dishSansGlutenEtVegan))
                 .cuisineType(List.of(cuisineType.ITALIENNE))
                 .build();
@@ -153,29 +158,26 @@ class RestaurantFilterTest {
     //Filter by availibility
 
     @Test
-    void filterByAvailibility_shouldReturnOnlyAlwaysOpenRestaurant() {
-        List<Restaurant> result = filter.filterByAvailibility();
+    void filterByAvailability_shouldReturnOnlyAlwaysOpenRestaurant() {
+        List<Restaurant> result = filter.filterByAvailability();
         assertEquals(1, result.size());
         assertTrue(result.get(0).getName().equals("Pizza Palace"));
     }
 
     @Test
-    void filterByAvailibility_shouldReturnEmptyIfAllClosed() {
+    void filterByAvailability_shouldReturnEmptyIfAllClosed() {
         // on rend tous les restaurants "jamais ouverts"
         restoA.setRestaurantSchedules(restoB.getRestaurantSchedules());
-        List<Restaurant> result = filter.filterByAvailibility();
+        List<Restaurant> result = filter.filterByAvailability();
         assertTrue(result.isEmpty());
     }
 
     @Test
-    void filterByAvailibility_atSpecificTime() throws Exception {
+    void filterByAvailability_atSpecificTime() throws Exception {
         // On choisit une date comprise dans le créneau du resto toujours ouvert
-        Date target = new Date.Builder()
-                .day(1).month(6).year(2026)
-                .hour(12).minute(0)
-                .build();
+        LocalTime target = LocalTime.of(12, 0);
 
-        List<Restaurant> result = filter.filterByAvailibility(target);
+        List<Restaurant> result = filter.filterByAvailability(target);
         assertEquals(1, result.size());
         assertTrue(result.get(0).getName().equals("Pizza Palace"));
     }

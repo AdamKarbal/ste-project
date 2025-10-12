@@ -6,6 +6,9 @@ import Restaurant.Exception.dishNoInDishes;
 import Utils.*;
 import Restaurant.Enum.*;
 
+import java.time.DayOfWeek;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 
 public class Restaurant {
@@ -88,16 +91,30 @@ public class Restaurant {
         this.restaurantSchedules.add(schedule);
     }
 
-    public boolean alreadyScheduled(Date start, Date end){
-        if(restaurantSchedules.isEmpty()){
+    public boolean alreadyScheduled(LocalTime start, LocalTime end, DayOfTheWeek day) {
+        if (restaurantSchedules == null || restaurantSchedules.isEmpty()) {
             return false;
         }
-        return restaurantSchedules.stream().anyMatch(s->s.getStart().equals(start) && s.getEnd().equals(end));
+
+        return restaurantSchedules.stream()
+                .anyMatch(s ->
+                        s.getDay() == day &&
+                                s.getStart().equals(start) &&
+                                s.getEnd().equals(end)
+                );
     }
 
-    public void setNewCapacity(Date start, Date end, int capacity){
+    public void setNewCapacity(LocalTime start, LocalTime end, DayOfTheWeek day, int capacity) {
+        if (restaurantSchedules == null || restaurantSchedules.isEmpty()) {
+            return;
+        }
+
         restaurantSchedules.stream()
-                .filter(s -> s.getStart().equals(start) && s.getEnd().equals(end))
+                .filter(s ->
+                        s.getDay() == day &&
+                                s.getStart().equals(start) &&
+                                s.getEnd().equals(end)
+                )
                 .forEach(s -> s.setCapacity(capacity));
     }
 
@@ -122,8 +139,7 @@ public class Restaurant {
     }
 
     public boolean isOpenNow() {
-        Date now = Date.now();      // ← au lieu de new Date()
-        return isOpenAt(now);
+        return isOpenAt(LocalDateTime.now());
     }
 
     @Override
@@ -140,22 +156,57 @@ public class Restaurant {
     }
 
 
-    public boolean isOpenAt(Date dt) {
+    public boolean isOpenAt(LocalDateTime dateTime) {
         if (restaurantSchedules == null || restaurantSchedules.isEmpty()) return false;
-        return restaurantSchedules.stream()
-                .anyMatch(s -> isWithin(dt, s.getStart(), s.getEnd()));
+
+        DayOfTheWeek currentDay = convertDayOfWeek(dateTime.getDayOfWeek());
+        LocalTime time = dateTime.toLocalTime();
+
+        return restaurantSchedules.stream().anyMatch(s -> {
+            DayOfTheWeek scheduleDay = s.getDay();
+            boolean overnight = s.getEnd().isBefore(s.getStart());
+
+            // Cas normal : même jour
+            if (!overnight && scheduleDay == currentDay) {
+                return !time.isBefore(s.getStart()) && time.isBefore(s.getEnd());
+            }
+
+            // Cas traversant minuit : 22h → 2h du matin
+            if (overnight) {
+                // ouvert le jour du début (22h–00h)
+                if (scheduleDay == currentDay && !time.isBefore(s.getStart())) return true;
+                // ouvert le jour suivant (00h–2h)
+                if (nextDay(scheduleDay) == currentDay && time.isBefore(s.getEnd())) return true;
+            }
+
+            return false;
+        });
     }
 
-    private static boolean isWithin(Date dt, Date start, Date end) {
-        boolean overnight = end.isBefore(start);
-
-        if (overnight) {
-            return !dt.isBefore(start) || dt.isBefore(end); //
-        } else {
-            return !dt.isBefore(start) && dt.isBefore(end);
-        }
+    private DayOfTheWeek convertDayOfWeek(DayOfWeek dow) {
+        return switch (dow) {
+            case MONDAY -> DayOfTheWeek.MONDAY;
+            case TUESDAY -> DayOfTheWeek.TUESDAY;
+            case WEDNESDAY -> DayOfTheWeek.WEDNESDAY;
+            case THURSDAY -> DayOfTheWeek.THURSDAY;
+            case FRIDAY -> DayOfTheWeek.FRIDAY;
+            case SATURDAY -> DayOfTheWeek.SATURDAY;
+            case SUNDAY -> DayOfTheWeek.SUNDAY;
+        };
     }
 
+    private DayOfTheWeek nextDay(DayOfTheWeek day) {
+        return switch (day) {
+            case MONDAY -> DayOfTheWeek.TUESDAY;
+            case TUESDAY -> DayOfTheWeek.WEDNESDAY;
+            case WEDNESDAY -> DayOfTheWeek.THURSDAY;
+            case THURSDAY -> DayOfTheWeek.FRIDAY;
+            case FRIDAY -> DayOfTheWeek.SATURDAY;
+            case SATURDAY -> DayOfTheWeek.SUNDAY;
+            case SUNDAY -> DayOfTheWeek.MONDAY;
+            default -> day;
+        };
+    }
 
 
     // InnerClass builder pour éviter d'avoir à faire plusieurs constructeurs en fonction du nombre de paramètre qu'on entre

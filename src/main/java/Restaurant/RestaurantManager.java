@@ -1,10 +1,12 @@
 package Restaurant;
 import Dish.*;
+import Restaurant.Enum.DayOfTheWeek;
 import Restaurant.Enum.cuisineType;
 import Restaurant.Enum.establishmentType;
 import Restaurant.Exception.*;
 import Utils.*;
 
+import java.time.LocalTime;
 import java.util.ArrayList;
 
 public class RestaurantManager {
@@ -38,21 +40,20 @@ public class RestaurantManager {
     //Méthodes
     // Pourquoi on fait comme ca ? parceque c'est au manager de demandé au restaurant l'état est en fonction il choisit quoi faire
     // c'est pas au restaurant de le faire même si il verifie.
-    public void updateSchedule(Date start, Date end, int capacity ){
-        if(restaurant.alreadyScheduled(start, end)){
-            restaurant.setNewCapacity(start,end,capacity);
-        }
-        else{
-            RestaurantSchedule newRS = new RestaurantSchedule(start,end,capacity);
+    public void updateSchedule(DayOfTheWeek day, LocalTime start, LocalTime end, int capacity) {
+        if (restaurant.alreadyScheduled(start, end, day)) {
+            restaurant.setNewCapacity(start, end, day, capacity);
+        } else {
+            RestaurantSchedule newRS = new RestaurantSchedule(day, start, end, capacity);
             restaurant.addSchedule(newRS);
         }
     }
 
-    public void updateCapacity(Date start, Date end, int capacity) throws ScheduleNoExist{
-        if(!(restaurant.alreadyScheduled(start,end))){
-            throw new ScheduleNoExist("Le schedule à modifé demandé n'existe pas");
+    public void updateCapacity(DayOfTheWeek day, LocalTime start, LocalTime end, int capacity) throws ScheduleNoExist {
+        if (!restaurant.alreadyScheduled(start, end, day)) {
+            throw new ScheduleNoExist("Le créneau à modifier n'existe pas : " + day + " " + start + " → " + end);
         }
-        restaurant.setNewCapacity(start,end,capacity);
+        restaurant.setNewCapacity(start, end, day, capacity);
     }
 
     public void addDish(Dish d) throws DishInDishes {

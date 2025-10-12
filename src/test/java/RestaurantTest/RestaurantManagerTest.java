@@ -2,11 +2,13 @@ package RestaurantTest;
 
 import Dish.Dish;
 import Restaurant.*;
+import Restaurant.Enum.DayOfTheWeek;
 import Restaurant.Enum.cuisineType;
 import Utils.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,22 +35,30 @@ public class RestaurantManagerTest {
     }
 
     @Test
-    void testUpdateSchedule_AddNewScheduleIfNotExists() throws Exception {
-        Date start = d(5, 10, 2025, 12, 0);
-        Date end   = d(5, 10, 2025, 15, 0);
-        manager.updateSchedule(start, end, 40);
+    void testUpdateSchedule_AddNewScheduleIfNotExists() {
+        LocalTime start = LocalTime.of(12, 0);
+        LocalTime end   = LocalTime.of(15, 0);
+
+        manager.updateSchedule(DayOfTheWeek.MONDAY, start, end, 40);
+
         assertEquals(1, restaurant.getRestaurantSchedules().size());
         assertEquals(40, restaurant.getRestaurantSchedules().get(0).getCapacity());
+        assertEquals(DayOfTheWeek.MONDAY, restaurant.getRestaurantSchedules().get(0).getDay());
     }
 
     @Test
     void testUpdateCapacity_ChangesExistingCapacity() throws Exception {
-        Date start = d(5, 10, 2025, 10, 0);
-        Date end   = d(5, 10, 2025, 14, 0);
-        RestaurantSchedule rs = new RestaurantSchedule(start, end, 20);
+        LocalTime start = LocalTime.of(10, 0);
+        LocalTime end = LocalTime.of(14, 0);
+
+        RestaurantSchedule rs = new RestaurantSchedule(DayOfTheWeek.WEDNESDAY, start, end, 20);
         restaurant.setRestaurantSchedules(new ArrayList<>(List.of(rs)));
-        manager.updateCapacity(start, end, 50);
+
+        manager.updateCapacity(DayOfTheWeek.WEDNESDAY, start, end, 50);
+
         assertEquals(50, restaurant.getRestaurantSchedules().get(0).getCapacity());
+
+
     }
 
     @Test

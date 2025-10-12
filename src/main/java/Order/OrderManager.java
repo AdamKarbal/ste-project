@@ -47,8 +47,9 @@ public class OrderManager {
     }
 
     public OrderState proceedPayement(PaymentMethod paymentMethod){
-        order.setState(OrderState.COMPLETED);
-        return PaymentService.getInstance().handleCompletedOrder(this.order,paymentMethod);
+        order.setState(OrderState.COMPLETED); // à changer pour l'instant je garde pour les tests mais une autre méthode doit mettre l'OrderState à completed
+        order.setState(PaymentService.getInstance().handleCompletedOrder(this.order,paymentMethod));
+        return order.getState();
     }
 
     public void proceedPayment(AccountUser client, PaymentMethod paymentType)

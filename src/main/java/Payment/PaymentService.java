@@ -21,11 +21,11 @@ public final class PaymentService {
                 payment = new InternalPayment(order);
                 break;
             default:
-                payment = new ExternalPayment(order);
+                payment = new ExternalPayment(order,paymentWay);
                 break;
 
         }
-        PaymentState paymentState=payment.processPayment(paymentWay);
+        PaymentState paymentState=payment.processPayment();
         if(paymentState.equals(PaymentState.PAID)){
             addHistory(order,payment);
             return OrderState.PAID;

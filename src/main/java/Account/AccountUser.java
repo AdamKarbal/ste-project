@@ -24,4 +24,7 @@ public class AccountUser extends Account {
         if(orderHistory.keySet().contains(order)) throw new AlreadyExistingOrder("La commande existe déjà");
         orderHistory.put(order,payment);
     }
+    public HashMap<Order,Payment> getOrderHistory(){
+        return orderHistory;
+    }
 }

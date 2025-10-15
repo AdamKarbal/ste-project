@@ -4,6 +4,7 @@ import Account.AccountUser;
 import Restaurant.Restaurant;
 import Dish.Dish;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -16,6 +17,8 @@ public class Order {
     private Restaurant restaurant;
     private AccountUser client;
     private OrderDeliveryPoint deliveryPoint;
+    private LocalDateTime deliveryTime;
+
     public Order(AccountUser client,Restaurant restaurant){
         price=0;
         state=OrderState.CREATED;
@@ -44,6 +47,12 @@ public class Order {
 
     public void setDeliveryPoint(OrderDeliveryPoint deliveryPoint) {
         this.deliveryPoint = deliveryPoint;
+    }
+
+    public LocalDateTime getDeliveryTime() { return deliveryTime; }
+
+    public void setDeliveryTime(LocalDateTime deliveryTime) {
+        this.deliveryTime = deliveryTime;
     }
 
     public void setState(OrderState newState) {

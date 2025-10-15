@@ -13,16 +13,15 @@ public class Dish {
     private DishType type;
     private List<DishTag> dishTag;
     private List<DishTopping> toppings;
-    private Restaurant restaurant;
 
-    public Dish(double price, String name, String description, DishCategory category, DishType type, Restaurant restaurant, List<DishTag> dishTag) {
+    public Dish(double price, String name, String description, DishCategory category, DishType type,List<DishTag> dishTag) {
         this.price = price;
         this.name = name;
         this.description = description;
         this.category = category;
         this.type = type;
         this.dishTag = dishTag;
-        this.restaurant = restaurant;
+
         this.toppings = new ArrayList<>();
     }
 
@@ -43,10 +42,6 @@ public class Dish {
     }
     public void setDescription(String description) {
         this.description = description;
-    }
-    public Restaurant getRestaurant() {
-        return restaurant;
-
     }
 
     public DishCategory getCategory() {

@@ -71,7 +71,7 @@ public class Order {
     public boolean addDish(Dish dish, int quantity) throws DifferentRestaurantException {
         if (dish == null || quantity <= 0) return false;
 
-        if (!dish.getRestaurant().equals(this.restaurant)) {
+        if (!restaurant.containsDish(dish)) {
             throw new DifferentRestaurantException("Impossible d'ajouter le plat '" + dish.getName() + "' : il provient d'un autre restaurant ");
         }
 

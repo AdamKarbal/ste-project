@@ -36,6 +36,15 @@ public class Restaurant {
         return name;
     }
 
+    public boolean containsDish(Dish dish){
+        for (Dish d : dishes){
+            if (d.equals(dish)){
+                return true;
+            }
+        }
+        return false;
+    }
+
     public void setName(String name) {
         this.name = name;
     }

@@ -1,4 +1,4 @@
-Feature : Demonstration de notre système
+Feature: Demonstration de notre système
 
   Background:
     Given un catalogue de restaurants
@@ -9,27 +9,29 @@ Feature : Demonstration de notre système
       | KebabKorner | VIETNAMIENNE| FAST_FOOD         | Pizza     | 11.0   | Gnocchi  | 13.0   | 22:00  | 02:00 | 110       | 11:00  | 14:00 | 100       |                                 |                            |
 
   Scenario: Un client passe commande
-    Etant donné que le restaurant "Pasta Mia" propose le plat "Spaghetti" à 12.5€
+    Given que le restaurant "Pasta Mia" propose le plat "Spaghetti" à 12.5€
     And que "Pasta Mia" a un créneau de 12:00 à 12:30 avec une capacité de 10 repas
-    And que le client "Younes" est connectée à son compte
+    And que le client "Younes" est connecté à son compte
     When "Younes" recherche les restaurants de type "ITALIENNE"
     And il sélectionne le restaurant "Pasta Mia"
     And il ajoute 1 "Spaghetti" à son panier
     And il choisit le créneau de 12:00 et valide sa commande
-    And il procède au paiement avec une méthode standard
+    And il procède au paiement avec son crédit
+    And il a assez sur son compte
     Then le paiement doit être accepté et une commande N°10 doit être créée pour "Younes"
     And l'historique de commandes de "Younes" doit contenir la commande N°10
     And la capacité du créneau de 12:00 à 12:30 de "Pasta Mia" doit être maintenant de 9 repas
-    And le restaurateur de "Pasta Mia" doit voir la commande N°123 dans sa liste de commandes à préparer
+    And le restaurateur de "Pasta Mia" doit voir la commande N°10 dans sa liste de commandes à préparer
 
-  Scenario: Un restaurateur créer et configure son restaurant
-    Etant donné que le restaurateur "Nico" à était enregistré
-    When "Nico" créer son restaurant "Les delices de new delice"
+  Scenario: Un restaurateur crée et configure son restaurant
+    Given le restaurateur "Nico" à été enregistré
+    When "Nico" crée son restaurant "Les delices de new delice"
     And Il le configure : cuisineType "INDIENNE"
     And Il le configure : establishmentType "RESTAURANT"
     And Il ajoute le plat "Riz coco curry" à 12.5€
     And Il ajoute un creneau de 11:30 à 11:45 avec 5 capacités
     Then Le restaurant doit être disponible sous le nom de "Les delices de new delice"
-    And "Younes" peut passer commande chez "Nico"
+    And "Younes" peut passer trouver le restaurant "Les delices de new delices"
+    And "Younes" peut trouver le plat "Riz coco curry"
 
 

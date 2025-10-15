@@ -1,4 +1,4 @@
-Feature : Demonstration de notre système
+Feature: Demonstration de notre système
 
   Background:
     Given un catalogue de restaurants
@@ -19,9 +19,9 @@ Feature : Demonstration de notre système
     And il procède au paiement avec son crédit
     And il a assez sur son compte
     Then le paiement doit être accepté et une commande N°10 doit être créée pour "Younes"
-    And l'historique de commandes de "Younes" doit contenir la commande N°10 (numéro de commande ? ya un id mais il commence à 1 pas à 10)
+    And l'historique de commandes de "Younes" doit contenir la commande N°10
     And la capacité du créneau de 12:00 à 12:30 de "Pasta Mia" doit être maintenant de 9 repas
-    And le restaurateur de "Pasta Mia" doit voir la commande N°123 dans sa liste de commandes à préparer (à tej on gère pas l'historique des commandes niveau restaurant)
+    And le restaurateur de "Pasta Mia" doit voir la commande N°10 dans sa liste de commandes à préparer
 
   Scenario: Un restaurateur crée et configure son restaurant
     Given le restaurateur "Nico" à été enregistré
@@ -31,7 +31,7 @@ Feature : Demonstration de notre système
     And Il ajoute le plat "Riz coco curry" à 12.5€
     And Il ajoute un creneau de 11:30 à 11:45 avec 5 capacités
     Then Le restaurant doit être disponible sous le nom de "Les delices de new delice"
-    And "Younes" peut passer commande chez "Nico" (qu'est ce que ça veut dire de passer commande ? qu'il soit dispo dans le repo de restaurant ? en plus ça dépend de l'heure à laquelle il passe commande)
-
+    And "Younes" peut passer trouver le restaurant "Les delices de new delices"
+    And "Younes" peut trouver le plat "Riz coco curry"
 
 

@@ -3,9 +3,12 @@ import Restaurant.Enum.DayOfTheWeek;
 import Utils.*;
 
 import java.time.LocalTime;
+import java.util.UUID;
 
 public class RestaurantSchedule {
     //Instances
+    private static int nextId = 1;
+    private int id;
     private final DayOfTheWeek day;
     private LocalTime start;
     private LocalTime end;
@@ -13,12 +16,16 @@ public class RestaurantSchedule {
 
     //Constructeur
     public RestaurantSchedule(DayOfTheWeek day, LocalTime start, LocalTime end, int capacity){
+        this.id = nextId++;
         this.day = day;
         this.start=start;
         this.end=end;
         this.capacity=capacity;
     }
 
+    public int getId() {
+        return id;
+    }
     //Getter & setter
     public DayOfTheWeek getDay() {
         return day;
@@ -50,6 +57,7 @@ public class RestaurantSchedule {
 
     @Override
     public String toString() {
-        return "Début : " + start + " Fin : " + end + " Capacité : " + capacity + ".\n";
+        return "[" + id + "] " + day + " | " +
+                "Début : " + start + " - Fin : " + end + " | Capacité : " + capacity;
     }
 }

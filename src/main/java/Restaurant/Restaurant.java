@@ -138,10 +138,6 @@ public class Restaurant {
         return name + " " + establishmentType + "\n.";
     }
 
-    public boolean isOpenNow() {
-        return isOpenAt(LocalDateTime.now());
-    }
-
     @Override
     public boolean equals(Object obj) {
         if (this == obj) return true;
@@ -155,57 +151,12 @@ public class Restaurant {
         return name != null ? name.hashCode() : 0;
     }
 
+    public boolean isOpenNow() {
+        return RestaurantScheduleManager.isOpenNow(this);
+    }
 
     public boolean isOpenAt(LocalDateTime dateTime) {
-        if (restaurantSchedules == null || restaurantSchedules.isEmpty()) return false;
-
-        DayOfTheWeek currentDay = convertDayOfWeek(dateTime.getDayOfWeek());
-        LocalTime time = dateTime.toLocalTime();
-
-        return restaurantSchedules.stream().anyMatch(s -> {
-            DayOfTheWeek scheduleDay = s.getDay();
-            boolean overnight = s.getEnd().isBefore(s.getStart());
-
-            // Cas normal : même jour
-            if (!overnight && scheduleDay == currentDay) {
-                return !time.isBefore(s.getStart()) && time.isBefore(s.getEnd());
-            }
-
-            // Cas traversant minuit : 22h → 2h du matin
-            if (overnight) {
-                // ouvert le jour du début (22h–00h)
-                if (scheduleDay == currentDay && !time.isBefore(s.getStart())) return true;
-                // ouvert le jour suivant (00h–2h)
-                if (nextDay(scheduleDay) == currentDay && time.isBefore(s.getEnd())) return true;
-            }
-
-            return false;
-        });
-    }
-
-    private DayOfTheWeek convertDayOfWeek(DayOfWeek dow) {
-        return switch (dow) {
-            case MONDAY -> DayOfTheWeek.MONDAY;
-            case TUESDAY -> DayOfTheWeek.TUESDAY;
-            case WEDNESDAY -> DayOfTheWeek.WEDNESDAY;
-            case THURSDAY -> DayOfTheWeek.THURSDAY;
-            case FRIDAY -> DayOfTheWeek.FRIDAY;
-            case SATURDAY -> DayOfTheWeek.SATURDAY;
-            case SUNDAY -> DayOfTheWeek.SUNDAY;
-        };
-    }
-
-    private DayOfTheWeek nextDay(DayOfTheWeek day) {
-        return switch (day) {
-            case MONDAY -> DayOfTheWeek.TUESDAY;
-            case TUESDAY -> DayOfTheWeek.WEDNESDAY;
-            case WEDNESDAY -> DayOfTheWeek.THURSDAY;
-            case THURSDAY -> DayOfTheWeek.FRIDAY;
-            case FRIDAY -> DayOfTheWeek.SATURDAY;
-            case SATURDAY -> DayOfTheWeek.SUNDAY;
-            case SUNDAY -> DayOfTheWeek.MONDAY;
-            default -> day;
-        };
+        return RestaurantScheduleManager.isOpenAt(this, dateTime);
     }
 
 

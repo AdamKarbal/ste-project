@@ -15,7 +15,6 @@ public class RestaurantService {
     public RestaurantService(RestaurantRepo r){
         repo = r;
         this.filter=new RestaurantFilter(repo);
-
     }
 
     public static void addRestaurant(Restaurant restaurant) throws RestaurantExist {

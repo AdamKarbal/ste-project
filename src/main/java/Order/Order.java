@@ -2,8 +2,10 @@ package Order;
 
 import Account.AccountUser;
 import Restaurant.Restaurant;
+import Restaurant.RestaurantSchedule;
 import Dish.Dish;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -51,8 +53,22 @@ public class Order {
 
     public LocalDateTime getDeliveryTime() { return deliveryTime; }
 
-    public void setDeliveryTime(LocalDateTime deliveryTime) {
-        this.deliveryTime = deliveryTime;
+    public boolean assignSchedule(RestaurantSchedule chosenSchedule) {
+        if (chosenSchedule == null) return false;
+
+        if (restaurant == null || restaurant.getRestaurantSchedules() == null) return false;
+
+        boolean exists = restaurant.getRestaurantSchedules().stream()
+                .anyMatch(s -> s.getId() == chosenSchedule.getId());
+        if (!exists) return false;
+
+        this.deliveryTime = LocalDateTime.of(
+                LocalDate.now(),
+                chosenSchedule.getEnd().plusMinutes(15)
+        );
+
+        System.out.println("Créneau assigné : " + chosenSchedule + " | Livraison prévue à " + deliveryTime);
+        return true;
     }
 
     public void setState(OrderState newState) {
@@ -65,9 +81,31 @@ public class Order {
         System.out.println("L'état de la commande a bien changé pour : " + newState);
     }
 
+    public boolean confirmOrder() {
+        if (deliveryPoint == null) {
+            System.err.println("Impossible de confirmer : aucun point de livraison défini.");
+            return false;
+        }
+
+        if (deliveryTime == null) {
+            System.err.println("Impossible de confirmer : aucun créneau horaire sélectionné.");
+            return false;
+        }
+
+        try {
+            setState(OrderState.PAID);
+            return true;
+        } catch (InvalidOrderStateException e) {
+            System.err.println(e.getMessage());
+            return false;
+        }
+    }
+
+
     public Map<Dish, Integer> getDishes() {
         return dishes;
     }
+
     public boolean addDish(Dish dish, int quantity) throws DifferentRestaurantException {
         if (dish == null || quantity <= 0) return false;
 
@@ -80,6 +118,7 @@ public class Order {
         setState(OrderState.IN_PREPARATION);
         return true;
     }
+
     public void removeDish(Dish dish) {
         if (dishes.containsKey(dish)) {
             dishes.remove(dish);

@@ -7,8 +7,7 @@ import java.util.UUID;
 
 public class RestaurantSchedule {
     //Instances
-    private static int nextId = 1;
-    private int id;
+    private final String id;
     private final DayOfTheWeek day;
     private LocalTime start;
     private LocalTime end;
@@ -16,14 +15,14 @@ public class RestaurantSchedule {
 
     //Constructeur
     public RestaurantSchedule(DayOfTheWeek day, LocalTime start, LocalTime end, int capacity){
-        this.id = nextId++;
+        this.id = UUID.randomUUID().toString();
         this.day = day;
         this.start=start;
         this.end=end;
         this.capacity=capacity;
     }
 
-    public int getId() {
+    public String getId() {
         return id;
     }
     //Getter & setter

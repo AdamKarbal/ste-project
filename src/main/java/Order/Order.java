@@ -59,7 +59,7 @@ public class Order {
         if (restaurant == null || restaurant.getRestaurantSchedules() == null) return false;
 
         boolean exists = restaurant.getRestaurantSchedules().stream()
-                .anyMatch(s -> s.getId() == chosenSchedule.getId());
+                .anyMatch(s -> s.getId().equals(chosenSchedule.getId()));
         if (!exists) return false;
 
         this.deliveryTime = LocalDateTime.of(

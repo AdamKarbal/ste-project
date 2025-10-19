@@ -22,10 +22,6 @@ public class RestaurantManager {
                 .cuisineType(new ArrayList<>())
                 .establishmentType(null);
         this.restaurant = builder.build();
-        try{RestaurantService.addRestaurant(restaurant);}catch (RestaurantExist e){
-            // ici faire en sorte qu'on récupère un nv nom ? avec un scanner ou autre ?
-        }
-
     }
 
     // Getter & setter

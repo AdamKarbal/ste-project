@@ -1,5 +1,9 @@
 package steps;
 
+import Account.AccountManager;
+import Restaurant.Exception.CuisineTypeInList;
+import Restaurant.Exception.DishInDishes;
+import Restaurant.Exception.EstablishmentTypeAlreadySet;
 import Utils.InvalidDate;
 import io.cucumber.java.Before;
 import io.cucumber.java.en.*;
@@ -21,6 +25,9 @@ public class DemoStep {
     private RestaurantRepo repo;
     private RestaurantService service;
     private List<Restaurant> resultats = new ArrayList<>();
+    private Map<String, AccountManager> restaurateurs = new HashMap<>();
+    private RestaurantManager currentManager;
+    private Restaurant currentRestaurant;
 
     @Before
     public void setup() {
@@ -145,59 +152,69 @@ public class DemoStep {
     }
 
     @Given("le restaurateur {string} à été enregistré")
-    public void le_restaurateur_à_été_enregistré(String string) {
-        // Write code here that turns the phrase above into concrete actions
-        throw new io.cucumber.java.PendingException();
+    public void le_restaurateur_à_été_enregistré(String nomRestaurateur) {
+        AccountManager account = new AccountManager(nomRestaurateur);
+        restaurateurs.put(nomRestaurateur, account);
     }
 
     @When("{string} crée son restaurant {string}")
-    public void crée_son_restaurant(String string, String string2) {
-        // Write code here that turns the phrase above into concrete actions
-        throw new io.cucumber.java.PendingException();
+    public void crée_son_restaurant(String nomRestaurateur, String nomRestaurant) {
+        AccountManager account = restaurateurs.get(nomRestaurateur);
+        Assertions.assertNotNull(account, "Le restaurateur doit être enregistré avant de créer un restaurant");
+        currentManager = new RestaurantManager(nomRestaurant);
+        currentRestaurant = currentManager.getRestaurant();
+        repo.addRestaurant(currentRestaurant);
+        Assertions.assertNotNull(currentRestaurant, "Le restaurant n’a pas été créé correctement");
     }
 
     @When("Il le configure : cuisineType {string}")
-    public void il_le_configure_cuisine_type(String string) {
-        // Write code here that turns the phrase above into concrete actions
-        throw new io.cucumber.java.PendingException();
+    public void il_le_configure_cuisine_type(String type) throws CuisineTypeInList {
+        Assertions.assertNotNull(currentManager, "Aucun restaurant en cours de configuration");
+        currentManager.addCuisineType(cuisineType.valueOf(type.toUpperCase()));
     }
 
     @When("Il le configure : establishmentType {string}")
-    public void il_le_configure_establishment_type(String string) {
-        // Write code here that turns the phrase above into concrete actions
-        throw new io.cucumber.java.PendingException();
+    public void il_le_configure_establishment_type(String type) throws EstablishmentTypeAlreadySet {
+        Assertions.assertNotNull(currentManager, "Aucun restaurant en cours de configuration");
+        currentManager.addEstablishmentType(establishmentType.valueOf(type.toUpperCase()));
     }
 
     @When("Il ajoute le plat {string} à {double}€")
-    public void il_ajoute_le_plat_à_€(String string, Double double1) {
-        // Write code here that turns the phrase above into concrete actions
-        throw new io.cucumber.java.PendingException();
+    public void il_ajoute_le_plat_à_€(String nomPlat, Double prix) throws DishInDishes {
+        Assertions.assertNotNull(currentManager, "Aucun restaurant en cours de configuration");
+        Dish plat = new Dish(prix, nomPlat, null, null, null, null);
+        currentManager.addDish(plat);
     }
 
     @When("Il ajoute un creneau de {int}:{int} à {int}:{int} avec {int} capacités")
-    public void il_ajoute_un_creneau_de_à_avec_capacités(Integer int1, Integer int2, Integer int3, Integer int4, Integer int5) {
-        // Write code here that turns the phrase above into concrete actions
-        throw new io.cucumber.java.PendingException();
+    public void il_ajoute_un_creneau_de_à_avec_capacités(Integer h1, Integer m1, Integer h2, Integer m2, Integer capacite) {
+        Assertions.assertNotNull(currentManager, "Aucun restaurant en cours de configuration");
+        currentManager.updateSchedule(DayOfTheWeek.MONDAY,
+                LocalTime.of(h1, m1),
+                LocalTime.of(h2, m2),
+                capacite);
     }
 
     @Then("Le restaurant doit être disponible sous le nom de {string}")
-    public void le_restaurant_doit_être_disponible_sous_le_nom_de(String string) {
-        // Write code here that turns the phrase above into concrete actions
-        throw new io.cucumber.java.PendingException();
+    public void le_restaurant_doit_être_disponible_sous_le_nom_de(String nomRestaurant) {
+        boolean present = repo.getRestaurants().stream()
+                .anyMatch(r -> r.getName().equalsIgnoreCase(nomRestaurant));
+        Assertions.assertTrue(present, "Le restaurant " + nomRestaurant + " n’a pas été trouvé dans le repo");
     }
 
     @Then("{string} peut passer trouver le restaurant {string}")
-    public void peut_passer_trouver_le_restaurant(String string, String string2) {
-        // Write code here that turns the phrase above into concrete actions
-        throw new io.cucumber.java.PendingException();
+    public void peut_passer_trouver_le_restaurant(String nomClient, String nomRestaurant) {
+        List<Restaurant> trouvés = service.findByName(nomRestaurant);
+        Assertions.assertFalse(trouvés.isEmpty(), "Le client " + nomClient + " ne trouve pas le restaurant " + nomRestaurant);
     }
 
     @Then("{string} peut trouver le plat {string}")
-    public void peut_trouver_le_plat(String string, String string2) {
-        // Write code here that turns the phrase above into concrete actions
-        throw new io.cucumber.java.PendingException();
+    public void peut_trouver_le_plat(String nomClient, String nomPlat) {
+        boolean platTrouvé = repo.getRestaurants().stream()
+                .flatMap(r -> r.getDishes().stream())
+                .anyMatch(d -> d.getName().equalsIgnoreCase(nomPlat));
+        Assertions.assertTrue(platTrouvé, "Le client " + nomClient + " ne trouve pas le plat " + nomPlat);
     }
-
 
     // --- Helpers SCHEDULES ---
 

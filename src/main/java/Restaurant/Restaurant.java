@@ -2,6 +2,7 @@ package Restaurant;
 import Dish.Dish;
 import Restaurant.Enum.cuisineType;
 import Restaurant.Enum.establishmentType;
+import Restaurant.Exception.EstablishmentTypeAlreadySet;
 import Restaurant.Exception.dishNoInDishes;
 import Utils.*;
 import Restaurant.Enum.*;
@@ -63,6 +64,10 @@ public class Restaurant {
 
     public void setRestaurantSchedules(List<RestaurantSchedule> restaurantSchedules) {
         this.restaurantSchedules = restaurantSchedules;
+    }
+
+    public List<RestaurantSchedule> getSchedulesWithin(Date start,Date end){
+
     }
 
     public List<cuisineType> getCuisineTypes() {
@@ -137,6 +142,14 @@ public class Restaurant {
 
     public boolean alreadyCuisineType(cuisineType c) {
         return cuisineTypes.contains(c);
+    }
+
+    public Dish findDish(String name, double price) {
+        Dish target = new Dish(price, name, "", null, null, null);
+        return dishes.stream()
+                .filter(d -> d.equals(target))
+                .findFirst()
+                .orElse(null);
     }
 
 

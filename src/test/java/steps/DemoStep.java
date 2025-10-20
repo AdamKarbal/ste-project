@@ -1,5 +1,5 @@
 package steps;
-
+import Restaurant.*;
 import Account.AccountManager;
 import Restaurant.Exception.CuisineTypeInList;
 import Restaurant.Exception.DishInDishes;
@@ -8,7 +8,7 @@ import Utils.InvalidDate;
 import io.cucumber.java.Before;
 import io.cucumber.java.en.*;
 import io.cucumber.datatable.DataTable;
-import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.*;
 
 import java.time.LocalTime;
 import java.util.*;
@@ -18,7 +18,7 @@ import Restaurant.RestaurantRepo;
 import Restaurant.RestaurantService;
 import Restaurant.Enum.*;
 import Dish.*;
-import  Restaurant.*;
+
 
 public class DemoStep {
 
@@ -75,7 +75,12 @@ public class DemoStep {
 
     @Given("que le restaurant {string} propose le plat {string} à {double}€")
     public void que_le_restaurant_propose_le_plat_à_€(String string, String string2, Double double1) {
-        // Write code here that turns the phrase above into concrete actions
+        currentRestaurant = service.getRestaurantByName(string);
+        currentManager = new RestaurantManager(currentRestaurant);
+        Dish dish=new Dish(double1,string2,null,null,null,null);
+        Assertions.assertNotNull(currentRestaurant);
+        Assertions.assertTrue(currentRestaurant.getDishes().contains(dish));
+        Assertions.assertEquals(dish.getPrice(),currentRestaurant.findDish(string2,double1).getPrice());
         throw new io.cucumber.java.PendingException();
     }
 

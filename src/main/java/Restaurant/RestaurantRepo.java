@@ -21,4 +21,11 @@ public class RestaurantRepo {
     public boolean restaurantExist(Restaurant resto){
         return restaurants.contains(resto);
     }
+
+    public Restaurant getRestaurantByName(String name) {
+        return restaurants.stream()
+                .filter(r -> r.getName().equals(name))
+                .findFirst()
+                .orElse(null);
+    }
 }

@@ -9,19 +9,23 @@ import java.time.LocalTime;
 import java.util.List;
 
 public class RestaurantService {
-    private static RestaurantRepo repo;
+    private RestaurantRepo repo;
     private RestaurantFilter filter;
 
     public RestaurantService(RestaurantRepo r){
-        repo = r;
+        this.repo = r;
         this.filter=new RestaurantFilter(repo);
     }
 
-    public static void addRestaurant(Restaurant restaurant) throws RestaurantExist {
+    public void addRestaurant(Restaurant restaurant) throws RestaurantExist {
         if (repo.restaurantExist(restaurant)) {
             throw new RestaurantExist("Le restaurant existe déjà dans le repo");
         }
         repo.addRestaurant(restaurant);
+    }
+
+    public Restaurant getRestaurantByName(String name){
+        return repo.getRestaurantByName(name);
     }
 
     // --- Méthodes de filtrage exposées par le service ---

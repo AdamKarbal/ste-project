@@ -89,8 +89,9 @@ public class Dish {
         if (this == o) return true;
         if (!(o instanceof Dish)) return false;
         Dish other = (Dish) o;
+        double delta = 1e-6;
         return name != null && other.name != null
-                && name.equalsIgnoreCase(other.name);
+                && name.equalsIgnoreCase(other.name) && Math.abs(price - other.price) < delta;
     }
     @Override
     public int hashCode() {

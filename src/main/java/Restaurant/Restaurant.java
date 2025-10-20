@@ -66,9 +66,6 @@ public class Restaurant {
         this.restaurantSchedules = restaurantSchedules;
     }
 
-    public List<RestaurantSchedule> getSchedulesWithin(Date start,Date end){
-
-    }
 
     public List<cuisineType> getCuisineTypes() {
         return cuisineTypes;

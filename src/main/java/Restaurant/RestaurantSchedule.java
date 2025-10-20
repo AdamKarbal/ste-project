@@ -59,4 +59,12 @@ public class RestaurantSchedule {
         return "[" + id + "] " + day + " | " +
                 "Début : " + start + " - Fin : " + end + " | Capacité : " + capacity;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        RestaurantSchedule other = (RestaurantSchedule) obj;
+        return start.equals(other.start) && end.equals(other.end);
+    }
 }

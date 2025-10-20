@@ -3,7 +3,7 @@ package Utils;
 import java.time.LocalDateTime;
 
 
-public class Date {
+public class MyDate {
     //Instances
     private int day;
     private int month;
@@ -13,7 +13,7 @@ public class Date {
 
     //Constructeur
 
-    public Date(Builder builder) throws InvalidDate{
+    public MyDate(Builder builder) throws InvalidDate{
             this.day = builder.day;
             this.month = builder.month;
             this.year = builder.year;
@@ -25,18 +25,22 @@ public class Date {
     public boolean equals(Object obj) {
         if (this == obj) return true;
         if (obj == null || getClass() != obj.getClass()) return false;
-        Date date = (Date) obj;
-        return day == date.day &&
-                month == date.month &&
-                year == date.year &&
-                hour == date.hour &&
-                minute == date.minute;
+        MyDate myDate = (MyDate) obj;
+        return day == myDate.day &&
+                month == myDate.month &&
+                year == myDate.year &&
+                hour == myDate.hour &&
+                minute == myDate.minute;
     }
 
-    public static Date now() {
+    public int getDay(){
+        return day;
+    }
+
+    public static MyDate now() {
         LocalDateTime now = LocalDateTime.now();
         try {
-            return new Date.Builder()
+            return new MyDate.Builder()
                     .day(now.getDayOfMonth())
                     .month(now.getMonthValue())
                     .year(now.getYear())
@@ -48,15 +52,15 @@ public class Date {
         }
     }
 
-    public boolean isBefore(Date other) {
+    public boolean isBefore(MyDate other) {
         return compareTo(other) < 0;
     }
 
-    public boolean isAfter(Date other) {
+    public boolean isAfter(MyDate other) {
         return compareTo(other) > 0;
     }
 
-    public int compareTo(Date other) {
+    public int compareTo(MyDate other) {
         if (year != other.year) return Integer.compare(year, other.year);
         if (month != other.month) return Integer.compare(month, other.month);
         if (day != other.day) return Integer.compare(day, other.day);
@@ -110,8 +114,8 @@ public class Date {
             return this;
         }
 
-        public Date build() {
-            return new Date(this);
+        public MyDate build() {
+            return new MyDate(this);
         }
     }
 

@@ -5,7 +5,7 @@ import Restaurant.Enum.DayOfTheWeek;
 import Restaurant.Enum.cuisineType;
 import Restaurant.Enum.establishmentType;
 import Restaurant.Exception.*;
-import Utils.*;
+
 
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -59,10 +59,10 @@ public class RestaurantManager {
         restaurant.addDish(d);
     }
 
-    public void updateDish(Dish old, Dish young) throws dishNoInDishes {
+    public void updateDish(Dish old, Dish replacement) throws dishNoInDishes {
         if(!(restaurant.alreadyDish(old))) throw new dishNoInDishes("Impossible de mettre à jour le plat, il n'est pas présent.");
         restaurant.removeDish(old);
-        restaurant.addDish(young);
+        restaurant.addDish(replacement);
     }
 
     public void removeDish(Dish d) throws dishNoInDishes{

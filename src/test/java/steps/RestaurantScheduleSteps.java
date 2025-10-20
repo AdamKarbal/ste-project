@@ -35,8 +35,8 @@ public class RestaurantScheduleSteps {
         service = new RestaurantService(repo);
     }
 
-    @Given("un catalogue de restos")
-    public void un_catalogue_de_restos(DataTable table) {
+    @Given("un catalogue de plusieurs restaurants")
+    public void un_catalogue_de__plusieurs_restaurants(DataTable table) {
         for(Map<String,String> row : table.asMaps()){
             String name = row.get("name");
             List<cuisineType> c = List.of(cuisineType.valueOf(row.get("cuisineType").toUpperCase()));

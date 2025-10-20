@@ -7,11 +7,13 @@ public abstract class Payment {
     private Order order;
     private int id;
     private PaymentState status;
-    public Payment(Order newOrder){
+    private PaymentMethod paymentMethod;
+    public Payment(Order newOrder,PaymentMethod paymentMethod){
         compteur++;
         order=newOrder;
         id=compteur;
         status=PaymentState.PENDING;
+        this.paymentMethod=paymentMethod;
     }
     public int getId(){
         return this.id;
@@ -25,5 +27,8 @@ public abstract class Payment {
     public PaymentState getStatus(){
         return status;
     }
-    public abstract void processPayment(PaymentMethod method);
+    public PaymentMethod getPaymentMethod(){
+        return paymentMethod;
+    }
+    public abstract PaymentState processPayment();
 }

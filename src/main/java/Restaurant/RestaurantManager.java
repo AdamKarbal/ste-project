@@ -95,4 +95,11 @@ public class RestaurantManager {
             throw new EstablishmentTypeNoExist("Le restaurant n'a pas de type d'établissement défini.");
         restaurant.setEstablishmentType(null);
     }
+
+    public DishTopping createToppingForDish(Dish dish, String name, float price) {
+        DishTopping topping = new DishTopping(name, price);
+        dish.addAvailableTopping(topping);
+        return topping;
+    }
+
 }

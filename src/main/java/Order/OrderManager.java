@@ -101,7 +101,12 @@ public class OrderManager {
         if (!order.getDishes().containsKey(dish)) {
             throw new IllegalArgumentException("Le plat n'existe pas dans la commande actuelle.");
         }
-        dish.addTopping(topping);
+
+        if (!dish.getAvailableToppings().contains(topping)) {
+            throw new IllegalArgumentException("Ce topping n'est pas proposé pour ce plat !");
+        }
+
+        dish.addSelectedTopping(topping);
         order.updatePrice();
     }
 }

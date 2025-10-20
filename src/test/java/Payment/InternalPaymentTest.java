@@ -14,7 +14,7 @@ class InternalPaymentTest {
     Order order;
     @BeforeEach
     void setUp(){
-        client=new AccountUser();
+        client=new AccountUser("Adam");
         order=new Order(client,null);
         payment=new InternalPayment(order);
     }
@@ -23,7 +23,7 @@ class InternalPaymentTest {
     void correctPayment(){
         client.setCredit(10);
         order.setPrice(9);
-        payment.processPayment(PaymentMethod.CASH);
+        payment.processPayment();
         assertEquals(PaymentState.PAID,payment.getStatus());
         assertEquals(client.getCredit(),1.0);
     }
@@ -32,7 +32,7 @@ class InternalPaymentTest {
     void badPayment(){
         client.setCredit(9);
         order.setPrice(10);
-        assertThrows(NotEnoughMoney.class,()->payment.processPayment(PaymentMethod.CASH));
+        assertThrows(NotEnoughMoney.class,()->payment.processPayment());
         assertEquals(PaymentState.FAILED,payment.getStatus());
         assertEquals(client.getCredit(),9.0);
     }

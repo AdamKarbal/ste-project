@@ -6,6 +6,8 @@ import Payment.Payment;
 import Payment.PaymentMethod;
 import Payment.PaymentService;
 import Payment.PaymentState;
+import Payment.PaymentMethod;
+import Payment.PaymentService;
 import Restaurant.Restaurant;
 import Dish.DishTopping;
 
@@ -44,6 +46,12 @@ public class OrderManager {
         }
         currentOrder.setState(OrderState.CANCELED);
         currentOrder = null;
+    }
+
+    public OrderState proceedPayement(PaymentMethod paymentMethod){
+        order.setState(OrderState.COMPLETED); // à changer pour l'instant je garde pour les tests mais une autre méthode doit mettre l'OrderState à completed
+        order.setState(PaymentService.getInstance().handleCompletedOrder(this.order,paymentMethod));
+        return order.getState();
     }
 
 

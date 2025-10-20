@@ -2,13 +2,11 @@ package Payment;
 
 import Order.Order;
 
-public class ExternalPayment extends Payment {
-    public ExternalPayment(Order newOrder){
-        super(newOrder);
+public class ExternalPayment extends Payment{
+    public ExternalPayment(Order order,PaymentMethod paymentMethod){
+        super(order,paymentMethod);
     }
-
-    @Override
-    public void processPayment(PaymentMethod method) {
-
+    public PaymentState processPayment(){
+        return PaymentState.PAID;
     }
 }

@@ -26,25 +26,25 @@ class RestaurantFilterTest {
     void setUp() throws Exception {
 
         //Dish
-        Dish dishSansGlutenEtVegan = new Dish(0f, "Dish SG+V", "", null, null, null,
+        Dish dishSansGlutenEtVegan = new Dish(0f, "Dish SG+V", null, null, null,
                 new ArrayList<>(List.of(DishTag.GLUTEN_FREE, DishTag.VEGAN)));
 
-        Dish dishVegan = new Dish(0f, "Dish Vegan", "", null, null, null,
+        Dish dishVegan = new Dish(0f, "Dish Vegan",null, null, null,
                 new ArrayList<>(List.of(DishTag.VEGAN)));
 
-        Dish dishSansGluten = new Dish(0f, "Dish SG", "", null, null, null,
+        Dish dishSansGluten = new Dish(0f, "Dish SG", null, null, null,
                 new ArrayList<>(List.of(DishTag.GLUTEN_FREE)));
 
-        Dish dishEpice = new Dish(0f, "Dish Spicy", "", null, null, null,
+        Dish dishEpice = new Dish(0f, "Dish Spicy", null, null, null,
                 new ArrayList<>(List.of(DishTag.SPICY)));
 
-        Dish cheapDish = new Dish(10f, "Dish Cheap", "", null, null, null,
+        Dish cheapDish = new Dish(10f, "Dish Cheap", null, null, null,
                 new ArrayList<>());
 
-        Dish mediumDish = new Dish(20f, "Dish Medium", "", null, null, null,
+        Dish mediumDish = new Dish(20f, "Dish Medium", null, null, null,
                 new ArrayList<>());
 
-        Dish expensiveDish = new Dish(30f, "Dish Expensive", "", null, null, null,
+        Dish expensiveDish = new Dish(30f, "Dish Expensive", null, null, null,
                 new ArrayList<>());
 
 
@@ -244,24 +244,24 @@ class RestaurantFilterTest {
     @Test
     void filterByPriceMax_shouldReturnRestaurantsWithDishBelowMaxPrice() {
         restoA.setDishes(List.of(
-                new Dish(10f, "Dish A1", "", null, null, null,
+                new Dish(10f, "Dish A1",  null, null, null,
                         new ArrayList<>(List.of(DishTag.GLUTEN_FREE, DishTag.VEGAN))),
-                new Dish(20f, "Dish A2", "", null, null, null,
+                new Dish(20f, "Dish A2",  null, null, null,
                         new ArrayList<>(List.of(DishTag.VEGAN)))
         ));
 
         restoB.setDishes(List.of(
-                new Dish(30f, "Dish B1", "", null, null, null,
+                new Dish(30f, "Dish B1",  null, null, null,
                         new ArrayList<>(List.of(DishTag.VEGAN)))
         ));
 
         restoC.setDishes(List.of(
-                new Dish(20f, "Dish C1", "", null, null, null,
+                new Dish(20f, "Dish C1",  null, null, null,
                         new ArrayList<>(List.of(DishTag.SPICY)))
         ));
 
         restoD.setDishes(List.of(
-                new Dish(16f, "Dish D1", "", null, null, null,
+                new Dish(16f, "Dish D1", null, null, null,
                         new ArrayList<>(List.of(DishTag.GLUTEN_FREE)))
         ));
 

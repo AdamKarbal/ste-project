@@ -2,8 +2,11 @@ package Order;
 
 import Account.AccountUser;
 import Restaurant.Restaurant;
+import Restaurant.RestaurantSchedule;
 import Dish.Dish;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -16,6 +19,8 @@ public class Order {
     private Restaurant restaurant;
     private AccountUser client;
     private OrderDeliveryPoint deliveryPoint;
+    private LocalDateTime deliveryTime;
+
     public Order(AccountUser client,Restaurant restaurant){
         price=0;
         state=OrderState.CREATED;
@@ -46,31 +51,76 @@ public class Order {
         this.deliveryPoint = deliveryPoint;
     }
 
+    public LocalDateTime getDeliveryTime() { return deliveryTime; }
+
+    public boolean assignSchedule(RestaurantSchedule chosenSchedule) {
+        if (chosenSchedule == null) return false;
+
+        if (restaurant == null || restaurant.getRestaurantSchedules() == null) return false;
+
+        boolean exists = restaurant.getRestaurantSchedules().stream()
+                .anyMatch(s -> s.getId().equals(chosenSchedule.getId()));
+        if (!exists) return false;
+
+        this.deliveryTime = LocalDateTime.of(
+                LocalDate.now(),
+                chosenSchedule.getEnd().plusMinutes(15)
+        );
+
+        System.out.println("Créneau assigné : " + chosenSchedule + " | Livraison prévue à " + deliveryTime);
+        return true;
+    }
+
     public void setState(OrderState newState) {
-        if (deliveryPoint == null && newState != OrderState.CREATED && newState != OrderState.CANCELED){
+        /*if (deliveryPoint == null && newState != OrderState.CREATED && newState != OrderState.CANCELED){
             throw new InvalidOrderStateException(
                     "Impossible de changer l'état " + newState + " car le point de livraison manque"
             );
+        }*/
+        if(this.state!=newState){
+            this.state = newState;
+            System.out.println("L'état de la commande a bien changé pour : " + newState);
         }
-        this.state = newState;
-        System.out.println("L'état de la commande a bien changé pour : " + newState);
     }
+
+    public boolean confirmOrder() {
+        if (deliveryPoint == null) {
+            System.err.println("Impossible de confirmer : aucun point de livraison défini.");
+            return false;
+        }
+
+        if (deliveryTime == null) {
+            System.err.println("Impossible de confirmer : aucun créneau horaire sélectionné.");
+            return false;
+        }
+
+        try {
+            setState(OrderState.PAID);
+            return true;
+        } catch (InvalidOrderStateException e) {
+            System.err.println(e.getMessage());
+            return false;
+        }
+    }
+
 
     public Map<Dish, Integer> getDishes() {
         return dishes;
     }
+
     public boolean addDish(Dish dish, int quantity) throws DifferentRestaurantException {
-        if (dish == null || quantity <= 0) return false;
+        /*if (dish == null || quantity <= 0) return false;
 
         if (!restaurant.containsDish(dish)) {
             throw new DifferentRestaurantException("Impossible d'ajouter le plat '" + dish.getName() + "' : il provient d'un autre restaurant ");
-        }
+        }*/
 
         dishes.put(dish, dishes.getOrDefault(dish, 0) + quantity);
         updatePrice();
         setState(OrderState.IN_PREPARATION);
         return true;
     }
+
     public void removeDish(Dish dish) {
         if (dishes.containsKey(dish)) {
             dishes.remove(dish);

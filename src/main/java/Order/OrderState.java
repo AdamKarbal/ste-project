@@ -5,5 +5,6 @@ public enum OrderState {
     IN_PREPARATION,
     PAID,
     COMPLETED,
-    CANCELED
+    CANCELED,
+    PAYMENT_FAILED
 }

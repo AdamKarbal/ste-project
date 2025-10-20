@@ -7,6 +7,8 @@ import Payment.PaymentMethod;
 import Payment.PaymentService;
 import Payment.PaymentState;
 import Restaurant.Restaurant;
+import Dish.DishTopping;
+
 
 public class OrderManager {
 
@@ -92,5 +94,14 @@ public class OrderManager {
     public OrderState followOrder() {
         Order order = getCurrentOrder();
         return order.getState();
+    }
+
+    public void addToppingToDish(Dish dish, DishTopping topping) {
+        Order order = getCurrentOrder();
+        if (!order.getDishes().containsKey(dish)) {
+            throw new IllegalArgumentException("Le plat n'existe pas dans la commande actuelle.");
+        }
+        dish.addTopping(topping);
+        order.updatePrice();
     }
 }

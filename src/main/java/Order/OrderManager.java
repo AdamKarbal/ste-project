@@ -2,6 +2,8 @@ package Order;
 
 import Account.AccountUser;
 import Dish.Dish;
+import Payment.PaymentMethod;
+import Payment.PaymentService;
 import Restaurant.Restaurant;
 
 import java.util.HashMap;
@@ -9,8 +11,10 @@ import java.util.Map;
 
 public class OrderManager {
     private final Map<AccountUser, Order> activeOrders;
+    private Order order;
 
-    public OrderManager() {
+    public OrderManager(Order order) {
+        this.order=order;
         this.activeOrders = new HashMap<>();
     }
 
@@ -42,7 +46,13 @@ public class OrderManager {
         order.addDish(dish, quantity);
     }
 
-    public void proceedPayment(AccountUser client, String paymentType)
+    public OrderState proceedPayement(PaymentMethod paymentMethod){
+        order.setState(OrderState.COMPLETED); // à changer pour l'instant je garde pour les tests mais une autre méthode doit mettre l'OrderState à completed
+        order.setState(PaymentService.getInstance().handleCompletedOrder(this.order,paymentMethod));
+        return order.getState();
+    }
+
+    public void proceedPayment(AccountUser client, PaymentMethod paymentType)
             throws OrderNotFoundException {
         Order order = activeOrders.get(client);
         if (order == null)

@@ -28,7 +28,7 @@ public class Dish {
     public double getPrice() {
         return price;
     }
-    public void setPrice(float price) {
+    public void setPrice(double price) {
         this.price = price;
     }
     public String getName() {
@@ -76,9 +76,25 @@ public class Dish {
             this.toppings.add(topping);
         }
     }
+
+    public void setToppings(List<DishTopping> toppings) {
+        this.toppings = toppings;
+    }
     public void removeTopping(DishTopping topping) {
         this.toppings.remove(topping);
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Dish)) return false;
+        Dish other = (Dish) o;
+        return name != null && other.name != null
+                && name.equalsIgnoreCase(other.name);
+    }
+    @Override
+    public int hashCode() {
+        return name == null ? 0 : name.toLowerCase().hashCode();
+    }
 
 }

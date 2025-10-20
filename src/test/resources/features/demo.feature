@@ -25,12 +25,12 @@ Feature: Demonstration de notre système
 
   Scenario: Un restaurateur crée et configure son restaurant
     Given le restaurateur "Nico" à été enregistré
-    When "Nico" crée son restaurant "Les delices de new delice"
+    When "Nico" crée son restaurant "Les delices de new delices"
     And Il le configure : cuisineType "INDIENNE"
     And Il le configure : establishmentType "RESTAURANT"
     And Il ajoute le plat "Riz coco curry" à 12.5€
     And Il ajoute un creneau de 11:30 à 11:45 avec 5 capacités
-    Then Le restaurant doit être disponible sous le nom de "Les delices de new delice"
+    Then Le restaurant doit être disponible sous le nom de "Les delices de new delices"
     And "Younes" peut passer trouver le restaurant "Les delices de new delices"
     And "Younes" peut trouver le plat "Riz coco curry"
 

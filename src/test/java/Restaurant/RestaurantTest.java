@@ -1,9 +1,7 @@
-package RestaurantTest;
+package Restaurant;
 
 import Restaurant.Enum.DayOfTheWeek;
 import Restaurant.Enum.cuisineType;
-import Restaurant.Restaurant;
-import Restaurant.RestaurantSchedule;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

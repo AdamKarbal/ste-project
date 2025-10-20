@@ -1,6 +1,6 @@
 package Restaurant;
 
-import Dish.DishTag;
+import Dish.*;
 import Restaurant.Enum.cuisineType;
 import Restaurant.Enum.establishmentType;
 import Restaurant.Exception.RestaurantExist;
@@ -15,7 +15,6 @@ public class RestaurantService {
     public RestaurantService(RestaurantRepo r){
         repo = r;
         this.filter=new RestaurantFilter(repo);
-
     }
 
     public static void addRestaurant(Restaurant restaurant) throws RestaurantExist {
@@ -65,4 +64,6 @@ public class RestaurantService {
     public List<Restaurant> filterByPriceRange(double min, double max){
         return filter.filterByPriceRange(min, max);
     }
+
+
 }

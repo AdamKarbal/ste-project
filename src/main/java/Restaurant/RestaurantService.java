@@ -1,6 +1,9 @@
 package Restaurant;
 
-import Dish.DishTag;
+import Dish.*;
+import Dish.suggest.DishSuggestionEngine;
+import Dish.suggest.KeywordSuggester;
+import Dish.suggest.Suggestion;
 import Restaurant.Enum.cuisineType;
 import Restaurant.Enum.establishmentType;
 import Restaurant.Exception.RestaurantExist;
@@ -11,6 +14,8 @@ import java.util.List;
 public class RestaurantService {
     private static RestaurantRepo repo;
     private RestaurantFilter filter;
+    private DishSuggestionEngine suggester = new KeywordSuggester();
+    private DishFactory factory = new DishFactory();
 
     public RestaurantService(RestaurantRepo r){
         repo = r;
@@ -63,5 +68,23 @@ public class RestaurantService {
 
     public List<Restaurant> filterByPriceRange(double min, double max){
         return filter.filterByPriceRange(min, max);
+    }
+
+    public Suggestion suggestDish(String nameOrKeyword) {
+        return suggester.suggest(nameOrKeyword);
+    }
+
+    public Dish createAndAddDish(String restaurantName, DishInput input) {
+        Restaurant r = findByNameOrThrow(restaurantName);
+        Suggestion s = suggester.suggest(input.name);
+        Dish d = factory.create(input, s);
+        r.addDish(d);
+        return d;
+    }
+    private Restaurant findByNameOrThrow(String name) {
+        return repo.getRestaurants().stream()
+                .filter(x -> x.getName().equalsIgnoreCase(name))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Restaurant introuvable: " + name));
     }
 }

@@ -1,4 +1,5 @@
 package steps;
+import Account.AccountUser;
 import Restaurant.*;
 import Account.AccountManager;
 import Restaurant.Exception.CuisineTypeInList;
@@ -12,12 +13,16 @@ import org.junit.jupiter.api.*;
 
 import java.time.LocalTime;
 import java.util.*;
+import Utils.MyDate;
+
 
 import Restaurant.Restaurant;
 import Restaurant.RestaurantRepo;
 import Restaurant.RestaurantService;
 import Restaurant.Enum.*;
 import Dish.*;
+
+import javax.xml.crypto.Data;
 
 
 public class DemoStep {
@@ -28,6 +33,7 @@ public class DemoStep {
     private Map<String, AccountManager> restaurateurs = new HashMap<>();
     private RestaurantManager currentManager;
     private Restaurant currentRestaurant;
+    private AccountUser client;
 
     @Before
     public void setup() {
@@ -74,25 +80,25 @@ public class DemoStep {
     }
 
     @Given("que le restaurant {string} propose le plat {string} à {double}€")
-    public void que_le_restaurant_propose_le_plat_à_€(String string, String string2, Double double1) {
+    public void que_le_restaurant_propose_le_plat_à_€(String string, String string2, Double double1) throws DishInDishes {
         currentRestaurant = service.getRestaurantByName(string);
-        currentManager = new RestaurantManager(currentRestaurant);
+        currentManager = new RestaurantManager(string);
         Dish dish=new Dish(double1,string2,null,null,null,null);
+        currentManager.addDish(dish);
         Assertions.assertNotNull(currentRestaurant);
         Assertions.assertTrue(currentRestaurant.getDishes().contains(dish));
         Assertions.assertEquals(dish.getPrice(),currentRestaurant.findDish(string2,double1).getPrice());
-        throw new io.cucumber.java.PendingException();
     }
 
     @Given("que {string} a un créneau de {int}:{int} à {int}:{int} avec une capacité de {int} repas")
     public void que_a_un_créneau_de_à_avec_une_capacité_de_repas(String string, Integer int1, Integer int2, Integer int3, Integer int4, Integer int5) {
-        // Write code here that turns the phrase above into concrete actions
-        throw new io.cucumber.java.PendingException();
+        List<RestaurantSchedule> schedules = RestaurantScheduleManager.getTodaySchedules(currentRestaurant);
+        Assertions.assertTrue(schedules.contains(new RestaurantSchedule(DayOfTheWeek.MONDAY,LocalTime.of(int1,int2),LocalTime.of(int3,int4),int5)));
     }
 
     @Given("que le client {string} est connecté à son compte")
     public void que_le_client_est_connecté_à_son_compte(String string) {
-        // Write code here that turns the phrase above into concrete actions
+        client=new AccountUser(string);
         throw new io.cucumber.java.PendingException();
     }
 

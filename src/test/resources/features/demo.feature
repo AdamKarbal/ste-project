@@ -1,16 +1,16 @@
 Feature: Demonstration de notre système
 
   Background:
-    Given un catalogue de restaurants
+    Given un catalogue de restos
       | name        | cuisineType | establishmentType | dish1     | price1 | dish2    | price2 | start1 | end1  | capacity1 | start2 | end2  | capacity2 | tags1                           | tags2                      |
-      | Pasta Mia   | ITALIENNE   | RESTAURANT        | Spaghetti | 12.5   | Lasagne  | 14.0   | 11:30  | 14:30 | 100       | 19:00  | 22:00 | 120       | VEGETARIAN, LACTOSE_FREE        |                            |
+      | Pasta Mia   | ITALIENNE   | RESTAURANT        | Spaghetti | 12.5   | Lasagne  | 14.0   | 11:30  | 14:30 | 10        | 19:00  | 22:00 | 120       | VEGETARIAN, LACTOSE_FREE        |                            |
       | SushiZen    | JAPONAISE   | RESTAURANT        | Maki      | 9.0    | Sashimi  | 15.0   | 12:00  | 15:00 | 80        | 18:30  | 21:30 | 90        | SPICY                           | GLUTEN_FREE                |
       | MammaRita   | ITALIENNE   | RESTAURANT        | Pizza     | 11.0   | Gnocchi  | 13.0   | 22:00  | 02:00 | 110       | 11:00  | 14:00 | 100       | Vegan; Organic                  | Vegetarian                 |
       | KebabKorner | VIETNAMIENNE| FAST_FOOD         | Pizza     | 11.0   | Gnocchi  | 13.0   | 22:00  | 02:00 | 110       | 11:00  | 14:00 | 100       |                                 |                            |
 
   Scenario: Un client passe commande
     Given que le restaurant "Pasta Mia" propose le plat "Spaghetti" à 12.5€
-    And que "Pasta Mia" a un créneau de 12:00 à 12:30 avec une capacité de 10 repas
+    And que "Pasta Mia" a un créneau de 19:00 à 22:00 avec une capacité de 120 repas
     And que le client "Younes" est connecté à son compte
     When "Younes" recherche les restaurants de type "ITALIENNE"
     And il sélectionne le restaurant "Pasta Mia"

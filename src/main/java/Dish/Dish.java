@@ -28,7 +28,7 @@ public class Dish {
     public double getPrice() {
         return price;
     }
-    public void setPrice(float price) {
+    public void setPrice(double price) {
         this.price = price;
     }
     public String getName() {
@@ -75,6 +75,10 @@ public class Dish {
         if(!toppings.contains(topping)){
             this.toppings.add(topping);
         }
+    }
+
+    public void setToppings(List<DishTopping> toppings) {
+        this.toppings = toppings;
     }
     public void removeTopping(DishTopping topping) {
         this.toppings.remove(topping);

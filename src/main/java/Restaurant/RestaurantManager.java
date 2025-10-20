@@ -1,5 +1,6 @@
 package Restaurant;
 import Dish.*;
+import Dish.suggest.Suggestion;
 import Restaurant.Enum.DayOfTheWeek;
 import Restaurant.Enum.cuisineType;
 import Restaurant.Enum.establishmentType;
@@ -12,6 +13,7 @@ import java.util.ArrayList;
 public class RestaurantManager {
     //Instances
     private Restaurant restaurant;
+    private final DishFactory dishFactory = new DishFactory();
 
     //Constructeur
     public RestaurantManager(String name){
@@ -91,4 +93,15 @@ public class RestaurantManager {
             throw new EstablishmentTypeNoExist("Le restaurant n'a pas de type d'établissement défini.");
         restaurant.setEstablishmentType(null);
     }
+
+    public Suggestion previewSuggestion(String nameOrKeyword) {
+        return dishFactory.suggest(nameOrKeyword);
+    }
+
+    public Dish createDish(DishInput input) throws DishInDishes {
+        Dish dish = dishFactory.create(input);
+        this.addDish(dish); // tes règles (doublon, etc.)
+        return dish;
+    }
+
 }

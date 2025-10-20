@@ -1,10 +1,8 @@
-package RestaurantTest;
+package Restaurant;
 
 import Dish.Dish;
-import Restaurant.*;
 import Restaurant.Enum.DayOfTheWeek;
 import Restaurant.Enum.cuisineType;
-import Utils.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

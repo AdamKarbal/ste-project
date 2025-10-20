@@ -62,7 +62,7 @@ public class RestaurantFilterSteps {
                     .cuisineType(c)
                     .establishmentType(e)
                     .build();
-            service.addRestaurant(r);
+            repo.addRestaurant(r);
         }
     }
 

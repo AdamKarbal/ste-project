@@ -1,7 +1,7 @@
 Feature: Gestion des créneaux
 
   Background:
-    Given un catalogue de restaurants
+    Given un catalogue de plusieurs restaurants
       | name        | cuisineType | establishmentType | dish1     | price1 | dish2    | price2 | start1 | end1  | capacity1 | start2 | end2  | capacity2 | tags1                           | tags2                      |
       | Pasta Mia   | ITALIENNE   | RESTAURANT        | Spaghetti | 12.5   | Lasagne  | 14.0   | 11:30  | 14:30 | 100       | 19:00  | 22:00 | 120       | VEGETARIAN, LACTOSE_FREE        |                            |
       | SushiZen    | JAPONAISE   | RESTAURANT        | Maki      | 9.0    | Sashimi  | 15.0   | 12:00  | 15:00 | 80        | 18:30  | 21:30 | 90        | SPICY                           | GLUTEN_FREE                |

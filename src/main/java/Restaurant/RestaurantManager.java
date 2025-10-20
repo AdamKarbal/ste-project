@@ -94,6 +94,10 @@ public class RestaurantManager {
         restaurant.setEstablishmentType(null);
     }
 
+    public DishTopping createToppingForDish(Dish dish, String name, float price) {
+        DishTopping topping = new DishTopping(name, price);
+        dish.addAvailableTopping(topping);
+        return topping;
     public Suggestion previewSuggestion(String nameOrKeyword) {
         return dishFactory.suggest(nameOrKeyword);
     }

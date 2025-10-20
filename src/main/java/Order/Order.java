@@ -142,7 +142,7 @@ public class Order {
         }
     }
 
-    private void updatePrice() {
+    public void updatePrice() {
         price = 0f;
         for (Map.Entry<Dish, Integer> entry : dishes.entrySet()) {
             price += entry.getKey().getPrice() * entry.getValue();

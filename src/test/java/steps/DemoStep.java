@@ -36,8 +36,8 @@ public class DemoStep {
             establishmentType e = establishmentType.valueOf(row.get("establishmentType").toUpperCase());
             List<DishTag> t1 = parseTags(row.get("tags1"));
             List<DishTag> t2 = parseTags(row.get("tags2"));
-            Dish d1 = new Dish(Double.parseDouble(row.get("price1")),row.get("dish1"),null,null,null,null,null);
-            Dish d2 = new Dish(Double.parseDouble(row.get("price2")),row.get("dish2"),null,null,null,null,null);
+            Dish d1 = new Dish(Double.parseDouble(row.get("price1")),row.get("dish1"),null,null,null,null);
+            Dish d2 = new Dish(Double.parseDouble(row.get("price2")),row.get("dish2"),null,null,null,null);
             d1.setDishTag(new ArrayList<>(t1));
             d2.setDishTag(new ArrayList<>(t2));
             List<Dish> dishes = List.of(d1,d2);

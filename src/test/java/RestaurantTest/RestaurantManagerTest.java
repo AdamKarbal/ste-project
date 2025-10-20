@@ -1,9 +1,11 @@
 package RestaurantTest;
 
-import Dish.Dish;
+import Dish.*;
+import Dish.suggest.Suggestion;
 import Restaurant.*;
 import Restaurant.Enum.DayOfTheWeek;
 import Restaurant.Enum.cuisineType;
+import Restaurant.Exception.DishInDishes;
 import Utils.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -77,5 +79,52 @@ public class RestaurantManagerTest {
         restaurant.setCuisineTypes(new ArrayList<>(List.of(cuisineType.FRANCAISE)));
         manager.removeCuisineType(cuisineType.FRANCAISE);
         assertFalse(restaurant.getCuisineTypes().contains(cuisineType.FRANCAISE));
+    }
+
+    @Test
+    void previewSuggestion_returnsExpectedSuggestion() {
+        RestaurantManager manager = new RestaurantManager("Chez Test");
+
+        Suggestion s = manager.previewSuggestion("Pizza Margherita");
+
+        assertNotNull(s);
+        assertEquals(DishType.PIZZA, s.type);   // attendu via KeywordSuggester
+        assertNotNull(s.suggestedPrice);
+        assertTrue(s.toppings == null || !s.toppings.isEmpty());
+    }
+
+    @Test
+    void createDish_mergesUserAndSuggestion_andAddsToRestaurant() throws Exception {
+        RestaurantManager manager = new RestaurantManager("Chez Test");
+
+        // Saisie utilisateur (il ajuste le prix et ajoute un topping)
+        DishInput in = new DishInput();
+        in.name = "Pizza Margherita";                   // déclenche PIZZA
+        in.price = 12.0;                                // l’utilisateur prime > suggestion (10.0)
+        in.toppings = List.of(new DishTopping("Olives", 0.8f)); // ajout manuel
+
+        Dish created = manager.createDish(in);
+
+        // Vérifs
+        assertEquals(1, manager.getRestaurant().getDishes().size());
+        assertEquals("Pizza Margherita", created.getName());
+        assertEquals(12.0, created.getPrice(), 1e-6);     // user > suggestion
+        assertTrue(created.getToppings().stream()
+                .anyMatch(t -> t.getName().equalsIgnoreCase("Olives"))); // merge toppings
+    }
+
+    @Test
+    void createDish_sameNameTwice_throwsDishInDishes_ifEqualsImplemented() throws Exception {
+        RestaurantManager manager = new RestaurantManager("Chez Test");
+
+        DishInput in = new DishInput();
+        in.name = "Pizza Margherita";
+        in.toppings = List.of(new DishTopping("Olives", 0.8f));
+
+        manager.createDish(in); // OK 1ère fois
+
+        // 2e création avec le même nom → si Dish.equals/hashCode(name) est implémenté,
+        // RestaurantManager.addDish doit jeter DishInDishes.
+        assertThrows(DishInDishes.class, () -> manager.createDish(in));
     }
 }

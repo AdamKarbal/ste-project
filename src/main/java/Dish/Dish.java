@@ -84,5 +84,17 @@ public class Dish {
         this.toppings.remove(topping);
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Dish)) return false;
+        Dish other = (Dish) o;
+        return name != null && other.name != null
+                && name.equalsIgnoreCase(other.name);
+    }
+    @Override
+    public int hashCode() {
+        return name == null ? 0 : name.toLowerCase().hashCode();
+    }
 
 }

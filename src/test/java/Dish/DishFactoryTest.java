@@ -53,4 +53,27 @@ class DishFactoryTest {
         IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> factory.create(in));
         assertTrue(ex.getMessage().toLowerCase().contains("price"));
     }
+
+    @Test
+    void create_blankName_throws() {
+        DishFactory f = new DishFactory();
+        DishInput in = new DishInput();
+        in.name = "   ";
+        assertThrows(IllegalArgumentException.class, () -> f.create(in));
+    }
+
+    @Test
+    void create_mergeToppings_noDuplicates() {
+        DishFactory f = new DishFactory();
+
+        DishInput in = new DishInput();
+        in.name = "Pizza Margherita";
+        in.toppings = List.of(new DishTopping("Mozzarella", 1.2f)); // déjà dans la suggestion
+
+        Dish d = f.create(in);
+        long mozzaCount = d.getToppings().stream()
+                .filter(t -> t.getName().equalsIgnoreCase("Mozzarella")).count();
+        assertEquals(1, mozzaCount); // pas de doublon
+    }
+
 }

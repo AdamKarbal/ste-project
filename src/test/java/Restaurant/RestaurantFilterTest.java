@@ -47,45 +47,22 @@ class RestaurantFilterTest {
         Dish expensiveDish = new Dish(30f, "Dish Expensive", null, null, null,
                 new ArrayList<>());
 
-
-        // Restaurant always open
-        DayOfTheWeek monday = DayOfTheWeek.MONDAY;
-        DayOfTheWeek tuesday = DayOfTheWeek.TUESDAY;
-        DayOfTheWeek wednesday = DayOfTheWeek.WEDNESDAY;
-        DayOfTheWeek thursday = DayOfTheWeek.THURSDAY;
-        DayOfTheWeek friday = DayOfTheWeek.FRIDAY;
-        DayOfTheWeek saturday = DayOfTheWeek.SATURDAY;
-        DayOfTheWeek sunday = DayOfTheWeek.SUNDAY;
-
-        LocalTime alwaysOpenStart = LocalTime.of(0, 0);
-        LocalTime alwaysOpenEnd = LocalTime.of(23, 59);
-
-        RestaurantSchedule mondayAlwaysOpen = new RestaurantSchedule(monday, alwaysOpenStart, alwaysOpenEnd, 100);
-        RestaurantSchedule tuesdayAlwaysOpen = new RestaurantSchedule(tuesday, alwaysOpenStart, alwaysOpenEnd, 100);
-        RestaurantSchedule wednesdayAlwaysOpen = new RestaurantSchedule(wednesday, alwaysOpenStart, alwaysOpenEnd, 100);
-        RestaurantSchedule thursdayAlwaysOpen = new RestaurantSchedule(thursday, alwaysOpenStart, alwaysOpenEnd, 100);
-        RestaurantSchedule fridayAlwaysOpen = new RestaurantSchedule(friday, alwaysOpenStart, alwaysOpenEnd, 100);
-        RestaurantSchedule saturdayAlwaysOpen = new RestaurantSchedule(saturday, alwaysOpenStart, alwaysOpenEnd, 100);
-        RestaurantSchedule sundayAlwaysOpen = new RestaurantSchedule(sunday, alwaysOpenStart, alwaysOpenEnd, 100);
-
-        // Restaurant never open
-        LocalTime neverOpenStart = LocalTime.of(0, 0);
-        LocalTime neverOpenEnd = LocalTime.of(0, 0);
-
-        RestaurantSchedule neverOpen = new RestaurantSchedule(monday, neverOpenStart, neverOpenEnd, 0);
-
         restoA = new Restaurant.Builder()
                 .name("Pizza Palace")
                 .establishmentType(establishmentType.RESTAURANT)
-                .restaurantSchedules(List.of(mondayAlwaysOpen, tuesdayAlwaysOpen, wednesdayAlwaysOpen, thursdayAlwaysOpen, fridayAlwaysOpen, sundayAlwaysOpen, saturdayAlwaysOpen))     // always
+                .restaurantSchedules(new ArrayList<>())     // always
                 .dishes(List.of(dishSansGluten, dishVegan,dishSansGlutenEtVegan))
                 .cuisineType(List.of(cuisineType.ITALIENNE))
                 .build();
 
+        for (DayOfTheWeek day : DayOfTheWeek.getRealDays()) {
+            RestaurantScheduleManager.addSchedule(restoA, day, LocalTime.of(0, 0), LocalTime.of(23, 59), 100);
+        }
+
         restoB = new Restaurant.Builder()
                 .name("La pizza roma")
                 .establishmentType(establishmentType.RESTAURANT)
-                .restaurantSchedules(List.of(neverOpen))      // never
+                .restaurantSchedules(new ArrayList<>())
                 .dishes(List.of(dishVegan))
                 .cuisineType(List.of(cuisineType.ITALIENNE))
                 .build();

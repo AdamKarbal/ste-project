@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -16,33 +17,32 @@ public class RestaurantTest {
     private Restaurant restaurant;
 
     private static Restaurant restaurantWithSingleSlot(DayOfTheWeek dayOfTheWeek, LocalTime start, LocalTime end) {
-        RestaurantSchedule slot = new RestaurantSchedule(dayOfTheWeek, start, end, 10);
-        return new Restaurant.Builder()
+        Restaurant restaurant = new Restaurant.Builder()
                 .name("R")
-                .restaurantSchedules(List.of(slot))
+                .restaurantSchedules(new ArrayList<>())
                 .build();
+        RestaurantScheduleManager.addSchedule(restaurant, dayOfTheWeek, start, end, 10);
+        return restaurant;
     }
 
     @BeforeEach
     void setUp() {
-        // Resto avec 3 créneaux : 10–14, 18–23, 22–02 (overnight)
-        RestaurantSchedule morning = new RestaurantSchedule(DayOfTheWeek.SUNDAY, LocalTime.of(10, 0), LocalTime.of(14, 0), 30);
-        RestaurantSchedule evening = new RestaurantSchedule(DayOfTheWeek.SUNDAY, LocalTime.of(18, 0), LocalTime.of(23, 0), 50);
-        RestaurantSchedule overnight = new RestaurantSchedule(DayOfTheWeek.SUNDAY, LocalTime.of(22, 0), LocalTime.of(2, 0), 20);
-
         restaurant = new Restaurant.Builder()
                 .name("Testaurant")
-                .restaurantSchedules(List.of(morning, evening, overnight))
+                .restaurantSchedules(new ArrayList<>())
                 .build();
+
+        RestaurantScheduleManager.addSchedule(restaurant, DayOfTheWeek.SUNDAY, LocalTime.of(10, 0), LocalTime.of(14, 0), 30);
+        RestaurantScheduleManager.addSchedule(restaurant, DayOfTheWeek.SUNDAY, LocalTime.of(18, 0), LocalTime.of(23, 0), 50);
+        RestaurantScheduleManager.addSchedule(restaurant, DayOfTheWeek.SUNDAY, LocalTime.of(22, 0), LocalTime.of(2, 0), 20); // overnight
     }
 
-    // -------- tests "isWithin" via isOpenAt avec un seul créneau --------
 
     @Test
     void testIsWithin_NormalRangeInside() {
         Restaurant r = restaurantWithSingleSlot(DayOfTheWeek.SUNDAY, LocalTime.of(10, 0), LocalTime.of(14, 0));
 
-        LocalDateTime dt = LocalDateTime.of(2025, 10, 5, 12, 0); // 12h → dans 10–14
+        LocalDateTime dt = LocalDateTime.of(2025, 10, 5, 12, 0); // 12h dans 10–14
         assertTrue(r.isOpenAt(dt));
     }
 
@@ -58,7 +58,7 @@ public class RestaurantTest {
     void testIsWithin_OvernightInsideBeforeMidnight() {
         Restaurant r = restaurantWithSingleSlot(DayOfTheWeek.SUNDAY, LocalTime.of(22, 0), LocalTime.of(2, 0));
 
-        LocalDateTime dt = LocalDateTime.of(2025, 10, 5, 23, 0); // 23h → dans 22–02
+        LocalDateTime dt = LocalDateTime.of(2025, 10, 5, 23, 0); // 23h dans 22–02
         assertTrue(r.isOpenAt(dt));
     }
 
@@ -66,7 +66,7 @@ public class RestaurantTest {
     void testIsWithin_OvernightInsideAfterMidnight() {
         Restaurant r = restaurantWithSingleSlot(DayOfTheWeek.SUNDAY, LocalTime.of(22, 0), LocalTime.of(2, 0));
 
-        LocalDateTime dt = LocalDateTime.of(2025, 10, 6, 1, 0); // 1h du matin → toujours ouvert
+        LocalDateTime dt = LocalDateTime.of(2025, 10, 6, 1, 0); // 1h du matin  toujours ouvert
         assertTrue(r.isOpenAt(dt));
     }
 
@@ -74,11 +74,9 @@ public class RestaurantTest {
     void testIsWithin_OvernightOutside() {
         Restaurant r = restaurantWithSingleSlot(DayOfTheWeek.SUNDAY, LocalTime.of(22, 0), LocalTime.of(2, 0));
 
-        LocalDateTime dt = LocalDateTime.of(2025, 10, 5, 18, 0); // 18h → avant ouverture
+        LocalDateTime dt = LocalDateTime.of(2025, 10, 5, 18, 0); // 18h  avant ouverture
         assertFalse(r.isOpenAt(dt));
     }
-
-    // -------- tests "isOpenAt" sur le resto à 3 créneaux --------
 
     @Test
     void testIsOpenAt_Open() {
@@ -88,13 +86,13 @@ public class RestaurantTest {
 
     @Test
     void testIsOpenAt_Closed() {
-        LocalDateTime current = LocalDateTime.of(2025, 10, 5, 15, 0); // entre 14 et 18 → fermé
+        LocalDateTime current = LocalDateTime.of(2025, 10, 5, 15, 0); // entre 14 et 18 fermé
         assertFalse(restaurant.isOpenAt(current));
     }
 
     @Test
     void testIsOpenAt_OvernightOpenAfterMidnight() {
-        LocalDateTime current = LocalDateTime.of(2025, 10, 6, 1, 0); // 1h → dans 22–02
+        LocalDateTime current = LocalDateTime.of(2025, 10, 6, 1, 0); // 1h  dans 22–02
         assertTrue(restaurant.isOpenAt(current));
     }
 
@@ -123,14 +121,20 @@ public class RestaurantTest {
         DayOfTheWeek day = DayOfTheWeek.MONDAY;
         LocalTime start = LocalTime.of(10, 0);
         LocalTime end = LocalTime.of(14, 0);
-        RestaurantSchedule s1 = new RestaurantSchedule(day, start, end, 20);
 
         Restaurant r = new Restaurant.Builder()
                 .name("R")
-                .restaurantSchedules(List.of(s1))
+                .restaurantSchedules(new ArrayList<>())
                 .build();
 
-        assertTrue(r.alreadyScheduled(start, end, day));
+        RestaurantScheduleManager.addSchedule(r, day, start, end, 20);
+
+        LocalTime current = start;
+        while (!current.equals(end)) {
+            assertTrue(r.alreadyScheduled(current, current.plusMinutes(30), day),
+                    "Le créneau " + current + " : " + current.plusMinutes(30) + " devrait exister");
+            current = current.plusMinutes(30);
+        }
     }
 
     @Test
@@ -138,18 +142,28 @@ public class RestaurantTest {
         DayOfTheWeek day = DayOfTheWeek.MONDAY;
         LocalTime start = LocalTime.of(10, 0);
         LocalTime end = LocalTime.of(14, 0);
-        RestaurantSchedule s1 = new RestaurantSchedule(day, start, end, 20);
 
         Restaurant r = new Restaurant.Builder()
                 .name("R")
-                .restaurantSchedules(List.of(s1))
+                .restaurantSchedules(new ArrayList<>())
                 .build();
 
-        // test d'un créneau différent (15:00-18:00 le même jour)
+        RestaurantScheduleManager.addSchedule(r, day, start, end, 20);
+
         LocalTime otherStart = LocalTime.of(15, 0);
         LocalTime otherEnd = LocalTime.of(18, 0);
 
-        assertFalse(r.alreadyScheduled(otherStart, otherEnd, day));
+        LocalTime current = otherStart;
+        boolean anyExists = false;
+        while (!current.equals(otherEnd)) {
+            if (r.alreadyScheduled(current, current.plusMinutes(30), day)) {
+                anyExists = true;
+                break;
+            }
+            current = current.plusMinutes(30);
+        }
+
+        assertFalse(anyExists, "Aucun créneau de 15:00 - 18:00 ne devrait exister");
     }
 
     @Test
@@ -172,16 +186,27 @@ public class RestaurantTest {
         LocalTime start = LocalTime.of(10, 0);
         LocalTime end = LocalTime.of(14, 0);
 
-        RestaurantSchedule s1 = new RestaurantSchedule(day, start, end, 20);
         Restaurant r = new Restaurant.Builder()
                 .name("R")
-                .restaurantSchedules(List.of(s1))
+                .restaurantSchedules(new ArrayList<>())
                 .build();
 
-        // on appelle la méthode qui met à jour la capacité pour le créneau donné
+        RestaurantScheduleManager.addSchedule(r, day, start, end, 20);
+
         r.setNewCapacity(start, end, day, 50);
 
-        assertEquals(50, s1.getCapacity());
+        LocalTime current = start;
+        while (!current.equals(end)) {
+            LocalTime finalCurrent = current;
+            RestaurantSchedule rs = r.getRestaurantSchedules().stream()
+                    .filter(s -> s.getDay() == day && s.getStart().equals(finalCurrent))
+                    .findFirst().orElseThrow();
+
+            assertEquals(50, rs.getCapacity(),
+                    "La capacité du créneau " + current + " → " + current.plusMinutes(30) + " doit être mise à jour");
+
+            current = current.plusMinutes(30);
+        }
     }
 
     @Test
@@ -192,15 +217,26 @@ public class RestaurantTest {
         LocalTime start2 = LocalTime.of(15, 0);
         LocalTime end2 = LocalTime.of(18, 0);
 
-        RestaurantSchedule s1 = new RestaurantSchedule(day, start1, end1, 20);
         Restaurant r = new Restaurant.Builder()
                 .name("R")
-                .restaurantSchedules(List.of(s1))
+                .restaurantSchedules(new ArrayList<>())
                 .build();
 
-        // Tentative de mise à jour sur un créneau différent (pas de match)
+        RestaurantScheduleManager.addSchedule(r, day, start1, end1, 20);
+
         r.setNewCapacity(start2, end2, day, 99);
 
-        assertEquals(20, s1.getCapacity());
+        LocalTime current = start1;
+        while (!current.equals(end1)) {
+            LocalTime finalCurrent = current;
+            RestaurantSchedule rs = r.getRestaurantSchedules().stream()
+                    .filter(s -> s.getDay() == day && s.getStart().equals(finalCurrent))
+                    .findFirst().orElseThrow();
+
+            assertEquals(20, rs.getCapacity(),
+                    "La capacité du créneau " + current + " → " + current.plusMinutes(30) + " ne doit pas changer");
+
+            current = current.plusMinutes(30);
+        }
     }
 }

@@ -20,31 +20,50 @@ public class RestaurantScheduleManagerTest {
 
     @BeforeEach
     void setUp() {
-        mondayMorning = new RestaurantSchedule(DayOfTheWeek.MONDAY, LocalTime.of(8, 0), LocalTime.of(12, 0), 10);
-        mondayEvening = new RestaurantSchedule(DayOfTheWeek.MONDAY, LocalTime.of(18, 0), LocalTime.of(23, 0), 20);
-        fridayNight = new RestaurantSchedule(DayOfTheWeek.FRIDAY, LocalTime.of(22, 0), LocalTime.of(2, 0), 15); // Overnight
-
         restaurant = new Restaurant.Builder()
                 .name("Testaurant")
                 .dishes(new ArrayList<>())
-                .restaurantSchedules(new ArrayList<>(List.of(mondayMorning, mondayEvening, fridayNight)))
+                .restaurantSchedules(new ArrayList<>())
                 .cuisineType(new ArrayList<>())
                 .build();
+
+        RestaurantScheduleManager.addSchedule(restaurant, DayOfTheWeek.MONDAY, LocalTime.of(8, 0), LocalTime.of(12, 0), 10);
+        RestaurantScheduleManager.addSchedule(restaurant, DayOfTheWeek.MONDAY, LocalTime.of(18, 0), LocalTime.of(23, 0), 20);
+        RestaurantScheduleManager.addSchedule(restaurant, DayOfTheWeek.FRIDAY, LocalTime.of(22, 0), LocalTime.of(2, 0), 15); // overnight
     }
 
     @Test
     void testAddScheduleSuccess() {
-        RestaurantSchedule newSchedule = new RestaurantSchedule(DayOfTheWeek.TUESDAY, LocalTime.of(12, 0), LocalTime.of(14, 0), 10);
-        boolean added = RestaurantScheduleManager.addSchedule(restaurant, newSchedule);
-        assertTrue(added);
-        assertTrue(restaurant.getRestaurantSchedules().contains(newSchedule));
+        Restaurant r = new Restaurant.Builder()
+                .name("Testaurant")
+                .restaurantSchedules(new ArrayList<>())
+                .build();
+
+        boolean added = RestaurantScheduleManager.addSchedule(r, DayOfTheWeek.TUESDAY, LocalTime.of(12, 0), LocalTime.of(14, 0), 10);
+
+        assertTrue(added, "La plage devrait être ajoutée avec succès");
+
+        LocalTime current = LocalTime.of(12, 0);
+        while (!current.equals(LocalTime.of(14, 0))) {
+            final LocalTime slotStart = current;
+            assertTrue(r.getRestaurantSchedules().stream()
+                            .anyMatch(s -> s.getDay() == DayOfTheWeek.TUESDAY && s.getStart().equals(slotStart)),
+                    "Le créneau " + slotStart + " - " + slotStart.plusMinutes(30) + " devrait exister");
+            current = current.plusMinutes(30);
+        }
     }
 
     @Test
     void testAddScheduleOverlapFails() {
-        RestaurantSchedule overlap = new RestaurantSchedule(DayOfTheWeek.MONDAY, LocalTime.of(11, 0), LocalTime.of(13, 0), 5);
-        boolean added = RestaurantScheduleManager.addSchedule(restaurant, overlap);
-        assertFalse(added);
+        Restaurant r = new Restaurant.Builder()
+                .name("Testaurant")
+                .restaurantSchedules(new ArrayList<>())
+                .build();
+        RestaurantScheduleManager.addSchedule(r, DayOfTheWeek.MONDAY, LocalTime.of(10, 0), LocalTime.of(12, 0), 20);
+
+        boolean added = RestaurantScheduleManager.addSchedule(r, DayOfTheWeek.MONDAY, LocalTime.of(11, 0), LocalTime.of(13, 0), 5);
+
+        assertFalse(added, "La plage qui chevauche ne devrait pas être ajoutée");
     }
 
     @Test
@@ -65,25 +84,27 @@ public class RestaurantScheduleManagerTest {
 
     @Test
     void testGetTodaySchedules() {
+        Restaurant r = new Restaurant.Builder()
+                .name("Testaurant")
+                .restaurantSchedules(new ArrayList<>())
+                .build();
+
         var now = java.time.LocalTime.now();
         var today = RestaurantScheduleManager.convertDayOfWeek(java.time.LocalDate.now().getDayOfWeek());
 
-        var currentSchedule = new RestaurantSchedule(
-                today,
-                now.minusMinutes(30),
-                now.plusMinutes(30),
-                10
-        );
+        LocalTime start = now.minusMinutes(30).withMinute(now.getMinute() < 30 ? 0 : 30); // arrondi au créneau précédent
+        LocalTime end = start.plusMinutes(60); // couvre deux créneaux de 30 min
 
-        restaurant.addSchedule(currentSchedule);
+        RestaurantScheduleManager.addSchedule(r, today, start, end, 10);
 
-        var schedules = RestaurantScheduleManager.getTodaySchedules(restaurant);
+        var schedules = RestaurantScheduleManager.getTodaySchedules(r);
 
         assertNotNull(schedules);
-        assertTrue(
-                schedules.contains(currentSchedule),
-                "Le créneau actif du jour devrait être retourné"
-        );
+
+        boolean found = schedules.stream()
+                .anyMatch(s -> !now.isBefore(s.getStart()) && now.isBefore(s.getEnd()));
+
+        assertTrue(found, "Le créneau actif du jour devrait être retourné");
     }
 
 

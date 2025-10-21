@@ -10,17 +10,20 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class AccountManagerTest {
 
-    /*private RestaurantRepo repo;
+    private RestaurantRepo repo;
+    private RestaurantService restaurantService;
+    private RestaurantFactory restaurantFactory;
 
     @BeforeEach
     void setUp() {
         repo = new RestaurantRepo(new ArrayList<>());
-        RestaurantService.init(repo);
+        restaurantService = new RestaurantService(repo);
     }
 
     @Test
     void testAccountManager_CreatesRestaurant() {
         AccountManager accountManager = new AccountManager("Hajj Ali Madandar");
+        accountManager.createRestaurant("Hajj Ali Madandar",);
         Restaurant restaurant = accountManager.getRestaurantManager().getRestaurant();
         assertEquals(1, repo.getRestaurants().size());
         assertEquals("Hajj Ali Madandar", repo.getRestaurants().get(0).getName());
@@ -49,5 +52,5 @@ public class AccountManagerTest {
         assertEquals(2, repo.getRestaurants().size());
         assertTrue(repo.getRestaurants().stream().anyMatch(r -> r.getName().equals("Adam")));
         assertTrue(repo.getRestaurants().stream().anyMatch(r -> r.getName().equals("Ali")));
-    }*/
+    }
 }

@@ -31,9 +31,9 @@ public class RestaurantScheduleManager {
         if (restaurant == null || restaurant.getRestaurantSchedules() == null || requestedTime == null)
             return Optional.empty();
 
-        /*LocalDateTime now = LocalDateTime.now();
+        LocalDateTime now = LocalDateTime.now();
 
-        if (requestedTime.isBefore(now.toLocalTime().plusMinutes(15))) {
+        /*if (requestedTime.isBefore(now.toLocalTime().plusMinutes(15))) {
             return Optional.empty();
         }*/
 

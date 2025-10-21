@@ -82,7 +82,7 @@ class OrderTest {
     @Test
     void testChooseScheduleFailsIfNotInRestaurant() {
         RestaurantSchedule otherSchedule = new RestaurantSchedule(
-                schedule.getDay(), schedule.getStart(), schedule.getEnd(), schedule.getCapacity()
+                schedule.getDay(), schedule.getStart(), schedule.getCapacity()
         );
 
         RestaurantSchedule result = order.chooseSchedule(otherSchedule.getStart());

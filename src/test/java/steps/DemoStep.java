@@ -133,15 +133,14 @@ public class DemoStep {
     }
 
     @When("il choisit le créneau de {int}:{int} et valide sa commande")
-    public void il_choisit_le_créneau_de_et_valide_sa_commande(Integer int1, Integer int2) {
-        currentOrder.chooseSchedule(
-                new RestaurantSchedule(
-                        DayOfTheWeek.MONDAY,
-                        LocalTime.of(int1, int2),
-                        LocalTime.of(int1, int2).plusMinutes(30),
-                        10
-                )
-        );
+    public void il_choisit_le_créneau_de_et_valide_sa_commande(Integer hour, Integer minute) {
+        LocalTime requestedTime = LocalTime.of(hour, minute);
+
+        Optional<RestaurantSchedule> chosen = currentOrder.chooseSchedule(requestedTime);
+
+        if (chosen.isEmpty()) {
+            throw new RuntimeException("Le créneau demandé n'est pas disponible pour ce restaurant");
+        }
     }
 
     @When("il procède au paiement avec son crédit")

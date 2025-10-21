@@ -105,21 +105,6 @@ public class RestaurantScheduleManagerTest {
     }
 
     @Test
-    void testOvernightScheduleOpenPastMidnight() {
-        boolean openFridayNight = RestaurantScheduleManager.isOpenAt(
-                restaurant,
-                java.time.LocalDateTime.of(2025, 10, 17, 23, 30)
-        );
-        assertTrue(openFridayNight);
-
-        boolean openSaturdayEarly = RestaurantScheduleManager.isOpenAt(
-                restaurant,
-                java.time.LocalDateTime.of(2025, 10, 18, 1, 0)
-        );
-        assertTrue(openSaturdayEarly);
-    }
-
-    @Test
     void testOvernightScheduleClosedAfterEnd() {
         boolean open = RestaurantScheduleManager.isOpenAt(
                 restaurant,

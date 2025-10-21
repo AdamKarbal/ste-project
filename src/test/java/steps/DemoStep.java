@@ -136,13 +136,12 @@ public class DemoStep {
 
     @When("il choisit le créneau de {int}:{int} et valide sa commande")
     public void il_choisit_le_créneau_de_et_valide_sa_commande(Integer int1, Integer int2) {
-        //currentOrder.chooseSchedule(LocalTime.of(int1,int2));
+        currentOrder.chooseSchedule(LocalTime.of(int1,int2));
     }
 
     @When("il procède au paiement avec son crédit")
     public void il_procède_au_paiement_avec_son_crédit() {
         orderStatus=currentOrderManager.proceedPayement(PaymentMethod.CASH);
-        System.out.println(client.getOrderHistory());
     }
 
     @Then("le paiement doit être accepté et une commande payeé par cash doit être créée pour {string}")
@@ -274,5 +273,4 @@ public class DemoStep {
         }
         throw new IllegalArgumentException("Tag inconnu: " + raw);
     }
-
 }

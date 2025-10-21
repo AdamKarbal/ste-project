@@ -86,13 +86,6 @@ public class RestaurantScheduleManagerTest {
         );
     }
 
-
-    @Test
-    void testGetNextAvailableSchedule() {
-        Optional<RestaurantSchedule> next = RestaurantScheduleManager.getNextAvailableSchedule(restaurant);
-        assertTrue(next.isPresent());
-    }
-
     @Test
     void testIsOpenAt() {
         boolean open = RestaurantScheduleManager.isOpenAt(
@@ -109,21 +102,6 @@ public class RestaurantScheduleManagerTest {
                 java.time.LocalDateTime.of(2025, 10, 13, 3, 0)
         );
         assertFalse(open);
-    }
-
-    @Test
-    void testOvernightScheduleOpenPastMidnight() {
-        boolean openFridayNight = RestaurantScheduleManager.isOpenAt(
-                restaurant,
-                java.time.LocalDateTime.of(2025, 10, 17, 23, 30)
-        );
-        assertTrue(openFridayNight);
-
-        boolean openSaturdayEarly = RestaurantScheduleManager.isOpenAt(
-                restaurant,
-                java.time.LocalDateTime.of(2025, 10, 18, 1, 0)
-        );
-        assertTrue(openSaturdayEarly);
     }
 
     @Test

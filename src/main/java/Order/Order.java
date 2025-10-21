@@ -3,12 +3,14 @@ package Order;
 import Account.AccountUser;
 import Restaurant.Restaurant;
 import Restaurant.RestaurantSchedule;
+import Restaurant.RestaurantScheduleManager;
 import Dish.Dish;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 public class Order {
     private double price;
@@ -51,22 +53,8 @@ public class Order {
 
     public LocalDateTime getDeliveryTime() { return deliveryTime; }
 
-    public boolean chooseSchedule(RestaurantSchedule chosenSchedule) {
-        if (chosenSchedule == null) return false;
-
-        if (restaurant == null || restaurant.getRestaurantSchedules() == null) return false;
-
-        boolean exists = restaurant.getRestaurantSchedules().stream()
-                .anyMatch(s -> s.getId().equals(chosenSchedule.getId()));
-        if (!exists) return false;
-
-        this.deliveryTime = LocalDateTime.of(
-                LocalDate.now(),
-                chosenSchedule.getEnd().plusMinutes(15)
-        );
-
-        System.out.println("Créneau assigné : " + chosenSchedule + " | Livraison prévue à " + deliveryTime);
-        return true;
+    public Optional<RestaurantSchedule> chooseSchedule(LocalTime time) {
+        return RestaurantScheduleManager.getAvailableScheduleFor(restaurant, time);
     }
 
     public void setState(OrderState newState) {

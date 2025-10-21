@@ -21,6 +21,7 @@ public class RestaurantScheduleManager {
         return restaurant.getRestaurantSchedules().stream()
                 .filter(s -> s.getDay() == today)
                 .filter(s -> s.getEnd().isAfter(now))
+                .filter(s -> s.getCapacity() > 0)
                 .collect(Collectors.toList());
     }
 
@@ -39,6 +40,7 @@ public class RestaurantScheduleManager {
         return restaurant.getRestaurantSchedules().stream()
                 .filter(s -> s.getDay() == today)
                 .filter(s -> !requestedTime.isBefore(s.getStart()) && requestedTime.isBefore(s.getEnd()))
+                .filter(s -> s.getCapacity() > 0)
                 .findFirst();
     }
 
@@ -68,6 +70,14 @@ public class RestaurantScheduleManager {
     public static boolean removeScheduleById(Restaurant restaurant, String id) {
         if (restaurant == null || restaurant.getRestaurantSchedules() == null) return false;
         return restaurant.getRestaurantSchedules().removeIf(s -> s.getId().equals(id));
+    }
+
+    public static boolean getCapacityById(Restaurant restaurant, String id) {
+        if (restaurant == null || restaurant.getRestaurantSchedules() == null) return false;
+        for (RestaurantSchedule s : restaurant.getRestaurantSchedules()) {
+            if (s.getId().equals(id) && s.getCapacity() > 0) return true;
+        }
+        return false;
     }
 
     public static boolean updateCapacityById(Restaurant restaurant, String id, int capacity) {

@@ -14,14 +14,12 @@ import Dish.DishTopping;
 
 public class OrderManager {
 
-    private PaymentService paymentService;
-    private Order currentOrder;
-    private final CompletedOrderManager completedOrderManager;
 
-    public OrderManager(PaymentService paymentService,CompletedOrderManager completedOrderManager) {
-        this.currentOrder = null;
-        this.paymentService = paymentService;
-        this.completedOrderManager = completedOrderManager;
+    private Order currentOrder;
+
+
+    public OrderManager() {
+
     }
 
 

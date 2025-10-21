@@ -49,7 +49,7 @@ public class RestaurantManagerTest {
 
         RestaurantScheduleManager.addSchedule(restaurant, day, start, end, 20);
 
-        RestaurantScheduleManager.updateCapacity(restaurant, day, start, end, 50);
+        manager.updateCapacity(day, start, end, 50);
 
         assertEquals(50, restaurant.getRestaurantSchedules().get(0).getCapacity());
     }

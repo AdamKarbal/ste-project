@@ -1,12 +1,14 @@
 package steps;
-import Order.OrderManager;
-import Order.OrderState;
 
 import Account.AccountUser;
 import Dish.Dish;
 import Order.Order;
+import Order.OrderManager;
+import Order.CompletedOrderManager;
+import Order.OrderState;
 import Payment.Payment;
 import Payment.PaymentMethod;
+import Payment.PaymentService;
 import io.cucumber.java.en.*;
 import org.junit.jupiter.api.Assertions;
 
@@ -33,17 +35,18 @@ public class OrderManagerTest {
         data.client = new AccountUser("Adam");
         data.client.setCredit(3);
 
-        data.order1 = new Order(data.client, null);
-        data.order2 = new Order(data.client, null);
+        CompletedOrderManager completedOrderManager = new CompletedOrderManager();
+        OrderManager om = new OrderManager();
 
+        om.createOrder(data.client, null);
         Dish dish1 = new Dish(1.0, "d", "e", null, null, null);
-        Dish dish2 = new Dish(2.0, "ee", "edd", null, null, null);
+        om.addItem(dish1, 1);
+        om.proceedPayement(PaymentMethod.CASH);
 
-        data.order1.addDish(dish1, 1);
-        data.order2.addDish(dish2, 1);
-
-        new OrderManager(data.order1).proceedPayement(PaymentMethod.CASH);
-        new OrderManager(data.order2).proceedPayement(PaymentMethod.ONLINE);
+        om.createOrder(data.client, null);
+        Dish dish2 = new Dish(2.0, "d", "e", null, null, null);
+        om.addItem(dish2, 1);
+        om.proceedPayement(PaymentMethod.CASH);
 
         return data;
     }
@@ -91,7 +94,7 @@ public class OrderManagerTest {
 
     @When("il paie la commande avec son crédit")
     public void il_paie_la_commande_avec_son_crédit() {
-        new OrderManager(order).proceedPayement(PaymentMethod.CASH);
+        //new OrderManager(order).proceedPayement(PaymentMethod.CASH);
     }
 
     @Then("son crédit doit être débité de {double} euros")

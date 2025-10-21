@@ -1,8 +1,9 @@
 package steps;
 
+import Account.AccountManager;
 import Dish.*;
 import Dish.suggest.Suggestion;
-import Restaurant.Restaurant;
+import Restaurant.*;
 import Restaurant.RestaurantManager;
 import Restaurant.Exception.DishInDishes;
 import io.cucumber.datatable.DataTable;
@@ -20,13 +21,22 @@ public class R4aSteps {
     private Dish created;
     private Suggestion suggestion;
     private Exception caught;
+    private RestaurantService restaurantService;
+    private RestaurantFactory restaurantFactory;
+    private RestaurantRepo repo;
+    private AccountManager owner;
 
     // ---------- Background ----------
 
     @Given("un RestaurantManager initialisé pour {string}")
     public void unRestaurantManagerInitialisePour(String name) {
-        Restaurant restaurant = new Restaurant.Builder().name(name).build();
-        manager = new RestaurantManager(restaurant);
+        repo = new RestaurantRepo(new ArrayList<>());
+        restaurantService = new RestaurantService(repo);
+        restaurantFactory = new RestaurantFactory(restaurantService);
+        owner = new AccountManager("Olivier");
+        owner.createRestaurant(name,restaurantFactory);
+        Restaurant restaurant = owner.getRestaurantManager().getRestaurant();
+        manager = owner.getRestaurantManager();
     }
 
     @And("un référentiel de suggestions")

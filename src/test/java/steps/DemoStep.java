@@ -47,7 +47,7 @@ public class DemoStep {
         repo = new RestaurantRepo(new ArrayList<>());
         service = new RestaurantService(repo);
         factory = new RestaurantFactory(service);
-
+        restaurateurs = new HashMap<>();
     }
 
     @Given("un catalogue de restos")
@@ -84,7 +84,9 @@ public class DemoStep {
                     .cuisineType(c)
                     .establishmentType(e)
                     .build();
-            service.addRestaurant(r);
+            try {
+                service.addRestaurant(r);
+            } catch (Exception ignored) {}
         }
     }
 

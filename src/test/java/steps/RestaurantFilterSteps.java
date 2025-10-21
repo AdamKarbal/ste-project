@@ -25,8 +25,7 @@ public class RestaurantFilterSteps {
     @Before
     public void setup() {
         repo = new RestaurantRepo(new ArrayList<>());
-        RestaurantService.init(repo);
-        service = RestaurantService.getINSTANCE();
+        service = new RestaurantService(repo);
     }
 
     @Given("un catalogue de restaurants")

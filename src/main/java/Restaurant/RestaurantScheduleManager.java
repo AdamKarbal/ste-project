@@ -84,18 +84,19 @@ public class RestaurantScheduleManager {
 
     private static void createIntervals(Restaurant restaurant, DayOfTheWeek day, LocalTime start, LocalTime end, int capacity) {
         LocalTime current = start;
-        while (current.isBefore(end)) {
+        while (true) {
             if (!restaurant.alreadyScheduled(current, current.plusMinutes(30), day)) {
                 restaurant.addSchedule(new RestaurantSchedule(day, current, capacity));
             }
+
             current = current.plusMinutes(30);
 
-            if (current.equals(LocalTime.MIDNIGHT)) {
-                assert day != null;
-                day = nextDay(day);
+            if (current.equals(LocalTime.MIDNIGHT) || !current.isBefore(end)) {
+                break; // 💥 Sortir de la boucle
             }
         }
     }
+
 
     public static void updateSchedule(Restaurant restaurant, DayOfTheWeek day, LocalTime start, LocalTime end, int capacity) {
         Objects.requireNonNull(day);

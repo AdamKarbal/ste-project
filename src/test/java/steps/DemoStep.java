@@ -95,21 +95,25 @@ public class DemoStep {
         currentRestaurant = service.getRestaurantByName(string);
         currentManager = new RestaurantManager(currentRestaurant);
         Dish dish=new Dish(double1,string2,null,null,null,null);
-        currentManager.addDish(dish);
         Assertions.assertNotNull(currentRestaurant);
         Assertions.assertTrue(currentRestaurant.getDishes().contains(dish));
         Assertions.assertEquals(dish.getPrice(),currentRestaurant.findDish(string2,double1).getPrice());
     }
 
-    @Given("que {string} a un créneau de {int}:{int} à {int}:{int} avec une capacité de {int} repas")
+    @And("que {string} a un créneau de {int}:{int} à {int}:{int} avec une capacité de {int} repas")
     public void que_a_un_créneau_de_à_avec_une_capacité_de_repas(String string, Integer int1, Integer int2, Integer int3, Integer int4, Integer int5) {
         List<RestaurantSchedule> schedules = RestaurantScheduleManager.getTodaySchedules(currentRestaurant);
         Assertions.assertTrue(schedules.contains(new RestaurantSchedule(DayOfTheWeek.MONDAY,LocalTime.of(int1,int2),LocalTime.of(int3,int4),int5)));
     }
 
-    @Given("que le client {string} est connecté à son compte")
+    @And("que le client {string} est connecté à son compte")
     public void que_le_client_est_connecté_à_son_compte(String string) {
         client=new AccountUser(string);
+    }
+
+    @And("son crédit est de {double}€")
+    public void son_credit_est_de(double montant){
+        client.setCredit(montant);
     }
 
     @When("{string} recherche les restaurants de type {string}")
@@ -132,23 +136,23 @@ public class DemoStep {
 
     @When("il choisit le créneau de {int}:{int} et valide sa commande")
     public void il_choisit_le_créneau_de_et_valide_sa_commande(Integer int1, Integer int2) {
-        currentOrder.chooseSchedule(LocalTime.of(int1,int2));
+        //currentOrder.chooseSchedule(LocalTime.of(int1,int2));
     }
 
     @When("il procède au paiement avec son crédit")
     public void il_procède_au_paiement_avec_son_crédit() {
         orderStatus=currentOrderManager.proceedPayement(PaymentMethod.CASH);
+        System.out.println(client.getOrderHistory());
     }
 
-    @Then("le paiement doit être accepté et une commande payée par cash doit être créée pour {string}")
-    public void le_paiement_doit_être_accepté_et_une_commande_n_doit_être_créée_pour(Integer int1, String string) {
-        Assertions.assertEquals(client.getOrderHistory().get(currentOrder).getStatus(), PaymentState.PAID);
+    @Then("le paiement doit être accepté et une commande payeé par cash doit être créée pour {string}")
+    public void le_paiement_doit_être_accepté_et_une_commande_n_doit_être_créée_pour(String string) {
+        Assertions.assertEquals(client.getOrderHistory().get(currentOrderManager.getCurrentOrder()).getStatus(), PaymentState.PAID);
     }
 
-    @Then("l'historique de commandes de {string} doit contenir la commande N°{int}")
-    public void l_historique_de_commandes_de_doit_contenir_la_commande_n(String string, Integer int1) {
-        // Write code here that turns the phrase above into concrete actions
-        throw new io.cucumber.java.PendingException();
+    @Then("l'historique de commandes de {string} doit contenir {int} commandes")
+    public void l_historique_de_commandes_de_doit_contenir_la_commande_n(String name,Integer int1) {
+        Assertions.assertEquals(client.getOrderHistory().size(),1);
     }
 
     @Then("la capacité du créneau de {int}:{int} à {int}:{int} de {string} doit être maintenant de {int} repas")
@@ -157,11 +161,6 @@ public class DemoStep {
         throw new io.cucumber.java.PendingException();
     }
 
-    @Then("le restaurateur de {string} doit voir la commande N°{int} dans sa liste de commandes à préparer")
-    public void le_restaurateur_de_doit_voir_la_commande_n_dans_sa_liste_de_commandes_à_préparer(String string, Integer int1) {
-        // Write code here that turns the phrase above into concrete actions
-        throw new io.cucumber.java.PendingException();
-    }
 
     @Given("le restaurateur {string} à été enregistré")
     public void le_restaurateur_à_été_enregistré(String nomRestaurateur) {
@@ -275,4 +274,5 @@ public class DemoStep {
         }
         throw new IllegalArgumentException("Tag inconnu: " + raw);
     }
+
 }

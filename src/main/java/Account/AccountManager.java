@@ -7,7 +7,6 @@ public class AccountManager extends Account {
 
     public AccountManager(String name){
         super(name);
-        this.restaurantManager = new RestaurantManager(name);
     }
 
     public RestaurantManager getRestaurantManager() {

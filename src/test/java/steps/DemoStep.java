@@ -40,9 +40,14 @@ public class DemoStep {
     private Order currentOrder;
     private OrderManager currentOrderManager;
     private OrderState orderStatus;
+    private RestaurantFactory factory;
     @Before
     public void setup() {
+
         repo = new RestaurantRepo(new ArrayList<>());
+        service = new RestaurantService(repo);
+        factory = new RestaurantFactory()
+
     }
 
     @Given("un catalogue de restos")

@@ -17,7 +17,7 @@ public class Restaurant {
     private List<RestaurantSchedule> restaurantSchedules;
     private List<CuisineType> CuisineTypes;
     private establishmentType establishmentType;
-
+    private RestaurantManager manager;
     //Constructeur
 
     public Restaurant(Builder builder){
@@ -32,6 +32,13 @@ public class Restaurant {
 
     public String getName() {
         return name;
+    }
+
+    public void setManager(RestaurantManager manager){
+        this.manager= manager;
+    }
+    public RestaurantManager getManager(){
+        return manager;
     }
 
     public boolean containsDish(Dish dish){

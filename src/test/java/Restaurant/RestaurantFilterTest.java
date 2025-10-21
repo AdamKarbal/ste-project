@@ -128,7 +128,7 @@ class RestaurantFilterTest {
 
     @Test
     void filterByType_noMatch() {
-        List<Restaurant> result = filter.filterByType(establishmentType.HOTEL);
+        List<Restaurant> result = filter.filterByType(establishmentType.SUSHI_BAR);
         assertTrue(result.isEmpty());
     }
 

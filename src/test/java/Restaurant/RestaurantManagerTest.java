@@ -1,4 +1,4 @@
-package RestaurantTest;
+package Restaurant;
 
 import Dish.*;
 import Dish.suggest.Suggestion;
@@ -109,7 +109,7 @@ public class RestaurantManagerTest {
         assertEquals(1, manager.getRestaurant().getDishes().size());
         assertEquals("Pizza Margherita", created.getName());
         assertEquals(12.0, created.getPrice(), 1e-6);     // user > suggestion
-        assertTrue(created.getToppings().stream()
+        assertTrue(created.getAvailableToppings().stream()
                 .anyMatch(t -> t.getName().equalsIgnoreCase("Olives"))); // merge toppings
     }
 

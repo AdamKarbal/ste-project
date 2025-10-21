@@ -1,7 +1,7 @@
 package Restaurant;
 import Dish.*;
 import Dish.suggest.Suggestion;
-import Restaurant.Enum.DayOfTheWeek;
+import Restaurant.Enum.*;
 import Restaurant.Enum.cuisineType;
 import Restaurant.Enum.establishmentType;
 import Restaurant.Exception.*;

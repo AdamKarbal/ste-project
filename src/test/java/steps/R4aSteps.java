@@ -182,7 +182,7 @@ public class R4aSteps {
     public void lesToppingsFinauxContiennent(String toppingName) {
         assertNotNull(created, "Plat non créé");
         assertTrue(
-                created.getToppings().stream().anyMatch(t -> t.getName().equalsIgnoreCase(toppingName)),
+                created.getAvailableToppings().stream().anyMatch(t -> t.getName().equalsIgnoreCase(toppingName)),
                 "Topping manquant: " + toppingName
         );
     }
@@ -190,7 +190,7 @@ public class R4aSteps {
     @Then("la liste des toppings finaux contient une seule fois {string}")
     public void laListeDesToppingsFinauxContientUneSeuleFois(String toppingName) {
         assertNotNull(created, "Plat non créé");
-        long count = created.getToppings().stream()
+        long count = created.getAvailableToppings().stream()
                 .filter(t -> t.getName().equalsIgnoreCase(toppingName))
                 .count();
         assertEquals(1, count, "Le topping " + toppingName + " devrait apparaître une seule fois");

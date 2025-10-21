@@ -32,7 +32,7 @@ public class RestaurantFilterSteps {
     public void un_catalogue_de_restaurants(DataTable table) {
         for(Map<String,String> row : table.asMaps()){
             String name = row.get("name");
-            List<cuisineType> c = List.of(cuisineType.valueOf(row.get("cuisineType").toUpperCase()));
+            List<CuisineType> c = List.of(CuisineType.valueOf(row.get("cuisineType").toUpperCase()));
             establishmentType e = establishmentType.valueOf(row.get("establishmentType").toUpperCase());
             List<DishTag> t1 = parseTags(row.get("tags1"));
             List<DishTag> t2 = parseTags(row.get("tags2"));
@@ -63,7 +63,7 @@ public class RestaurantFilterSteps {
 
     @When("je filtre les restaurants par cuisine {string}")
     public void je_filtre_les_restaurants_par_cuisine(String cuisine) {
-        cuisineType type = cuisineType.valueOf(cuisine.toUpperCase());
+        CuisineType type = CuisineType.valueOf(cuisine.toUpperCase());
         resultats = service.filterByCuisine(type);
     }
 

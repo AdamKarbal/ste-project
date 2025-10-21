@@ -14,54 +14,36 @@ import java.util.stream.Collectors;
 
 public class RestaurantScheduleManager {
     public static List<RestaurantSchedule> getTodaySchedules(Restaurant restaurant) {
-        if (restaurant == null || restaurant.getRestaurantSchedules() == null) return List.of();
+        if (restaurant == null || restaurant.getRestaurantSchedules() == null)
+            return List.of();
 
         LocalTime now = LocalTime.now();
         DayOfTheWeek today = convertDayOfWeek(LocalDate.now().getDayOfWeek());
 
         return restaurant.getRestaurantSchedules().stream()
-                .filter(schedule -> {
-                    boolean overnight = schedule.getEnd().isBefore(schedule.getStart());
-                    if (schedule.getDay() == today) {
-                        if (!overnight) return schedule.getEnd().isAfter(now);
-                        return true;
-                    }
-                    if (overnight && nextDay(schedule.getDay()) == today) {
-                        return now.isBefore(schedule.getEnd());
-                    }
-                    return false;
-                })
+                .filter(s -> s.getDay() == today)
+                .filter(s -> s.getEnd().isAfter(now))
+                .filter(s -> s.getCapacity() > 0)
                 .collect(Collectors.toList());
     }
 
-    public static Optional<RestaurantSchedule> getNextAvailableSchedule(Restaurant restaurant) {
-        if (restaurant == null || restaurant.getRestaurantSchedules() == null) return Optional.empty();
+    public static Optional<RestaurantSchedule> getAvailableScheduleFor(Restaurant restaurant, LocalTime requestedTime) { // important : changer l'utilisation de requestedTime.isBefore()
+        if (restaurant == null || restaurant.getRestaurantSchedules() == null || requestedTime == null)
+            return Optional.empty();
 
         LocalDateTime now = LocalDateTime.now();
-        DayOfTheWeek today = convertDayOfWeek(now.getDayOfWeek());
-        LocalTime currentTime = now.toLocalTime();
+
+        /*if (requestedTime.isBefore(now.toLocalTime().plusMinutes(15))) {
+            return Optional.empty();
+        }*/
+
+        DayOfTheWeek today = convertDayOfWeek(LocalDate.now().getDayOfWeek());
 
         return restaurant.getRestaurantSchedules().stream()
-                .filter(s -> {
-                    DayOfTheWeek scheduleDay = s.getDay();
-                    boolean isToday = scheduleDay == today;
-                    return isToday ? s.getEnd().isAfter(currentTime) : isAfterToday(today, scheduleDay);
-                }).min((a, b) -> {
-                    int dayDiffA = dayDifference(today, a.getDay());
-                    int dayDiffB = dayDifference(today, b.getDay());
-                    int cmp = Integer.compare(dayDiffA, dayDiffB);
-                    if (cmp == 0) return a.getStart().compareTo(b.getStart());
-                    return cmp;
-                });
-    }
-
-    private static boolean isAfterToday(DayOfTheWeek today, DayOfTheWeek other) {
-        return dayDifference(today, other) > 0;
-    }
-
-    private static int dayDifference(DayOfTheWeek start, DayOfTheWeek end) {
-        int diff = end.ordinal() - start.ordinal();
-        return diff < 0 ? diff + 7 : diff;
+                .filter(s -> s.getDay() == today)
+                .filter(s -> !requestedTime.isBefore(s.getStart()) && requestedTime.isBefore(s.getEnd()))
+                .filter(s -> s.getCapacity() > 0)
+                .findFirst();
     }
 
     public static boolean addSchedule(Restaurant restaurant, DayOfTheWeek day, LocalTime start, LocalTime end, int capacity) {
@@ -111,6 +93,7 @@ public class RestaurantScheduleManager {
         RestaurantScheduleManager.addSchedule(restaurant, day, start, end, capacity);
     }
 
+           
     public static void updateCapacity(Restaurant restaurant, DayOfTheWeek day, LocalTime start, LocalTime end, int capacity) throws ScheduleNoExist {
         Objects.requireNonNull(day);
         Objects.requireNonNull(start);
@@ -164,11 +147,34 @@ public class RestaurantScheduleManager {
         return restaurant.getRestaurantSchedules().removeIf(s -> s.getId().equals(id));
     }
 
+    public static int getCapacityById(Restaurant restaurant, String id) {
+        if (restaurant == null || restaurant.getRestaurantSchedules() == null) throw new RuntimeException("t'es une merde le s");
+        for (RestaurantSchedule s : restaurant.getRestaurantSchedules()) {
+            if (s.getId().equals(id)) return s.getCapacity();
+        }
+        throw new ScheduleNoExist("ce schedule n'existe pas");
+    }
+
+    public static boolean checkCapacity(Restaurant restaurant,String id){
+        return getCapacityById(restaurant,id)>0;
+    }
+
     public static boolean updateCapacityById(Restaurant restaurant, String id, int capacity) {
         if (restaurant == null || restaurant.getRestaurantSchedules() == null) return false;
         for (RestaurantSchedule s : restaurant.getRestaurantSchedules()) {
             if (s.getId().equals(id)) {
                 s.setCapacity(capacity);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static boolean incrementCapacityById(Restaurant restaurant, String id, int capacity) {
+        if (restaurant == null || restaurant.getRestaurantSchedules() == null) return false;
+        for (RestaurantSchedule s : restaurant.getRestaurantSchedules()) {
+            if (s.getId().equals(id)) {
+                s.addCapacity(capacity);
                 return true;
             }
         }
@@ -182,27 +188,17 @@ public class RestaurantScheduleManager {
     public static boolean isOpenAt(Restaurant restaurant, LocalDateTime dateTime) {
         if (restaurant == null || restaurant.getRestaurantSchedules() == null) return false;
 
-        List<RestaurantSchedule> restaurantSchedules = restaurant.getRestaurantSchedules();
-        if (restaurantSchedules.isEmpty()) return false;
+        var schedules = restaurant.getRestaurantSchedules();
+        if (schedules.isEmpty()) return false;
 
-        DayOfTheWeek currentDay = convertDayOfWeek(dateTime.getDayOfWeek());
+        DayOfTheWeek today = convertDayOfWeek(dateTime.getDayOfWeek());
         LocalTime time = dateTime.toLocalTime();
 
-        return restaurantSchedules.stream().anyMatch(s -> {
-            DayOfTheWeek scheduleDay = s.getDay();
-            boolean overnight = s.getEnd().isBefore(s.getStart());
-
-            if (!overnight && scheduleDay == currentDay) {
-                return !time.isBefore(s.getStart()) && time.isBefore(s.getEnd());
-            }
-
-            if (overnight) {
-                if (scheduleDay == currentDay && !time.isBefore(s.getStart())) return true;
-                if (nextDay(scheduleDay) == currentDay && time.isBefore(s.getEnd())) return true;
-            }
-
-            return false;
-        });
+        return schedules.stream().anyMatch(s ->
+                s.getDay() == today &&
+                        !time.isBefore(s.getStart()) &&
+                        time.isBefore(s.getEnd())
+        );
     }
 
     public static DayOfTheWeek convertDayOfWeek(DayOfWeek dow) {
@@ -214,19 +210,6 @@ public class RestaurantScheduleManager {
             case FRIDAY -> DayOfTheWeek.FRIDAY;
             case SATURDAY -> DayOfTheWeek.SATURDAY;
             case SUNDAY -> DayOfTheWeek.SUNDAY;
-        };
-    }
-
-    private static DayOfTheWeek nextDay(DayOfTheWeek day) {
-        return switch (day) {
-            case MONDAY -> DayOfTheWeek.TUESDAY;
-            case TUESDAY -> DayOfTheWeek.WEDNESDAY;
-            case WEDNESDAY -> DayOfTheWeek.THURSDAY;
-            case THURSDAY -> DayOfTheWeek.FRIDAY;
-            case FRIDAY -> DayOfTheWeek.SATURDAY;
-            case SATURDAY -> DayOfTheWeek.SUNDAY;
-            case SUNDAY -> DayOfTheWeek.MONDAY;
-            default -> null;
         };
     }
 }

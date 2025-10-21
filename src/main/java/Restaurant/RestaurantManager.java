@@ -1,11 +1,11 @@
 package Restaurant;
 import Dish.*;
 import Dish.suggest.Suggestion;
-import Restaurant.Enum.*;
-import Restaurant.Enum.cuisineType;
+import Restaurant.Enum.DayOfTheWeek;
+import Restaurant.Enum.CuisineType;
 import Restaurant.Enum.establishmentType;
 import Restaurant.Exception.*;
-import Utils.*;
+
 
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -16,14 +16,8 @@ public class RestaurantManager {
     private final SmartDishFactory smartDishFactory = new SmartDishFactory();
 
     //Constructeur
-    public RestaurantManager(String name){
-        Restaurant.Builder builder = new Restaurant.Builder()
-                .name(name)
-                .dishes(new ArrayList<>())
-                .restaurantSchedules(new ArrayList<>())
-                .cuisineType(new ArrayList<>())
-                .establishmentType(null);
-        this.restaurant = builder.build();
+    public RestaurantManager(Restaurant restaurant){
+        this.restaurant= restaurant;
     }
 
     // Getter & setter
@@ -52,23 +46,23 @@ public class RestaurantManager {
         restaurant.addDish(d);
     }
 
-    public void updateDish(Dish old, Dish young) throws dishNoInDishes {
+    public void updateDish(Dish old, Dish replacement) throws dishNoInDishes {
         if(!(restaurant.alreadyDish(old))) throw new dishNoInDishes("Impossible de mettre à jour le plat, il n'est pas présent.");
         restaurant.removeDish(old);
-        restaurant.addDish(young);
+        restaurant.addDish(replacement);
     }
 
     public void removeDish(Dish d) throws dishNoInDishes{
         if(!(restaurant.alreadyDish(d))) throw new dishNoInDishes("Impossible d'enlever le plat :" + d + ", il n'est pas présent dans le restaurant.");
     }
 
-    public void addCuisineType(cuisineType c) throws CuisineTypeInList {
+    public void addCuisineType(CuisineType c) throws CuisineTypeInList {
         if (restaurant.alreadyCuisineType(c))
             throw new CuisineTypeInList("Le type de cuisine " + c + " est déjà ajouté.");
         restaurant.addCuisineType(c);
     }
 
-    public void removeCuisineType(cuisineType c) throws CuisineTypeNoExist {
+    public void removeCuisineType(CuisineType c) throws CuisineTypeNoExist {
         if (!(restaurant.alreadyCuisineType(c)))
             throw new CuisineTypeNoExist("Le type de cuisine " + c + " n'existe pas dans le restaurant.");
         restaurant.removeCuisineType(c);

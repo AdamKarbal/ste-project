@@ -22,6 +22,7 @@ public class OrderManagerTest {
     AccountUser client;
     HashMap<Order, Payment> history;
     double creditInitial;
+    OrderManager orderManager;
 
     // Classe interne pour stocker les données de test
     private static class TestClientData {
@@ -34,19 +35,22 @@ public class OrderManagerTest {
         TestClientData data = new TestClientData();
         data.client = new AccountUser("Adam");
         data.client.setCredit(3);
+        OrderManager orderManager1 = new OrderManager();
+        OrderManager orderManager2 = new OrderManager();
 
-        CompletedOrderManager completedOrderManager = new CompletedOrderManager();
-        OrderManager om = new OrderManager();
+        data.order1 = orderManager1.createOrder(data.client,null);
+        data.order2= orderManager2.createOrder(data.client,null);
+
+        Dish dish1 = new Dish(1.0, "d", "e", null, null, null);
+        Dish dish2 = new Dish(2.0, "ee", "edd", null, null, null);
 
         om.createOrder(data.client, null);
         Dish dish1 = new Dish(1.0, "d", "e", null, null, null);
         om.addItem(dish1, 1);
         om.proceedPayement(PaymentMethod.CASH);
 
-        om.createOrder(data.client, null);
-        Dish dish2 = new Dish(2.0, "d", "e", null, null, null);
-        om.addItem(dish2, 1);
-        om.proceedPayement(PaymentMethod.CASH);
+        orderManager1.proceedPayement(PaymentMethod.CASH);
+        orderManager2.proceedPayement(PaymentMethod.ONLINE);
 
         return data;
     }
@@ -87,14 +91,15 @@ public class OrderManagerTest {
 
     @And("il a passé une commande de {double} euros")
     public void qu_il_a_passé_une_commande_de_euros(double montant) {
-        order = new Order(client, null);
+        orderManager = new OrderManager();
+        orderManager.createOrder(client,null);
         Dish dish = new Dish(montant, "Pizza", "Délicieuse pizza", null, null, null);
-        order.addDish(dish, 1);
+        orderManager.addItem(dish, 1);
     }
 
     @When("il paie la commande avec son crédit")
     public void il_paie_la_commande_avec_son_crédit() {
-        //new OrderManager(order).proceedPayement(PaymentMethod.CASH);
+        orderManager.proceedPayement(PaymentMethod.CASH);
     }
 
     @Then("son crédit doit être débité de {double} euros")

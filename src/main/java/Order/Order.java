@@ -1,16 +1,17 @@
 package Order;
 
 import Account.AccountUser;
+import Restaurant.Exception.ScheduleNoExist;
 import Restaurant.Restaurant;
 import Restaurant.RestaurantSchedule;
+import Restaurant.RestaurantScheduleManager;
 import Dish.Dish;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
+import java.time.LocalTime;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 public class Order {
     private double price;
@@ -20,6 +21,7 @@ public class Order {
     private AccountUser client;
     private OrderDeliveryPoint deliveryPoint;
     private LocalDateTime deliveryTime;
+    private String idSchedule;
 
     public Order(AccountUser client,Restaurant restaurant){
         price=0;
@@ -51,24 +53,22 @@ public class Order {
         this.deliveryPoint = deliveryPoint;
     }
 
+    public void setIdSchedule(String id){
+        this.idSchedule = id;
+    }
+
+    public String getIdSchedule(){
+        return idSchedule;
+    }
     public LocalDateTime getDeliveryTime() { return deliveryTime; }
 
-    public boolean assignSchedule(RestaurantSchedule chosenSchedule) {
-        if (chosenSchedule == null) return false;
+    public RestaurantSchedule chooseSchedule(LocalTime time) {
+        RestaurantSchedule schedule = RestaurantScheduleManager
+                .getAvailableScheduleFor(getRestaurant(), time)
+                .orElseThrow(() -> new ScheduleNoExist("Aucun créneau disponible à cette heure : " + time));
 
-        if (restaurant == null || restaurant.getRestaurantSchedules() == null) return false;
-
-        boolean exists = restaurant.getRestaurantSchedules().stream()
-                .anyMatch(s -> s.getId().equals(chosenSchedule.getId()));
-        if (!exists) return false;
-
-        this.deliveryTime = LocalDateTime.of(
-                LocalDate.now(),
-                chosenSchedule.getEnd().plusMinutes(15)
-        );
-
-        System.out.println("Créneau assigné : " + chosenSchedule + " | Livraison prévue à " + deliveryTime);
-        return true;
+        setIdSchedule(schedule.getId());
+        return schedule;
     }
 
     public void setState(OrderState newState) {

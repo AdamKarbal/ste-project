@@ -1,7 +1,7 @@
 package Restaurant;
 
 import Dish.DishTag;
-import Restaurant.Enum.cuisineType;
+import Restaurant.Enum.CuisineType;
 import Restaurant.Enum.establishmentType;
 
 import java.time.LocalDate;
@@ -47,7 +47,7 @@ public class RestaurantFilter {
                 .toList() ;
     }
 
-    public List<Restaurant> filterByCuisineType(cuisineType type) {
+    public List<Restaurant> filterByCuisineType(CuisineType type) {
         return restaurantRepo.getRestaurants()
                 .stream()
                 .filter(restaurant -> restaurant.getCuisineTypes().stream().anyMatch(cuisineType -> cuisineType.equals(type)))

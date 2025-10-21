@@ -152,7 +152,7 @@ public class RestaurantFilterSteps {
 
     @And("j'applique le filtre cuisine {string}")
     public void j_applique_le_filtre_cuisine(String cuisine) {
-        cuisineType type = cuisineType.valueOf(cuisine.toUpperCase());
+        CuisineType type = CuisineType.valueOf(cuisine.toUpperCase());
         List<Restaurant> nouveau = service.filterByCuisine(type);
         resultats = intersectOrdered(resultats, nouveau);
     }

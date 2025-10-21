@@ -91,8 +91,7 @@ public class Restaurant {
     }
 
     public boolean alreadyDish(Dish dish){
-        if(dishes.contains(dish)) return true;
-        return false;
+        return dishes.contains(dish);
     }
     public void addSchedule(RestaurantSchedule schedule){
         this.restaurantSchedules.add(schedule);
@@ -119,8 +118,8 @@ public class Restaurant {
         restaurantSchedules.stream()
                 .filter(s ->
                         s.getDay() == day &&
-                                s.getStart().equals(start) &&
-                                s.getEnd().equals(end)
+                                !s.getStart().isBefore(start) &&  // s >= start
+                                s.getStart().isBefore(end)        // s < end
                 )
                 .forEach(s -> s.setCapacity(capacity));
     }

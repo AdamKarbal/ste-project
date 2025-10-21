@@ -31,9 +31,9 @@ public class RestaurantScheduleManager {
         if (restaurant == null || restaurant.getRestaurantSchedules() == null || requestedTime == null)
             return Optional.empty();
 
-        LocalDateTime now = LocalDateTime.now();
+        /*LocalDateTime now = LocalDateTime.now();
 
-        /*if (requestedTime.isBefore(now.toLocalTime().plusMinutes(15))) {
+        if (requestedTime.isBefore(now.toLocalTime().plusMinutes(15))) {
             return Optional.empty();
         }*/
 
@@ -66,17 +66,14 @@ public class RestaurantScheduleManager {
 
     private static void createIntervals(Restaurant restaurant, DayOfTheWeek day, LocalTime start, LocalTime end, int capacity) {
         LocalTime current = start;
-        while (true) {
+        do {
             if (!restaurant.alreadyScheduled(current, current.plusMinutes(30), day)) {
                 restaurant.addSchedule(new RestaurantSchedule(day, current, capacity));
             }
 
             current = current.plusMinutes(30);
 
-            if (current.equals(LocalTime.MIDNIGHT) || !current.isBefore(end)) {
-                break; // 💥 Sortir de la boucle
-            }
-        }
+        } while (!current.equals(LocalTime.MIDNIGHT) && current.isBefore(end));
     }
 
 
@@ -210,6 +207,19 @@ public class RestaurantScheduleManager {
             case FRIDAY -> DayOfTheWeek.FRIDAY;
             case SATURDAY -> DayOfTheWeek.SATURDAY;
             case SUNDAY -> DayOfTheWeek.SUNDAY;
+        };
+    }
+
+    public static DayOfTheWeek nextDay(DayOfTheWeek day){
+        return switch (day) {
+            case MONDAY -> DayOfTheWeek.TUESDAY;
+            case TUESDAY -> DayOfTheWeek.WEDNESDAY;
+            case WEDNESDAY -> DayOfTheWeek.THURSDAY;
+            case THURSDAY -> DayOfTheWeek.FRIDAY;
+            case FRIDAY -> DayOfTheWeek.SATURDAY;
+            case SATURDAY -> DayOfTheWeek.SUNDAY;
+            case SUNDAY -> DayOfTheWeek.MONDAY;
+            default -> throw new IllegalArgumentException("Jour de la semaine invalide");
         };
     }
 }

@@ -1,8 +1,10 @@
 package Dish;
 
 
+import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class Dish {
     private double price;
@@ -107,6 +109,33 @@ public class Dish {
         return total;
     }
 
+    private static String norm(String s) {
+        if (s == null) return null;
+        String noAccents = Normalizer.normalize(s.trim(), Normalizer.Form.NFD)
+                .replaceAll("\\p{M}+", ""); // supprime accents
+        return noAccents.replaceAll("\\s+", " ")                 // espaces multiples -> simple
+                .toUpperCase(Locale.ROOT);               // insensible à la casse
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Dish other)) return false;
+
+        String n1 = norm(this.name);
+        String n2 = norm(other.name);
+
+        // Si l’un des deux n’a pas de nom, on ne les considère pas égaux
+        if (n1 == null || n2 == null) return false;
+
+        return n1.equals(n2);
+    }
+
+    @Override
+    public int hashCode() {
+        String n = norm(this.name);
+        return (n == null) ? 0 : n.hashCode();
+    }
 
 
 

@@ -4,7 +4,7 @@ package Restaurant;
 import Dish.DishTag;
 import Dish.Dish;
 import Restaurant.Enum.DayOfTheWeek;
-import Restaurant.Enum.cuisineType;
+import Restaurant.Enum.CuisineType;
 import Restaurant.Enum.establishmentType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -79,7 +79,7 @@ class RestaurantFilterTest {
                 .establishmentType(establishmentType.RESTAURANT)
                 .restaurantSchedules(List.of(mondayAlwaysOpen, tuesdayAlwaysOpen, wednesdayAlwaysOpen, thursdayAlwaysOpen, fridayAlwaysOpen, sundayAlwaysOpen, saturdayAlwaysOpen))     // always
                 .dishes(List.of(dishSansGluten, dishVegan,dishSansGlutenEtVegan))
-                .cuisineType(List.of(cuisineType.ITALIENNE))
+                .cuisineType(List.of(CuisineType.ITALIENNE))
                 .build();
 
         restoB = new Restaurant.Builder()
@@ -87,7 +87,7 @@ class RestaurantFilterTest {
                 .establishmentType(establishmentType.RESTAURANT)
                 .restaurantSchedules(List.of(neverOpen))      // never
                 .dishes(List.of(dishVegan))
-                .cuisineType(List.of(cuisineType.ITALIENNE))
+                .cuisineType(List.of(CuisineType.ITALIENNE))
                 .build();
 
         restoC = new Restaurant.Builder()
@@ -95,7 +95,7 @@ class RestaurantFilterTest {
                 .establishmentType(establishmentType.FAST_FOOD)
                 .restaurantSchedules(new ArrayList<>())
                 .dishes(List.of(dishEpice))
-                .cuisineType(List.of(cuisineType.AMERICAINE))
+                .cuisineType(List.of(CuisineType.AMERICAINE))
                 .build();
 
         restoD = new Restaurant.Builder()
@@ -103,7 +103,7 @@ class RestaurantFilterTest {
                 .establishmentType(establishmentType.RESTAURANT)
                 .restaurantSchedules(new ArrayList<>())
                 .dishes(List.of(dishSansGluten))
-                .cuisineType(List.of(cuisineType.FRANCAISE))
+                .cuisineType(List.of(CuisineType.FRANCAISE))
                 .build();
 
         restoA.setDishes(List.of(
@@ -188,11 +188,11 @@ class RestaurantFilterTest {
     @Test
     void filterByCuisineType_shouldReturnMatchingRestaurants() {
         // On ajoute un type de cuisine à certains restos
-        restoA.setCuisineTypes(List.of(cuisineType.ITALIENNE, cuisineType.FRANCAISE));
-        restoB.setCuisineTypes(List.of(cuisineType.AMERICAINE));
-        restoC.setCuisineTypes(List.of(cuisineType.ITALIENNE));
+        restoA.setCuisineTypes(List.of(CuisineType.ITALIENNE, CuisineType.FRANCAISE));
+        restoB.setCuisineTypes(List.of(CuisineType.AMERICAINE));
+        restoC.setCuisineTypes(List.of(CuisineType.ITALIENNE));
 
-        List<Restaurant> result = filter.filterByCuisineType(cuisineType.ITALIENNE);
+        List<Restaurant> result = filter.filterByCuisineType(CuisineType.ITALIENNE);
         assertEquals(2, result.size());
         assertTrue(result.contains(restoA));
         assertTrue(result.contains(restoC));
@@ -200,11 +200,11 @@ class RestaurantFilterTest {
 
     @Test
     void filterByCuisineType_shouldReturnEmptyIfNoMatch() {
-        restoA.setCuisineTypes(List.of(cuisineType.FRANCAISE));
-        restoB.setCuisineTypes(List.of(cuisineType.AMERICAINE));
-        restoC.setCuisineTypes(List.of(cuisineType.CHINOISE));
+        restoA.setCuisineTypes(List.of(CuisineType.FRANCAISE));
+        restoB.setCuisineTypes(List.of(CuisineType.AMERICAINE));
+        restoC.setCuisineTypes(List.of(CuisineType.CHINOISE));
 
-        List<Restaurant> result = filter.filterByCuisineType(cuisineType.MEXICAINE);
+        List<Restaurant> result = filter.filterByCuisineType(CuisineType.MEXICAINE);
         assertTrue(result.isEmpty());
     }
 

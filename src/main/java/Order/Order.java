@@ -7,9 +7,7 @@ import Dish.Dish;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class Order {
@@ -53,7 +51,7 @@ public class Order {
 
     public LocalDateTime getDeliveryTime() { return deliveryTime; }
 
-    public boolean assignSchedule(RestaurantSchedule chosenSchedule) {
+    public boolean chooseSchedule(RestaurantSchedule chosenSchedule) {
         if (chosenSchedule == null) return false;
 
         if (restaurant == null || restaurant.getRestaurantSchedules() == null) return false;

@@ -1,7 +1,7 @@
 package Restaurant;
 
 import Dish.*;
-import Restaurant.Enum.cuisineType;
+import Restaurant.Enum.CuisineType;
 import Restaurant.Enum.establishmentType;
 import Restaurant.Exception.RestaurantExist;
 
@@ -45,7 +45,7 @@ public class RestaurantService {
         return filter.filterByAvailability(at);
     }
 
-    public List<Restaurant> filterByCuisine(cuisineType type){
+    public List<Restaurant> filterByCuisine(CuisineType type){
         return filter.filterByCuisineType(type);
     }
 

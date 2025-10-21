@@ -36,8 +36,8 @@ public class OrderManagerTest {
         data.order1 = new Order(data.client, null);
         data.order2 = new Order(data.client, null);
 
-        Dish dish1 = new Dish(1.0, "d", "e", null, null, null, null);
-        Dish dish2 = new Dish(2.0, "ee", "edd", null, null, null, null);
+        Dish dish1 = new Dish(1.0, "d", "e", null, null, null);
+        Dish dish2 = new Dish(2.0, "ee", "edd", null, null, null);
 
         data.order1.addDish(dish1, 1);
         data.order2.addDish(dish2, 1);
@@ -85,7 +85,7 @@ public class OrderManagerTest {
     @And("il a passé une commande de {double} euros")
     public void qu_il_a_passé_une_commande_de_euros(double montant) {
         order = new Order(client, null);
-        Dish dish = new Dish(montant, "Pizza", "Délicieuse pizza", null, null, null, null);
+        Dish dish = new Dish(montant, "Pizza", "Délicieuse pizza", null, null, null);
         order.addDish(dish, 1);
     }
 

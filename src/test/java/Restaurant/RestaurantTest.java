@@ -1,7 +1,7 @@
 package Restaurant;
 
 import Restaurant.Enum.DayOfTheWeek;
-import Restaurant.Enum.cuisineType;
+import Restaurant.Enum.CuisineType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -102,20 +102,20 @@ public class RestaurantTest {
     void testAlreadyCuisineType_WhenTypeAlreadyPresent() {
         Restaurant r = new Restaurant.Builder()
                 .name("R")
-                .cuisineType(List.of(cuisineType.ITALIENNE, cuisineType.JAPONAISE))
+                .cuisineType(List.of(CuisineType.ITALIENNE, CuisineType.JAPONAISE))
                 .build();
 
-        assertTrue(r.alreadyCuisineType(cuisineType.ITALIENNE));
+        assertTrue(r.alreadyCuisineType(CuisineType.ITALIENNE));
     }
 
     @Test
     void testAlreadyCuisineType_WhenTypeNotPresent() {
         Restaurant r = new Restaurant.Builder()
                 .name("R")
-                .cuisineType(List.of(cuisineType.ITALIENNE, cuisineType.JAPONAISE))
+                .cuisineType(List.of(CuisineType.ITALIENNE, CuisineType.JAPONAISE))
                 .build();
 
-        assertFalse(r.alreadyCuisineType(cuisineType.MEXICAINE));
+        assertFalse(r.alreadyCuisineType(CuisineType.MEXICAINE));
     }
 
     @Test

@@ -4,13 +4,12 @@ import Utils.InvalidDate;
 import io.cucumber.java.Before;
 import io.cucumber.java.en.*;
 import io.cucumber.datatable.DataTable;
-import org.junit.jupiter.api.Assertions;
 
 import Account.AccountManager;
 import Dish.Dish;
 import Dish.DishTag;
 import Restaurant.Enum.DayOfTheWeek;
-import Restaurant.Enum.cuisineType;
+import Restaurant.Enum.CuisineType;
 import Restaurant.Enum.establishmentType;
 import Restaurant.Restaurant;
 import Restaurant.RestaurantRepo;
@@ -39,7 +38,7 @@ public class RestaurantScheduleSteps {
     public void un_catalogue_de__plusieurs_restaurants(DataTable table) {
         for(Map<String,String> row : table.asMaps()){
             String name = row.get("name");
-            List<cuisineType> c = List.of(cuisineType.valueOf(row.get("cuisineType").toUpperCase()));
+            List<CuisineType> c = List.of(CuisineType.valueOf(row.get("cuisineType").toUpperCase()));
             establishmentType e = establishmentType.valueOf(row.get("establishmentType").toUpperCase());
             List<DishTag> t1 = parseTags(row.get("tags1"));
             List<DishTag> t2 = parseTags(row.get("tags2"));

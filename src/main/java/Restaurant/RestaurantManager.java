@@ -2,7 +2,7 @@ package Restaurant;
 import Dish.*;
 import Dish.suggest.Suggestion;
 import Restaurant.Enum.DayOfTheWeek;
-import Restaurant.Enum.cuisineType;
+import Restaurant.Enum.CuisineType;
 import Restaurant.Enum.establishmentType;
 import Restaurant.Exception.*;
 
@@ -69,13 +69,13 @@ public class RestaurantManager {
         if(!(restaurant.alreadyDish(d))) throw new dishNoInDishes("Impossible d'enlever le plat :" + d + ", il n'est pas présent dans le restaurant.");
     }
 
-    public void addCuisineType(cuisineType c) throws CuisineTypeInList {
+    public void addCuisineType(CuisineType c) throws CuisineTypeInList {
         if (restaurant.alreadyCuisineType(c))
             throw new CuisineTypeInList("Le type de cuisine " + c + " est déjà ajouté.");
         restaurant.addCuisineType(c);
     }
 
-    public void removeCuisineType(cuisineType c) throws CuisineTypeNoExist {
+    public void removeCuisineType(CuisineType c) throws CuisineTypeNoExist {
         if (!(restaurant.alreadyCuisineType(c)))
             throw new CuisineTypeNoExist("Le type de cuisine " + c + " n'existe pas dans le restaurant.");
         restaurant.removeCuisineType(c);

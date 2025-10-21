@@ -4,9 +4,8 @@ import Dish.*;
 import Dish.suggest.Suggestion;
 import Restaurant.*;
 import Restaurant.Enum.DayOfTheWeek;
-import Restaurant.Enum.cuisineType;
+import Restaurant.Enum.CuisineType;
 import Restaurant.Exception.DishInDishes;
-import Utils.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -70,15 +69,15 @@ public class RestaurantManagerTest {
 
     @Test
     void testAddCuisineType_AddsNewCuisine() throws Exception {
-        manager.addCuisineType(cuisineType.ITALIENNE);
-        assertTrue(restaurant.getCuisineTypes().contains(cuisineType.ITALIENNE));
+        manager.addCuisineType(CuisineType.ITALIENNE);
+        assertTrue(restaurant.getCuisineTypes().contains(CuisineType.ITALIENNE));
     }
 
     @Test
     void testRemoveCuisineType_RemovesExistingCuisine() throws Exception {
-        restaurant.setCuisineTypes(new ArrayList<>(List.of(cuisineType.FRANCAISE)));
-        manager.removeCuisineType(cuisineType.FRANCAISE);
-        assertFalse(restaurant.getCuisineTypes().contains(cuisineType.FRANCAISE));
+        restaurant.setCuisineTypes(new ArrayList<>(List.of(CuisineType.FRANCAISE)));
+        manager.removeCuisineType(CuisineType.FRANCAISE);
+        assertFalse(restaurant.getCuisineTypes().contains(CuisineType.FRANCAISE));
     }
 
     @Test

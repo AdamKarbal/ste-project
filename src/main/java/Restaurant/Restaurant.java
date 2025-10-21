@@ -1,13 +1,10 @@
 package Restaurant;
 import Dish.Dish;
-import Restaurant.Enum.cuisineType;
+import Restaurant.Enum.CuisineType;
 import Restaurant.Enum.establishmentType;
-import Restaurant.Exception.EstablishmentTypeAlreadySet;
 import Restaurant.Exception.dishNoInDishes;
-import Utils.*;
 import Restaurant.Enum.*;
 
-import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
@@ -18,7 +15,7 @@ public class Restaurant {
     private String name;
     private List<Dish> dishes;
     private List<RestaurantSchedule> restaurantSchedules;
-    private List<cuisineType> cuisineTypes;
+    private List<CuisineType> CuisineTypes;
     private establishmentType establishmentType;
 
     //Constructeur
@@ -27,7 +24,7 @@ public class Restaurant {
         this.name = builder.name;
         this.dishes = builder.dishes;
         this.restaurantSchedules = builder.restaurantSchedules;
-        this.cuisineTypes = builder.cuisineTypes;
+        this.CuisineTypes = builder.CuisineTypes;
         this.establishmentType = builder.establishmentType;
     }
     // Getter & setter
@@ -67,12 +64,12 @@ public class Restaurant {
     }
 
 
-    public List<cuisineType> getCuisineTypes() {
-        return cuisineTypes;
+    public List<CuisineType> getCuisineTypes() {
+        return CuisineTypes;
     }
 
-    public void setCuisineTypes(List<cuisineType> cuisineTypes) {
-        this.cuisineTypes = cuisineTypes;
+    public void setCuisineTypes(List<CuisineType> CuisineTypes) {
+        this.CuisineTypes = CuisineTypes;
     }
 
     public establishmentType getEstablishmentType() {
@@ -129,16 +126,16 @@ public class Restaurant {
                 .forEach(s -> s.setCapacity(capacity));
     }
 
-    public void addCuisineType(cuisineType c) {
-        cuisineTypes.add(c);
+    public void addCuisineType(CuisineType c) {
+        CuisineTypes.add(c);
     }
 
-    public void removeCuisineType(cuisineType c) {
-        cuisineTypes.remove(c);
+    public void removeCuisineType(CuisineType c) {
+        CuisineTypes.remove(c);
     }
 
-    public boolean alreadyCuisineType(cuisineType c) {
-        return cuisineTypes.contains(c);
+    public boolean alreadyCuisineType(CuisineType c) {
+        return CuisineTypes.contains(c);
     }
 
     public Dish findDish(String name, double price) {
@@ -185,7 +182,7 @@ public class Restaurant {
         private String name;
         private List<Dish> dishes;
         private List<RestaurantSchedule> restaurantSchedules;
-        private List<cuisineType> cuisineTypes;
+        private List<CuisineType> CuisineTypes;
         private establishmentType establishmentType;
 
         public Builder name(String name){
@@ -203,8 +200,8 @@ public class Restaurant {
             return this;
         }
 
-        public Builder cuisineType(List<cuisineType> cuisineTypes){
-            this.cuisineTypes = cuisineTypes;
+        public Builder cuisineType(List<CuisineType> CuisineTypes){
+            this.CuisineTypes = CuisineTypes;
             return this;
         }
 

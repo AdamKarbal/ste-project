@@ -64,8 +64,8 @@ class OrderTest {
     }
 
     @Test
-    void testAssignScheduleSuccess() {
-        boolean result = order.assignSchedule(schedule);
+    void testChooseScheduleSuccess() {
+        boolean result = order.chooseSchedule(schedule);
 
         assertTrue(result, "L'assignation du créneau devrait réussir");
         assertNotNull(order.getDeliveryTime(), "Le temps de livraison devrait être défini");
@@ -73,18 +73,18 @@ class OrderTest {
     }
 
     @Test
-    void testAssignScheduleFailsIfNotInRestaurant() {
+    void testChooseScheduleFailsIfNotInRestaurant() {
         var otherSchedule = new RestaurantSchedule(
                 schedule.getDay(), schedule.getStart(), schedule.getEnd(), schedule.getCapacity()
         );
 
-        boolean result = order.assignSchedule(otherSchedule);
+        boolean result = order.chooseSchedule(otherSchedule);
         assertFalse(result, "Le créneau ne devrait pas être accepté car il n'appartient pas au restaurant");
     }
 
     @Test
     void testConfirmOrderSuccess() {
-        order.assignSchedule(schedule);
+        order.chooseSchedule(schedule);
         order.setDeliveryPoint(OrderDeliveryPoint.CAFETERIA);
 
         boolean result = order.confirmOrder();
@@ -95,7 +95,7 @@ class OrderTest {
 
     @Test
     void testConfirmOrderFailsWithoutDeliveryPoint() {
-        order.assignSchedule(schedule);
+        order.chooseSchedule(schedule);
         boolean result = order.confirmOrder();
 
         assertFalse(result, "La confirmation doit échouer sans point de livraison");

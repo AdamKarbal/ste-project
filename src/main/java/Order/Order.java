@@ -7,6 +7,7 @@ import Restaurant.RestaurantSchedule;
 import Restaurant.RestaurantScheduleManager;
 import Dish.Dish;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.HashMap;
@@ -60,7 +61,14 @@ public class Order {
     public String getIdSchedule(){
         return idSchedule;
     }
-    public LocalDateTime getDeliveryTime() { return deliveryTime; }
+
+    public void setDeliveryTime(LocalDateTime deliveryTime){
+        this.deliveryTime = deliveryTime;
+    }
+
+    public LocalDateTime getDeliveryTime() {
+        return deliveryTime;
+    }
 
     public RestaurantSchedule chooseSchedule(LocalTime time) {
         RestaurantSchedule schedule = RestaurantScheduleManager
@@ -68,6 +76,7 @@ public class Order {
                 .orElseThrow(() -> new ScheduleNoExist("Aucun créneau disponible à cette heure : " + time));
 
         setIdSchedule(schedule.getId());
+        setDeliveryTime(LocalDateTime.of(LocalDate.now(), time));
         return schedule;
     }
 

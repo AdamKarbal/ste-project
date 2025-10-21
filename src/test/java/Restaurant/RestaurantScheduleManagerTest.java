@@ -14,9 +14,6 @@ import static org.junit.jupiter.api.Assertions.*;
 public class RestaurantScheduleManagerTest {
 
     private Restaurant restaurant;
-    private RestaurantSchedule mondayMorning;
-    private RestaurantSchedule mondayEvening;
-    private RestaurantSchedule fridayNight;
 
     @BeforeEach
     void setUp() {
@@ -54,33 +51,80 @@ public class RestaurantScheduleManagerTest {
     }
 
     @Test
-    void testAddScheduleOverlapFails() {
+    void testAddScheduleOverlapOrUpdate() {
         Restaurant r = new Restaurant.Builder()
                 .name("Testaurant")
                 .restaurantSchedules(new ArrayList<>())
                 .build();
+
         RestaurantScheduleManager.addSchedule(r, DayOfTheWeek.MONDAY, LocalTime.of(10, 0), LocalTime.of(12, 0), 20);
 
-        boolean added = RestaurantScheduleManager.addSchedule(r, DayOfTheWeek.MONDAY, LocalTime.of(11, 0), LocalTime.of(13, 0), 5);
+        RestaurantScheduleManager.addSchedule(r, DayOfTheWeek.MONDAY, LocalTime.of(11, 0), LocalTime.of(13, 0), 5);
 
-        assertFalse(added, "La plage qui chevauche ne devrait pas être ajoutée");
+        LocalTime t = LocalTime.of(11, 0);
+        while (t.isBefore(LocalTime.of(12, 0))) {
+            LocalTime finalT = t;
+            long count = r.getRestaurantSchedules().stream()
+                    .filter(s -> s.getDay() == DayOfTheWeek.MONDAY && s.getStart().equals(finalT))
+                    .count();
+            assertEquals(1, count, "Il ne doit y avoir qu'un seul schedule pour " + t);
+            t = t.plusMinutes(30);
+        }
+
+        t = LocalTime.of(11, 0);
+        while (t.isBefore(LocalTime.of(12, 0))) {
+            LocalTime finalT = t;
+            int capacity = r.getRestaurantSchedules().stream()
+                    .filter(s -> s.getDay() == DayOfTheWeek.MONDAY && s.getStart().equals(finalT))
+                    .findFirst().get()
+                    .getCapacity();
+            assertEquals(20, capacity, "La capacité pour " + t + " ne doit pas être mise à jour");
+            t = t.plusMinutes(30);
+        }
+
+        t = LocalTime.of(12, 0);
+        while (t.isBefore(LocalTime.of(13, 0))) {
+            LocalTime finalT = t;
+            boolean exists = r.getRestaurantSchedules().stream()
+                    .anyMatch(s -> s.getDay() == DayOfTheWeek.MONDAY && s.getStart().equals(finalT));
+            assertTrue(exists, "Un schedule doit exister pour " + t);
+            t = t.plusMinutes(30);
+        }
     }
 
     @Test
-    void testRemoveScheduleById() {
-        String id = mondayMorning.getId();
-        boolean removed = RestaurantScheduleManager.removeScheduleById(restaurant, id);
-        assertTrue(removed);
-        assertFalse(restaurant.getRestaurantSchedules().contains(mondayMorning));
+    void testRemoveScheduleById_Local() {
+        Restaurant restaurant = new Restaurant.Builder()
+                .name("Testaurant")
+                .restaurantSchedules(new ArrayList<>())
+                .build();
+
+        RestaurantSchedule mondayMorning = new RestaurantSchedule(DayOfTheWeek.MONDAY, LocalTime.of(8, 0), 10);
+        restaurant.addSchedule(mondayMorning);
+
+        boolean removed = RestaurantScheduleManager.removeScheduleById(restaurant, mondayMorning.getId());
+
+        assertTrue(removed, "Le schedule doit être supprimé");
+        assertFalse(restaurant.getRestaurantSchedules().contains(mondayMorning),
+                "Le schedule ne doit plus exister dans la liste");
     }
 
     @Test
-    void testUpdateCapacityById() {
-        String id = mondayEvening.getId();
-        boolean updated = RestaurantScheduleManager.updateCapacityById(restaurant, id, 99);
-        assertTrue(updated);
-        assertEquals(99, mondayEvening.getCapacity());
+    void testUpdateCapacityById_Local() {
+        Restaurant restaurant = new Restaurant.Builder()
+                .name("Testaurant")
+                .restaurantSchedules(new ArrayList<>())
+                .build();
+
+        RestaurantSchedule mondayEvening = new RestaurantSchedule(DayOfTheWeek.MONDAY, LocalTime.of(18, 0), 20);
+        restaurant.addSchedule(mondayEvening);
+
+        boolean updated = RestaurantScheduleManager.updateCapacityById(restaurant, mondayEvening.getId(), 99);
+
+        assertTrue(updated, "La mise à jour doit réussir");
+        assertEquals(99, mondayEvening.getCapacity(), "La capacité doit être mise à jour à 99");
     }
+
 
     @Test
     void testGetTodaySchedules() {

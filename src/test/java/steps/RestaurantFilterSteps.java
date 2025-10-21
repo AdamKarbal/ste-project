@@ -51,7 +51,7 @@ public class RestaurantFilterSteps {
                     .establishmentType(e)
                     .build();
 
-            DayOfTheWeek[] days = DayOfTheWeek.values();
+            List<DayOfTheWeek> days = DayOfTheWeek.getRealDays();
             for (DayOfTheWeek day : days) {
                 RestaurantScheduleManager.addSchedule(r, day, hhmm(row.get("start1")), hhmm(row.get("end1")), Integer.parseInt(row.get("capacity1")));
                 RestaurantScheduleManager.addSchedule(r, day, hhmm(row.get("start2")), hhmm(row.get("end2")), Integer.parseInt(row.get("capacity2")));

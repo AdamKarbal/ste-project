@@ -41,7 +41,7 @@ public class RestaurantManagerTest {
 
         manager.updateSchedule(DayOfTheWeek.MONDAY, start, end, 40);
 
-        assertEquals(1, restaurant.getRestaurantSchedules().size());
+        assertEquals(6, restaurant.getRestaurantSchedules().size());
         assertEquals(40, restaurant.getRestaurantSchedules().get(0).getCapacity());
         assertEquals(DayOfTheWeek.MONDAY, restaurant.getRestaurantSchedules().get(0).getDay());
     }

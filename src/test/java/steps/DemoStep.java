@@ -69,7 +69,7 @@ public class DemoStep {
                     .cuisineType(c)
                     .establishmentType(e)
                     .build();
-            DayOfTheWeek[] days = DayOfTheWeek.values();
+            List<DayOfTheWeek> days = DayOfTheWeek.getRealDays();
             for (DayOfTheWeek day : days) {
                 RestaurantScheduleManager.addSchedule(r, day, hhmm(row.get("start1")), hhmm(row.get("end1")), Integer.parseInt(row.get("capacity1")));
                 RestaurantScheduleManager.addSchedule(r, day, hhmm(row.get("start2")), hhmm(row.get("end2")), Integer.parseInt(row.get("capacity2")));
@@ -92,7 +92,7 @@ public class DemoStep {
 
     @And("que {string} a un créneau de {int}:{int} à {int}:{int} avec une capacité de {int} repas")
     public void que_a_un_créneau_de_à_avec_une_capacité_de_repas(String string, Integer int1, Integer int2, Integer int3, Integer int4, Integer int5) {
-        List<RestaurantSchedule> schedules = RestaurantScheduleManager.getTodaySchedules(currentRestaurant);
+        List<RestaurantSchedule> schedules = RestaurantScheduleManager.getSchedules(currentRestaurant);
         System.out.println();
         Assertions.assertTrue(schedules.contains(new RestaurantSchedule(DayOfTheWeek.MONDAY,LocalTime.of(int1,int2),int5)));
     }

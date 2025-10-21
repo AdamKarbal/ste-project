@@ -74,8 +74,8 @@ class OrderTest {
         RestaurantSchedule result = order.chooseSchedule(schedule.getStart());
 
         assertNotNull(order.getDeliveryTime(), "Le temps de livraison devrait être défini");
-        assertTrue(order.getDeliveryTime().toLocalTime().isAfter(schedule.getEnd()),
-                "La livraison doit être après la fin du créneau");
+        assertTrue(order.getDeliveryTime().toLocalTime().isBefore(schedule.getEnd()),
+                "La livraison doit être avant la fin du créneau");
         assertEquals(schedule, result, "Le créneau choisi doit être celui retourné");
     }
 

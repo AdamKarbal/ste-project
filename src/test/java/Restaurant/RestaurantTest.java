@@ -34,7 +34,7 @@ public class RestaurantTest {
 
         RestaurantScheduleManager.addSchedule(restaurant, DayOfTheWeek.SUNDAY, LocalTime.of(10, 0), LocalTime.of(14, 0), 30);
         RestaurantScheduleManager.addSchedule(restaurant, DayOfTheWeek.SUNDAY, LocalTime.of(18, 0), LocalTime.of(23, 0), 50);
-        RestaurantScheduleManager.addSchedule(restaurant, DayOfTheWeek.SUNDAY, LocalTime.of(22, 0), LocalTime.of(2, 0), 20); // overnight
+        RestaurantScheduleManager.addSchedule(restaurant, DayOfTheWeek.SUNDAY, LocalTime.of(22, 0), LocalTime.of(2, 0), 20);
     }
 
 

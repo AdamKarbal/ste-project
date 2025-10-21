@@ -136,12 +136,12 @@ public class DemoStep {
 
     @When("il choisit le créneau de {int}:{int} et valide sa commande")
     public void il_choisit_le_créneau_de_et_valide_sa_commande(Integer int1, Integer int2) {
-        currentOrder.chooseSchedule(LocalTime.of(int1,int2));
+        currentOrderManager.chooseSchedule(LocalTime.of(int1,int2));
     }
 
     @When("il procède au paiement avec son crédit")
     public void il_procède_au_paiement_avec_son_crédit() {
-        orderStatus=currentOrderManager.proceedPayement(PaymentMethod.CASH);
+        orderStatus=currentOrderManager.finishOrder(PaymentMethod.CASH);
     }
 
     @Then("le paiement doit être accepté et une commande payeé par cash doit être créée pour {string}")
@@ -156,8 +156,7 @@ public class DemoStep {
 
     @Then("la capacité du créneau de {int}:{int} à {int}:{int} de {string} doit être maintenant de {int} repas")
     public void la_capacité_du_créneau_de_à_de_doit_être_maintenant_de_repas(Integer int1, Integer int2, Integer int3, Integer int4, String string, Integer int5) {
-        // Write code here that turns the phrase above into concrete actions
-        throw new io.cucumber.java.PendingException();
+        Assertions.assertEquals(RestaurantScheduleManager.getCapacityById(currentRestaurant,currentOrderManager.getCurrentOrder().getIdSchedule()),int5);
     }
 
 

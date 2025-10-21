@@ -54,6 +54,10 @@ public class RestaurantSchedule {
         this.capacity = capacity;
     }
 
+    public void addCapacity(int capacity){
+        this.capacity+=capacity;
+    }
+
     @Override
     public String toString() {
         return "[" + id + "] " + day + " | " +

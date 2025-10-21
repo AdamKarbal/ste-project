@@ -16,11 +16,11 @@ Feature: Demonstration de notre système
     When "Younes" recherche les restaurants de type "ITALIENNE"
     And il sélectionne le restaurant "Pasta Mia"
     And il ajoute 1 "Spaghetti" à 12€ à son panier
-    And il choisit le créneau de 19:00 et valide sa commande
+    And il choisit le créneau de 19:01 et valide sa commande
     And il procède au paiement avec son crédit
     Then le paiement doit être accepté et une commande payeé par cash doit être créée pour "Younes"
     And l'historique de commandes de "Younes" doit contenir 1 commandes
-    And la capacité du créneau de 12:00 à 12:30 de "Pasta Mia" doit être maintenant de 9 repas
+    And la capacité du créneau de 19:00 à 22:00 de "Pasta Mia" doit être maintenant de 119 repas
 
   Scenario: Un restaurateur crée et configure son restaurant
     Given le restaurateur "Nico" à été enregistré

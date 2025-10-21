@@ -9,7 +9,12 @@ import Payment.PaymentState;
 import Payment.PaymentMethod;
 import Payment.PaymentService;
 import Restaurant.Restaurant;
+import Restaurant.RestaurantSchedule;
+import Restaurant.RestaurantScheduleManager;
 import Dish.DishTopping;
+
+import java.time.LocalTime;
+import java.util.Optional;
 
 
 public class OrderManager {
@@ -48,6 +53,18 @@ public class OrderManager {
         return currentOrder.getState();
     }
 
+    public void chooseSchedule(LocalTime time){
+        getCurrentOrder().chooseSchedule(time);
+    }
+
+    public OrderState finishOrder(PaymentMethod paymentMethod){
+        OrderState status = proceedPayement(paymentMethod);
+        if(RestaurantScheduleManager.checkCapacity(getCurrentOrder().getRestaurant(),getCurrentOrder().getIdSchedule())){
+            RestaurantScheduleManager.incrementCapacityById(getCurrentOrder().getRestaurant(), getCurrentOrder().getIdSchedule(), -1);
+            return status;
+        }
+        return status;
+    }
 
     public void addItem(Dish dish, int quantity) {
         Order order = getCurrentOrder();

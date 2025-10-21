@@ -66,13 +66,12 @@ class OrderTest {
 
     @Test
     void testChooseScheduleSuccess() {
-        Optional<RestaurantSchedule> result = order.chooseSchedule(schedule.getStart());
+        RestaurantSchedule result = order.chooseSchedule(schedule.getStart());
 
-        assertTrue(result.isPresent(), "L'assignation du créneau devrait réussir");
         assertNotNull(order.getDeliveryTime(), "Le temps de livraison devrait être défini");
         assertTrue(order.getDeliveryTime().toLocalTime().isAfter(schedule.getEnd()),
                 "La livraison doit être après la fin du créneau");
-        assertEquals(schedule, result.get(), "Le créneau choisi doit être celui retourné");
+        assertEquals(schedule, result, "Le créneau choisi doit être celui retourné");
     }
 
     @Test
@@ -81,8 +80,8 @@ class OrderTest {
                 schedule.getDay(), schedule.getStart(), schedule.getEnd(), schedule.getCapacity()
         );
 
-        Optional<RestaurantSchedule> result = order.chooseSchedule(otherSchedule.getStart());
-        assertTrue(result.isEmpty(), "Le créneau ne devrait pas être accepté car il n'appartient pas au restaurant");
+        RestaurantSchedule result = order.chooseSchedule(otherSchedule.getStart());
+        assertNotNull(result, "Le créneau ne devrait pas être accepté car il n'appartient pas au restaurant");
     }
 
     @Test

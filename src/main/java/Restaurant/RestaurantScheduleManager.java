@@ -1,6 +1,7 @@
 package Restaurant;
 
 import Restaurant.Enum.DayOfTheWeek;
+import Restaurant.Exception.ScheduleNoExist;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -25,15 +26,15 @@ public class RestaurantScheduleManager {
                 .collect(Collectors.toList());
     }
 
-    public static Optional<RestaurantSchedule> getAvailableScheduleFor(Restaurant restaurant, LocalTime requestedTime) {
+    public static Optional<RestaurantSchedule> getAvailableScheduleFor(Restaurant restaurant, LocalTime requestedTime) { // important : changer l'utilisation de requestedTime.isBefore()
         if (restaurant == null || restaurant.getRestaurantSchedules() == null || requestedTime == null)
             return Optional.empty();
 
         LocalDateTime now = LocalDateTime.now();
 
-        if (requestedTime.isBefore(now.toLocalTime().plusMinutes(15))) {
+        /*if (requestedTime.isBefore(now.toLocalTime().plusMinutes(15))) {
             return Optional.empty();
-        }
+        }*/
 
         DayOfTheWeek today = convertDayOfWeek(LocalDate.now().getDayOfWeek());
 
@@ -72,12 +73,16 @@ public class RestaurantScheduleManager {
         return restaurant.getRestaurantSchedules().removeIf(s -> s.getId().equals(id));
     }
 
-    public static boolean getCapacityById(Restaurant restaurant, String id) {
-        if (restaurant == null || restaurant.getRestaurantSchedules() == null) return false;
+    public static int getCapacityById(Restaurant restaurant, String id) {
+        if (restaurant == null || restaurant.getRestaurantSchedules() == null) throw new RuntimeException("t'es une merde le s");
         for (RestaurantSchedule s : restaurant.getRestaurantSchedules()) {
-            if (s.getId().equals(id) && s.getCapacity() > 0) return true;
+            if (s.getId().equals(id)) return s.getCapacity();
         }
-        return false;
+        throw new ScheduleNoExist("ce schedule n'existe pas");
+    }
+
+    public static boolean checkCapacity(Restaurant restaurant,String id){
+        return getCapacityById(restaurant,id)>0;
     }
 
     public static boolean updateCapacityById(Restaurant restaurant, String id, int capacity) {
@@ -85,6 +90,17 @@ public class RestaurantScheduleManager {
         for (RestaurantSchedule s : restaurant.getRestaurantSchedules()) {
             if (s.getId().equals(id)) {
                 s.setCapacity(capacity);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static boolean incrementCapacityById(Restaurant restaurant, String id, int capacity) {
+        if (restaurant == null || restaurant.getRestaurantSchedules() == null) return false;
+        for (RestaurantSchedule s : restaurant.getRestaurantSchedules()) {
+            if (s.getId().equals(id)) {
+                s.addCapacity(capacity);
                 return true;
             }
         }

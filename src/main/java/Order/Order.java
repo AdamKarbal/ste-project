@@ -1,6 +1,7 @@
 package Order;
 
 import Account.AccountUser;
+import Restaurant.Exception.ScheduleNoExist;
 import Restaurant.Restaurant;
 import Restaurant.RestaurantSchedule;
 import Restaurant.RestaurantScheduleManager;
@@ -20,6 +21,7 @@ public class Order {
     private AccountUser client;
     private OrderDeliveryPoint deliveryPoint;
     private LocalDateTime deliveryTime;
+    private String idSchedule;
 
     public Order(AccountUser client,Restaurant restaurant){
         price=0;
@@ -51,10 +53,22 @@ public class Order {
         this.deliveryPoint = deliveryPoint;
     }
 
+    public void setIdSchedule(String id){
+        this.idSchedule = id;
+    }
+
+    public String getIdSchedule(){
+        return idSchedule;
+    }
     public LocalDateTime getDeliveryTime() { return deliveryTime; }
 
-    public Optional<RestaurantSchedule> chooseSchedule(LocalTime time) {
-        return RestaurantScheduleManager.getAvailableScheduleFor(restaurant, time);
+    public RestaurantSchedule chooseSchedule(LocalTime time) {
+        RestaurantSchedule schedule = RestaurantScheduleManager
+                .getAvailableScheduleFor(getRestaurant(), time)
+                .orElseThrow(() -> new ScheduleNoExist("Aucun créneau disponible à cette heure : " + time));
+
+        setIdSchedule(schedule.getId());
+        return schedule;
     }
 
     public void setState(OrderState newState) {

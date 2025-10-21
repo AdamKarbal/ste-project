@@ -49,9 +49,9 @@ public class OrderManager {
     }
 
     public OrderState proceedPayement(PaymentMethod paymentMethod){
-        order.setState(OrderState.COMPLETED); // à changer pour l'instant je garde pour les tests mais une autre méthode doit mettre l'OrderState à completed
-        order.setState(PaymentService.getInstance().handleCompletedOrder(this.order,paymentMethod));
-        return order.getState();
+        currentOrder.setState(OrderState.COMPLETED); // à changer pour l'instant je garde pour les tests mais une autre méthode doit mettre l'OrderState à completed
+        currentOrder.setState(PaymentService.getInstance().handleCompletedOrder(this.currentOrder,paymentMethod));
+        return currentOrder.getState();
     }
 
 
@@ -80,24 +80,6 @@ public class OrderManager {
         }
     }
 
-    public void proceedPayment(PaymentMethod method) throws OrderNotFoundException {
-        if (currentOrder == null)
-            throw new OrderNotFoundException("Aucune commande active à payer.");
-
-        Payment payment = paymentService.processPayment(currentOrder, method);
-
-        if (payment.getStatus() == PaymentState.PAID) {
-            currentOrder.setState(OrderState.PAID);
-            System.out.println("Paiement réussi via " + method + " pour " + currentOrder.getPrice() + "€");
-            completedOrderManager.archiveOrder(currentOrder);
-
-            // On libère la commande active
-            currentOrder = null;
-        } else {
-            currentOrder.setState(OrderState.CANCELED);
-            System.out.println("Échec du paiement via " + method);
-        }
-    }
 
     public OrderState followOrder() {
         Order order = getCurrentOrder();

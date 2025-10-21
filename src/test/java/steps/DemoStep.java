@@ -93,9 +93,7 @@ public class DemoStep {
     @Given("que le restaurant {string} propose le plat {string} à {double}€")
     public void que_le_restaurant_propose_le_plat_à_€(String string, String string2, Double double1) throws DishInDishes {
         currentRestaurant = service.getRestaurantByName(string);
-        Assertions.assertNotNull(currentRestaurant, "Le restaurant '" + string + "' doit exister pour ce step");
         currentManager = new RestaurantManager(currentRestaurant);
-
         Dish dish=new Dish(double1,string2,null,null,null,null);
         currentManager.addDish(dish);
         Assertions.assertNotNull(currentRestaurant);
@@ -133,14 +131,8 @@ public class DemoStep {
     }
 
     @When("il choisit le créneau de {int}:{int} et valide sa commande")
-    public void il_choisit_le_créneau_de_et_valide_sa_commande(Integer hour, Integer minute) {
-        LocalTime requestedTime = LocalTime.of(hour, minute);
-
-        Optional<RestaurantSchedule> chosen = currentOrder.chooseSchedule(requestedTime);
-
-        if (chosen.isEmpty()) {
-            throw new RuntimeException("Le créneau demandé n'est pas disponible pour ce restaurant");
-        }
+    public void il_choisit_le_créneau_de_et_valide_sa_commande(Integer int1, Integer int2) {
+        currentOrder.chooseSchedule(LocalTime.of(int1,int2));
     }
 
     @When("il procède au paiement avec son crédit")
@@ -148,7 +140,7 @@ public class DemoStep {
         orderStatus=currentOrderManager.proceedPayement(PaymentMethod.CASH);
     }
 
-    @Then("le paiement doit être accepté et une commande N°{int} doit être créée pour {string}")
+    @Then("le paiement doit être accepté et une commande payée par cash doit être créée pour {string}")
     public void le_paiement_doit_être_accepté_et_une_commande_n_doit_être_créée_pour(Integer int1, String string) {
         Assertions.assertEquals(client.getOrderHistory().get(currentOrder).getStatus(), PaymentState.PAID);
     }
@@ -175,12 +167,13 @@ public class DemoStep {
     }
 
     @When("{string} crée son restaurant {string}")
-    public void crée_son_restaurant(String nomRestaurateur, String nomRestaurant) throws Exception {
+    public void crée_son_restaurant(String nomRestaurateur, String nomRestaurant) {
         AccountManager account = restaurateurs.get(nomRestaurateur);
         Assertions.assertNotNull(account, "Le restaurateur doit être enregistré avant de créer un restaurant");
-        account.createRestaurant(nomRestaurant, factory);
+        account.createRestaurant(nomRestaurant,factory);
         currentManager = account.getRestaurantManager();
         currentRestaurant = currentManager.getRestaurant();
+        repo.addRestaurant(currentRestaurant);
         Assertions.assertNotNull(currentRestaurant, "Le restaurant n’a pas été créé correctement");
     }
 
@@ -233,6 +226,8 @@ public class DemoStep {
         Assertions.assertTrue(platTrouvé, "Le client " + nomClient + " ne trouve pas le plat " + nomPlat);
     }
 
+    // --- Helpers SCHEDULES ---
+
     private static RestaurantSchedule makeSchedule(DayOfTheWeek day, String start, String end, String capStr) {
         if (start == null || end == null || start.isBlank() || end.isBlank()) {
             return new RestaurantSchedule(day, hhmm("00:00"), hhmm("00:00"), 0);
@@ -264,6 +259,8 @@ public class DemoStep {
     private static DishTag toTag(String raw) {
         String candidate = raw.trim().toUpperCase().replace(' ', '_').replace('-', '_');
         try { return DishTag.valueOf(candidate); } catch (IllegalArgumentException ignore) {}
+
+        // essai par label ("Vegan", "Gluten-free", ...) en normalisant
         String norm = java.text.Normalizer.normalize(raw.trim(), java.text.Normalizer.Form.NFD)
                 .replaceAll("\\p{M}+", "").toUpperCase().replace(' ', '_').replace('-', '_');
         for (DishTag t : DishTag.values()) {

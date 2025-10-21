@@ -1,8 +1,7 @@
-package RestaurantTest;
+package Restaurant;
 
 import Dish.*;
 import Dish.suggest.Suggestion;
-import Restaurant.*;
 import Restaurant.Enum.DayOfTheWeek;
 import Restaurant.Enum.CuisineType;
 import Restaurant.Exception.DishInDishes;

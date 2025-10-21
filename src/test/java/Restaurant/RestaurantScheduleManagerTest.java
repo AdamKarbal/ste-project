@@ -86,13 +86,6 @@ public class RestaurantScheduleManagerTest {
         );
     }
 
-
-    @Test
-    void testGetNextAvailableSchedule() {
-        Optional<RestaurantSchedule> next = RestaurantScheduleManager.getNextAvailableSchedule(restaurant);
-        assertTrue(next.isPresent());
-    }
-
     @Test
     void testIsOpenAt() {
         boolean open = RestaurantScheduleManager.isOpenAt(

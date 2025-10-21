@@ -42,19 +42,7 @@ public class RestaurantFilterSteps {
             d2.setDishTag(new ArrayList<>(t2));
             List<Dish> dishes = List.of(d1,d2);
             List<RestaurantSchedule> schedules = new ArrayList<>();
-            schedules.add(makeSchedule(DayOfTheWeek.MONDAY, row.get("start1"), row.get("end1"), row.get("capacity1")));
-            schedules.add(makeSchedule(DayOfTheWeek.MONDAY, row.get("start2"), row.get("end2"), row.get("capacity2")));
-            schedules.add(makeSchedule(DayOfTheWeek.TUESDAY, row.get("start1"), row.get("end1"), row.get("capacity1")));
-            schedules.add(makeSchedule(DayOfTheWeek.TUESDAY, row.get("start2"), row.get("end2"), row.get("capacity2")));
-            schedules.add(makeSchedule(DayOfTheWeek.WEDNESDAY, row.get("start1"), row.get("end1"), row.get("capacity1")));
-            schedules.add(makeSchedule(DayOfTheWeek.WEDNESDAY, row.get("start2"), row.get("end2"), row.get("capacity2")));
-            schedules.add(makeSchedule(DayOfTheWeek.THURSDAY, row.get("start1"), row.get("end1"), row.get("capacity1")));
-            schedules.add(makeSchedule(DayOfTheWeek.THURSDAY, row.get("start2"), row.get("end2"), row.get("capacity2")));
-            schedules.add(makeSchedule(DayOfTheWeek.FRIDAY, row.get("start1"), row.get("end1"), row.get("capacity1")));
-            schedules.add(makeSchedule(DayOfTheWeek.FRIDAY, row.get("start2"), row.get("end2"), row.get("capacity2")));
-            schedules.add(makeSchedule(DayOfTheWeek.SATURDAY, row.get("start1"), row.get("end1"), row.get("capacity1")));
-            schedules.add(makeSchedule(DayOfTheWeek.SUNDAY, row.get("start1"), row.get("end1"), row.get("capacity1")));
-            schedules.add(makeSchedule(DayOfTheWeek.SUNDAY, row.get("start2"), row.get("end2"), row.get("capacity2")));
+
             Restaurant r = new Restaurant.Builder()
                     .name(name)
                     .dishes(dishes)
@@ -62,6 +50,13 @@ public class RestaurantFilterSteps {
                     .cuisineType(c)
                     .establishmentType(e)
                     .build();
+
+            DayOfTheWeek[] days = DayOfTheWeek.values();
+            for (DayOfTheWeek day : days) {
+                RestaurantScheduleManager.addSchedule(r, day, hhmm(row.get("start1")), hhmm(row.get("end1")), Integer.parseInt(row.get("capacity1")));
+                RestaurantScheduleManager.addSchedule(r, day, hhmm(row.get("start2")), hhmm(row.get("end2")), Integer.parseInt(row.get("capacity2")));
+            }
+
             repo.addRestaurant(r);
         }
     }
@@ -151,16 +146,6 @@ public class RestaurantFilterSteps {
 
 
     // --- Helpers SCHEDULES ---
-
-    private static RestaurantSchedule makeSchedule(DayOfTheWeek day, String start, String end, String capStr) {
-        if (start == null || end == null || start.isBlank() || end.isBlank()) {
-            // pas de créneau fourni : on met un créneau neutre capacité 0
-            return new RestaurantSchedule(day, hhmm("00:00"), hhmm("00:00"), 0);
-        }
-        int cap = (capStr == null || capStr.isBlank()) ? 0 : Integer.parseInt(capStr.trim());
-        return new RestaurantSchedule(day, hhmm(start.trim()), hhmm(end.trim()), cap);
-    }
-
     private static LocalTime hhmm(String s) {
         String[] p = s.split(":");
         int h = Integer.parseInt(p[0].trim());

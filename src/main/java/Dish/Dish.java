@@ -1,9 +1,10 @@
 package Dish;
 
-import Restaurant.Restaurant;
 
+import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class Dish {
     private double price;
@@ -12,7 +13,8 @@ public class Dish {
     private DishCategory category;
     private DishType type;
     private List<DishTag> dishTag;
-    private List<DishTopping> toppings;
+    private List<DishTopping> availableToppings;
+    private List<DishTopping> selectedToppings;
 
     public Dish(double price, String name, String description, DishCategory category, DishType type,List<DishTag> dishTag) {
         this.price = price;
@@ -22,7 +24,8 @@ public class Dish {
         this.type = type;
         this.dishTag = dishTag;
 
-        this.toppings = new ArrayList<>();
+        this.availableToppings = new ArrayList<>();
+        this.selectedToppings = new ArrayList<>();
     }
 
     public double getPrice() {
@@ -67,22 +70,73 @@ public class Dish {
         return this.dishTag.add(dishTag);
     }
 
-    public List<DishTopping> getToppings() {
-        return toppings;
+    public List<DishTopping> getAvailableToppings() {
+        return new ArrayList<>(availableToppings);
     }
 
-    public void addTopping(DishTopping topping) {
-        if(!toppings.contains(topping)){
-            this.toppings.add(topping);
+    public void addAvailableTopping(DishTopping topping) {
+        if (!availableToppings.contains(topping)) {
+            availableToppings.add(topping);
         }
     }
 
-    public void setToppings(List<DishTopping> toppings) {
-        this.toppings = toppings;
+    public void removeAvailableTopping(DishTopping topping) {
+        availableToppings.remove(topping);
     }
-    public void removeTopping(DishTopping topping) {
-        this.toppings.remove(topping);
+
+
+    public void addSelectedTopping(DishTopping topping) {
+        if (availableToppings.contains(topping) && !selectedToppings.contains(topping)) {
+            selectedToppings.add(topping);
+        } else {
+            throw new IllegalArgumentException("Ce topping n'est pas disponible pour ce plat !");
+        }
     }
+
+    public List<DishTopping> getSelectedToppings() {
+        return new ArrayList<>(selectedToppings);
+    }
+
+    public void removeSelectedTopping(DishTopping topping) {
+        selectedToppings.remove(topping);
+    }
+
+    public double getToppingTotalPrice() {
+        double total = price;
+        for (DishTopping t : selectedToppings) {
+            total += t.getPrice();
+        }
+        return total;
+    }
+
+    private static String norm(String s) {
+        if (s == null) return null;
+        String noAccents = Normalizer.normalize(s.trim(), Normalizer.Form.NFD)
+                .replaceAll("\\p{M}+", ""); // supprime accents
+        return noAccents.replaceAll("\\s+", " ")                 // espaces multiples -> simple
+                .toUpperCase(Locale.ROOT);               // insensible à la casse
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Dish other)) return false;
+
+        String n1 = norm(this.name);
+        String n2 = norm(other.name);
+
+        // Si l’un des deux n’a pas de nom, on ne les considère pas égaux
+        if (n1 == null || n2 == null) return false;
+
+        return n1.equals(n2);
+    }
+
+    @Override
+    public int hashCode() {
+        String n = norm(this.name);
+        return (n == null) ? 0 : n.hashCode();
+    }
+
 
 
 }

@@ -2,90 +2,101 @@ package Order;
 
 import Account.AccountUser;
 import Dish.Dish;
+import Payment.Payment;
+import Payment.PaymentMethod;
+import Payment.PaymentService;
+import Payment.PaymentState;
+import Payment.PaymentMethod;
+import Payment.PaymentService;
 import Restaurant.Restaurant;
+import Dish.DishTopping;
 
-import java.util.HashMap;
-import java.util.Map;
 
 public class OrderManager {
-    private final Map<AccountUser, Order> activeOrders;
 
-    public OrderManager() {
-        this.activeOrders = new HashMap<>();
+    private PaymentService paymentService;
+    private Order currentOrder;
+    private final CompletedOrderManager completedOrderManager;
+
+    public OrderManager(PaymentService paymentService,CompletedOrderManager completedOrderManager) {
+        this.currentOrder = null;
+        this.paymentService = paymentService;
+        this.completedOrderManager = completedOrderManager;
     }
+
 
     public Order createOrder(AccountUser client, Restaurant restaurant) {
-        if (activeOrders.containsKey(client)) {
-            throw new IllegalStateException("L'utilisateur a déjà une commande active.");
+        if (currentOrder != null && currentOrder.getState() != OrderState.CANCELED) {
+            throw new IllegalStateException("Une commande est déjà en cours.");
         }
-        Order order = new Order(client, restaurant);
-        activeOrders.put(client, order);
-        return order;
+        currentOrder = new Order(client, restaurant);
+        return currentOrder;
     }
 
-    public Order getOrder(AccountUser client) {
-        return activeOrders.get(client);
+    public Order getCurrentOrder() {
+        if (currentOrder == null) {
+            throw new OrderNotFoundException("Aucune commande active trouvée.");
+        }
+        return currentOrder;
     }
 
-    public void cancelOrder(AccountUser client) {
-        Order order = activeOrders.get(client);
-        if (order != null) {
-            order.setState(OrderState.CANCELED);
-            activeOrders.remove(client);
+    public void cancelOrder() {
+        if (currentOrder == null) {
+            throw new OrderNotFoundException("Aucune commande active à annuler.");
         }
+        currentOrder.setState(OrderState.CANCELED);
+        currentOrder = null;
     }
-    public void addItem(AccountUser client, Dish dish, int quantity)
-            throws OrderNotFoundException {
-        Order order = activeOrders.get(client);
-        if (order == null)
-            throw new OrderNotFoundException("Aucune commande trouvée pour cet utilisateur.");
+
+    public OrderState proceedPayement(PaymentMethod paymentMethod){
+        currentOrder.setState(OrderState.COMPLETED); // à changer pour l'instant je garde pour les tests mais une autre méthode doit mettre l'OrderState à completed
+        currentOrder.setState(PaymentService.getInstance().handleCompletedOrder(this.currentOrder,paymentMethod));
+        return currentOrder.getState();
+    }
+
+
+    public void addItem(Dish dish, int quantity) {
+        Order order = getCurrentOrder();
         order.addDish(dish, quantity);
     }
 
-    public void proceedPayment(AccountUser client, String paymentType)
-            throws OrderNotFoundException {
-        Order order = activeOrders.get(client);
-        if (order == null)
-            throw new OrderNotFoundException("Aucune commande trouvée pour cet utilisateur.");
-
-        order.setState(OrderState.PAID);
-        System.out.println("Paiement de " + order.getPrice() + "€ via " + paymentType);
-        activeOrders.remove(client);
-    }
-
-    public void removeItem(AccountUser client, Dish dish) throws OrderNotFoundException {
-        Order order = activeOrders.get(client);
-        if (order == null) {
-            throw new OrderNotFoundException("Aucune commande trouvée pour cet utilisateur.");
-        }
+    public void removeItem(Dish dish) {
+        Order order = getCurrentOrder();
         order.removeDish(dish);
+
         if (order.getDishes().isEmpty()) {
             order.setState(OrderState.CANCELED);
-            activeOrders.remove(client);
+            currentOrder = null;
         }
     }
 
-    public void updateItem(AccountUser client, Dish dish, int newQuantity) throws OrderNotFoundException {
-        Order order = activeOrders.get(client);
-        if (order == null) {
-            throw new OrderNotFoundException("Aucune commande trouvée pour cet utilisateur.");
-        }
-
+    public void updateItem(Dish dish, int newQuantity) {
+        Order order = getCurrentOrder();
         order.updateDishQuantity(dish, newQuantity);
 
         if (order.getDishes().isEmpty()) {
             order.setState(OrderState.CANCELED);
-            activeOrders.remove(client);
+            currentOrder = null;
         }
     }
 
-    public OrderState followOrder(AccountUser client) throws OrderNotFoundException {
-        Order order = activeOrders.get(client);
-        if (order == null) {
-            throw new OrderNotFoundException("Aucune commande trouvée pour cet utilisateur.");
-        }
 
+    public OrderState followOrder() {
+        Order order = getCurrentOrder();
         return order.getState();
     }
 
+    public void addToppingToDish(Dish dish, DishTopping topping) {
+        Order order = getCurrentOrder();
+        if (!order.getDishes().containsKey(dish)) {
+            throw new IllegalArgumentException("Le plat n'existe pas dans la commande actuelle.");
+        }
+
+        if (!dish.getAvailableToppings().contains(topping)) {
+            throw new IllegalArgumentException("Ce topping n'est pas proposé pour ce plat !");
+        }
+
+        dish.addSelectedTopping(topping);
+        order.updatePrice();
+    }
 }

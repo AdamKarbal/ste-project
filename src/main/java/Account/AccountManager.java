@@ -9,7 +9,4 @@ public class AccountManager {
         this.restaurantManager = new RestaurantManager(name);
     }
 
-    public RestaurantManager getRestaurantManager(){
-        return restaurantManager;
-    }
 }

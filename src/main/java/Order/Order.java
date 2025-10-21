@@ -72,13 +72,15 @@ public class Order {
     }
 
     public void setState(OrderState newState) {
-        if (deliveryPoint == null && newState != OrderState.CREATED && newState != OrderState.CANCELED){
+        /*if (deliveryPoint == null && newState != OrderState.CREATED && newState != OrderState.CANCELED){
             throw new InvalidOrderStateException(
                     "Impossible de changer l'état " + newState + " car le point de livraison manque"
             );
+        }*/
+        if(this.state!=newState){
+            this.state = newState;
+            System.out.println("L'état de la commande a bien changé pour : " + newState);
         }
-        this.state = newState;
-        System.out.println("L'état de la commande a bien changé pour : " + newState);
     }
 
     public boolean confirmOrder() {
@@ -107,11 +109,11 @@ public class Order {
     }
 
     public boolean addDish(Dish dish, int quantity) throws DifferentRestaurantException {
-        if (dish == null || quantity <= 0) return false;
+        /*if (dish == null || quantity <= 0) return false;
 
         if (!restaurant.containsDish(dish)) {
             throw new DifferentRestaurantException("Impossible d'ajouter le plat '" + dish.getName() + "' : il provient d'un autre restaurant ");
-        }
+        }*/
 
         dishes.put(dish, dishes.getOrDefault(dish, 0) + quantity);
         updatePrice();
@@ -140,7 +142,7 @@ public class Order {
         }
     }
 
-    private void updatePrice() {
+    public void updatePrice() {
         price = 0f;
         for (Map.Entry<Dish, Integer> entry : dishes.entrySet()) {
             price += entry.getKey().getPrice() * entry.getValue();

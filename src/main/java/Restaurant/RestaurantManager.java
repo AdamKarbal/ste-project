@@ -1,7 +1,7 @@
 package Restaurant;
 import Dish.*;
 import Dish.suggest.Suggestion;
-import Restaurant.Enum.DayOfTheWeek;
+import Restaurant.Enum.*;
 import Restaurant.Enum.cuisineType;
 import Restaurant.Enum.establishmentType;
 import Restaurant.Exception.*;
@@ -13,7 +13,7 @@ import java.util.ArrayList;
 public class RestaurantManager {
     //Instances
     private Restaurant restaurant;
-    private final DishFactory dishFactory = new DishFactory();
+    private final SmartDishFactory smartDishFactory = new SmartDishFactory();
 
     //Constructeur
     public RestaurantManager(String name){
@@ -87,12 +87,17 @@ public class RestaurantManager {
         restaurant.setEstablishmentType(null);
     }
 
+    public DishTopping createToppingForDish(Dish dish, String name, float price) {
+        DishTopping topping = new DishTopping(name, price);
+        dish.addAvailableTopping(topping);
+        return topping;
+    }
     public Suggestion previewSuggestion(String nameOrKeyword) {
-        return dishFactory.suggest(nameOrKeyword);
+        return smartDishFactory.suggest(nameOrKeyword);
     }
 
     public Dish createDish(DishInput input) throws DishInDishes {
-        Dish dish = dishFactory.create(input);
+        Dish dish = smartDishFactory.create(input);
         this.addDish(dish); // tes règles (doublon, etc.)
         return dish;
     }

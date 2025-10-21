@@ -44,10 +44,6 @@ public class OrderManagerTest {
         Dish dish1 = new Dish(1.0, "d", "e", null, null, null);
         Dish dish2 = new Dish(2.0, "ee", "edd", null, null, null);
 
-        om.createOrder(data.client, null);
-        Dish dish1 = new Dish(1.0, "d", "e", null, null, null);
-        om.addItem(dish1, 1);
-        om.proceedPayement(PaymentMethod.CASH);
 
         orderManager1.proceedPayement(PaymentMethod.CASH);
         orderManager2.proceedPayement(PaymentMethod.ONLINE);

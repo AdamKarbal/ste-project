@@ -69,6 +69,11 @@ public class DemoStep {
                     .cuisineType(c)
                     .establishmentType(e)
                     .build();
+            DayOfTheWeek[] days = DayOfTheWeek.values();
+            for (DayOfTheWeek day : days) {
+                RestaurantScheduleManager.addSchedule(r, day, hhmm(row.get("start1")), hhmm(row.get("end1")), Integer.parseInt(row.get("capacity1")));
+                RestaurantScheduleManager.addSchedule(r, day, hhmm(row.get("start2")), hhmm(row.get("end2")), Integer.parseInt(row.get("capacity2")));
+            }
             try {
                 service.addRestaurant(r);
             } catch (Exception ignored) {}
@@ -78,7 +83,7 @@ public class DemoStep {
     @Given("que le restaurant {string} propose le plat {string} à {double}€")
     public void que_le_restaurant_propose_le_plat_à_€(String string, String string2, Double double1) throws DishInDishes {
         currentRestaurant = service.getRestaurantByName(string);
-        currentManager = new RestaurantManager(currentRestaurant.getName());
+        currentManager = new RestaurantManager(currentRestaurant);
         Dish dish=new Dish(double1,string2,null,null,null,null);
         Assertions.assertNotNull(currentRestaurant);
         Assertions.assertTrue(currentRestaurant.getDishes().contains(dish));
@@ -88,7 +93,8 @@ public class DemoStep {
     @And("que {string} a un créneau de {int}:{int} à {int}:{int} avec une capacité de {int} repas")
     public void que_a_un_créneau_de_à_avec_une_capacité_de_repas(String string, Integer int1, Integer int2, Integer int3, Integer int4, Integer int5) {
         List<RestaurantSchedule> schedules = RestaurantScheduleManager.getTodaySchedules(currentRestaurant);
-        Assertions.assertTrue(schedules.contains(new RestaurantSchedule(DayOfTheWeek.MONDAY,LocalTime.of(int1,int2),LocalTime.of(int3,int4),int5)));
+        System.out.println();
+        Assertions.assertTrue(schedules.contains(new RestaurantSchedule(DayOfTheWeek.MONDAY,LocalTime.of(int1,int2),int5)));
     }
 
     @And("que le client {string} est connecté à son compte")

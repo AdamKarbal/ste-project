@@ -1,7 +1,7 @@
 package Restaurant;
 
 import Dish.DishTag;
-import Restaurant.Enum.cuisineType;
+import Restaurant.Enum.CuisineType;
 import Restaurant.Enum.establishmentType;
 
 import java.time.LocalTime;
@@ -14,7 +14,7 @@ public class FilterCriteria {
     double priceMin;
     double priceMax;
     establishmentType establishment;
-    cuisineType cuisine;
+    CuisineType cuisine;
     LocalTime availableAt;
     boolean openNow;
     Set<DishTag> tagsAllOf;
@@ -27,7 +27,7 @@ public class FilterCriteria {
     }
 
     public String getNameContains() { return restaurantName; }
-    public cuisineType getCuisine() { return cuisine; }
+    public CuisineType getCuisine() { return cuisine; }
     public establishmentType getEstablishment() { return establishment; }
     public Double getPriceMin() { return priceMin; }
     public Double getPriceMax() { return priceMax; }
@@ -41,7 +41,7 @@ public class FilterCriteria {
         private final FilterCriteria c = new FilterCriteria();
 
         public Builder nameContains(String s) { c.restaurantName = emptyToNull(s); return this; }
-        public Builder cuisine(cuisineType ct) { c.cuisine = ct; return this; }
+        public Builder cuisine(CuisineType ct) { c.cuisine = ct; return this; }
         public Builder establishment(establishmentType et) { c.establishment = et; return this; }
         public Builder priceMin(Double v) { c.priceMin = v; return this; }
         public Builder priceMax(Double v) { c.priceMax = v; return this; }

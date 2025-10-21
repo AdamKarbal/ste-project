@@ -1,12 +1,6 @@
 package Dish;
 
 import java.util.List;
-import Dish.suggest.DishSuggestionEngine;
-import Dish.suggest.KeywordSuggester;
-import Dish.suggest.Suggestion;
-
-import java.util.ArrayList;
-import java.util.List;
 public class DishFactory {
 
     private DishFactory() {

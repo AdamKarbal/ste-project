@@ -70,4 +70,9 @@ public class RestaurantService {
     public List<Restaurant> filterByPriceRange(double min, double max) {
         return filter.filterByPriceRange(min, max);
     }
+
+    public List<Restaurant> filter(FilterCriteria c ){
+        return filter.filter(c);
+    }
+
 }

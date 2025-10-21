@@ -8,7 +8,7 @@ class DishFactoryTest {
 
     /*@Test
     void create_userOverridesPrice_andMergesToppings() {
-        DishFactory factory = new DishFactory();
+        SmartDishFactory factory = new SmartDishFactory();
 
         DishInput in = new DishInput();
         in.name = "Pizza Margherita";                 // déclenche PIZZA
@@ -20,14 +20,14 @@ class DishFactoryTest {
         assertEquals("Pizza Margherita", d.getName());
         assertEquals(DishType.PIZZA, d.getType());    // vient de la suggestion
         assertEquals(12.0, d.getPrice(), 1e-6);       // user > suggestion
-        assertTrue(d.getToppings().stream().anyMatch(t -> t.getName().equalsIgnoreCase("Olives")));
+        assertTrue(d.getAvailableToppings().stream().anyMatch(t -> t.getName().equalsIgnoreCase("Olives")));
         // merge : Mozzarella, Basilic (suggérés) + Olives (user)
-        assertTrue(d.getToppings().size() >= 3);
+        assertTrue(d.getAvailableToppings().size() >= 3);
     }
 
     @Test
     void create_whenNoSuggestion_usesUserFields() {
-        DishFactory factory = new DishFactory();
+        SmartDishFactory factory = new SmartDishFactory();
 
         DishInput in = new DishInput();
         in.name = "Plat mystère";
@@ -45,7 +45,7 @@ class DishFactoryTest {
 
     @Test
     void create_negativePrice_throws() {
-        DishFactory factory = new DishFactory();
+        SmartDishFactory factory = new SmartDishFactory();
         DishInput in = new DishInput();
         in.name = "Burger";
         in.price = -1.0;
@@ -56,7 +56,7 @@ class DishFactoryTest {
 
     @Test
     void create_blankName_throws() {
-        DishFactory f = new DishFactory();
+        SmartDishFactory f = new SmartDishFactory();
         DishInput in = new DishInput();
         in.name = "   ";
         assertThrows(IllegalArgumentException.class, () -> f.create(in));
@@ -64,14 +64,14 @@ class DishFactoryTest {
 
     @Test
     void create_mergeToppings_noDuplicates() {
-        DishFactory f = new DishFactory();
+        SmartDishFactory f = new SmartDishFactory();
 
         DishInput in = new DishInput();
         in.name = "Pizza Margherita";
         in.toppings = List.of(new DishTopping("Mozzarella", 1.2f)); // déjà dans la suggestion
 
         Dish d = f.create(in);
-        long mozzaCount = d.getToppings().stream()
+        long mozzaCount = d.getAvailableToppings().stream()
                 .filter(t -> t.getName().equalsIgnoreCase("Mozzarella")).count();
         assertEquals(1, mozzaCount); // pas de doublon
     }*/

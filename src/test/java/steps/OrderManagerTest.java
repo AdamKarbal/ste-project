@@ -1,12 +1,14 @@
 package steps;
-import Order.OrderManager;
-import Order.OrderState;
 
 import Account.AccountUser;
 import Dish.Dish;
 import Order.Order;
+import Order.OrderManager;
+import Order.CompletedOrderManager;
+import Order.OrderState;
 import Payment.Payment;
 import Payment.PaymentMethod;
+import Payment.PaymentService;
 import io.cucumber.java.en.*;
 import org.junit.jupiter.api.Assertions;
 
@@ -42,8 +44,10 @@ public class OrderManagerTest {
         Dish dish1 = new Dish(1.0, "d", "e", null, null, null);
         Dish dish2 = new Dish(2.0, "ee", "edd", null, null, null);
 
-        data.order1.addDish(dish1, 1);
-        data.order2.addDish(dish2, 1);
+        om.createOrder(data.client, null);
+        Dish dish1 = new Dish(1.0, "d", "e", null, null, null);
+        om.addItem(dish1, 1);
+        om.proceedPayement(PaymentMethod.CASH);
 
         orderManager1.proceedPayement(PaymentMethod.CASH);
         orderManager2.proceedPayement(PaymentMethod.ONLINE);

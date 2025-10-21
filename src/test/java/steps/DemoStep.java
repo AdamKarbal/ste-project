@@ -52,35 +52,20 @@ public class DemoStep {
 
     @Given("un catalogue de restos")
     public void un_catalogue_de_restos(DataTable table) {
-        for(Map<String,String> row : table.asMaps()){
+        for (Map<String,String> row : table.asMaps()) {
             String name = row.get("name");
             List<CuisineType> c = List.of(CuisineType.valueOf(row.get("cuisineType").toUpperCase()));
             establishmentType e = establishmentType.valueOf(row.get("establishmentType").toUpperCase());
-            List<DishTag> t1 = parseTags(row.get("tags1"));
-            List<DishTag> t2 = parseTags(row.get("tags2"));
-            Dish d1 = new Dish(Double.parseDouble(row.get("price1")),row.get("dish1"),null,null,null,null);
-            Dish d2 = new Dish(Double.parseDouble(row.get("price2")),row.get("dish2"),null,null,null,null);
-            d1.setDishTag(new ArrayList<>(t1));
-            d2.setDishTag(new ArrayList<>(t2));
-            List<Dish> dishes = List.of(d1,d2);
-            List<RestaurantSchedule> schedules = new ArrayList<>();
-            schedules.add(makeSchedule(DayOfTheWeek.MONDAY, row.get("start1"), row.get("end1"), row.get("capacity1")));
-            schedules.add(makeSchedule(DayOfTheWeek.MONDAY, row.get("start2"), row.get("end2"), row.get("capacity2")));
-            schedules.add(makeSchedule(DayOfTheWeek.TUESDAY, row.get("start1"), row.get("end1"), row.get("capacity1")));
-            schedules.add(makeSchedule(DayOfTheWeek.TUESDAY, row.get("start2"), row.get("end2"), row.get("capacity2")));
-            schedules.add(makeSchedule(DayOfTheWeek.WEDNESDAY, row.get("start1"), row.get("end1"), row.get("capacity1")));
-            schedules.add(makeSchedule(DayOfTheWeek.WEDNESDAY, row.get("start2"), row.get("end2"), row.get("capacity2")));
-            schedules.add(makeSchedule(DayOfTheWeek.THURSDAY, row.get("start1"), row.get("end1"), row.get("capacity1")));
-            schedules.add(makeSchedule(DayOfTheWeek.THURSDAY, row.get("start2"), row.get("end2"), row.get("capacity2")));
-            schedules.add(makeSchedule(DayOfTheWeek.FRIDAY, row.get("start1"), row.get("end1"), row.get("capacity1")));
-            schedules.add(makeSchedule(DayOfTheWeek.FRIDAY, row.get("start2"), row.get("end2"), row.get("capacity2")));
-            schedules.add(makeSchedule(DayOfTheWeek.SATURDAY, row.get("start1"), row.get("end1"), row.get("capacity1")));
-            schedules.add(makeSchedule(DayOfTheWeek.SUNDAY, row.get("start1"), row.get("end1"), row.get("capacity1")));
-            schedules.add(makeSchedule(DayOfTheWeek.SUNDAY, row.get("start2"), row.get("end2"), row.get("capacity2")));
+
+            Dish d1 = new Dish(Double.parseDouble(row.get("price1")), row.get("dish1"), null, null, null, null);
+            Dish d2 = new Dish(Double.parseDouble(row.get("price2")), row.get("dish2"), null, null, null, null);
+            d1.setDishTag(new ArrayList<>(parseTags(row.get("tags1"))));
+            d2.setDishTag(new ArrayList<>(parseTags(row.get("tags2"))));
+
             Restaurant r = new Restaurant.Builder()
                     .name(name)
-                    .dishes(dishes)
-                    .restaurantSchedules(schedules)
+                    .dishes(List.of(d1, d2))
+                    .restaurantSchedules(new ArrayList<>())
                     .cuisineType(c)
                     .establishmentType(e)
                     .build();
@@ -93,7 +78,7 @@ public class DemoStep {
     @Given("que le restaurant {string} propose le plat {string} à {double}€")
     public void que_le_restaurant_propose_le_plat_à_€(String string, String string2, Double double1) throws DishInDishes {
         currentRestaurant = service.getRestaurantByName(string);
-        currentManager = new RestaurantManager(currentRestaurant);
+        currentManager = new RestaurantManager(currentRestaurant.getName());
         Dish dish=new Dish(double1,string2,null,null,null,null);
         Assertions.assertNotNull(currentRestaurant);
         Assertions.assertTrue(currentRestaurant.getDishes().contains(dish));
@@ -227,16 +212,6 @@ public class DemoStep {
     }
 
     // --- Helpers SCHEDULES ---
-
-    private static RestaurantSchedule makeSchedule(DayOfTheWeek day, String start, String end, String capStr) {
-        if (start == null || end == null || start.isBlank() || end.isBlank()) {
-            // pas de créneau fourni : on met un créneau neutre capacité 0
-            return new RestaurantSchedule(day, hhmm("00:00"), hhmm("00:00"), 0);
-        }
-        int cap = (capStr == null || capStr.isBlank()) ? 0 : Integer.parseInt(capStr.trim());
-        return new RestaurantSchedule(day, hhmm(start.trim()), hhmm(end.trim()), cap);
-    }
-
     private static LocalTime hhmm(String s) {
         String[] p = s.split(":");
         int h = Integer.parseInt(p[0].trim());

@@ -33,19 +33,12 @@ public class RestaurantManager {
     // Pourquoi on fait comme ca ? parceque c'est au manager de demandé au restaurant l'état est en fonction il choisit quoi faire
     // c'est pas au restaurant de le faire même si il verifie.
     public void updateSchedule(DayOfTheWeek day, LocalTime start, LocalTime end, int capacity) {
-        if (restaurant.alreadyScheduled(start, end, day)) {
-            restaurant.setNewCapacity(start, end, day, capacity);
-        } else {
-            RestaurantSchedule newRS = new RestaurantSchedule(day, start, end, capacity);
-            restaurant.addSchedule(newRS);
-        }
+        RestaurantScheduleManager.updateSchedule(restaurant, day, start, end, capacity);
     }
 
+
     public void updateCapacity(DayOfTheWeek day, LocalTime start, LocalTime end, int capacity) throws ScheduleNoExist {
-        if (!restaurant.alreadyScheduled(start, end, day)) {
-            throw new ScheduleNoExist("Le créneau à modifier n'existe pas : " + day + " " + start + " → " + end);
-        }
-        restaurant.setNewCapacity(start, end, day, capacity);
+        RestaurantScheduleManager.updateCapacity(restaurant, day, start, end, capacity);
     }
 
     public void addDish(Dish d) throws DishInDishes {

@@ -8,6 +8,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -45,28 +46,101 @@ public class RestaurantScheduleManager {
                 .findFirst();
     }
 
+    public static boolean addSchedule(Restaurant restaurant, DayOfTheWeek day, LocalTime start, LocalTime end, int capacity) {
+        if (restaurant == null || restaurant.getRestaurantSchedules() == null) return false;
+        if (start == null || end == null || day == null) return false;
 
-    public static boolean addSchedule(Restaurant restaurant, RestaurantSchedule newSchedule) {
-        if (restaurant == null || newSchedule == null) return false;
-        if (restaurant.getRestaurantSchedules() == null) return false;
-
-        List<RestaurantSchedule> sameDaySchedules = restaurant.getRestaurantSchedules().stream()
-                .filter(s -> s.getDay() == newSchedule.getDay())
-                .toList();
-
-        for (RestaurantSchedule existing : sameDaySchedules) {
-            LocalTime start1 = existing.getStart();
-            LocalTime end1 = existing.getEnd();
-            LocalTime start2 = newSchedule.getStart();
-            LocalTime end2 = newSchedule.getEnd();
-
-            boolean overlap = start2.isBefore(end1) && end2.isAfter(start1);
-            if (overlap) return false;
+        if (end.isAfter(start.plusMinutes(30))) {
+            createIntervals(restaurant, day, start, end, capacity);
+            return true;
         }
 
-        restaurant.addSchedule(newSchedule);
-        return true;
+        if (!restaurant.alreadyScheduled(start, start.plusMinutes(30), day)) {
+            restaurant.addSchedule(new RestaurantSchedule(day, start, capacity));
+            return true;
+        }
+
+        return false;
     }
+
+
+    private static void createIntervals(Restaurant restaurant, DayOfTheWeek day, LocalTime start, LocalTime end, int capacity) {
+        LocalTime current = start;
+        while (true) {
+            if (!restaurant.alreadyScheduled(current, current.plusMinutes(30), day)) {
+                restaurant.addSchedule(new RestaurantSchedule(day, current, capacity));
+            }
+
+            current = current.plusMinutes(30);
+
+            if (current.equals(LocalTime.MIDNIGHT) || !current.isBefore(end)) {
+                break; // 💥 Sortir de la boucle
+            }
+        }
+    }
+
+
+    public static void updateSchedule(Restaurant restaurant, DayOfTheWeek day, LocalTime start, LocalTime end, int capacity) {
+        Objects.requireNonNull(day);
+        Objects.requireNonNull(start);
+        Objects.requireNonNull(end);
+
+        List<RestaurantSchedule> schedules = restaurant.getRestaurantSchedules();
+        if (schedules != null) {
+            schedules.removeIf(s -> schedulesOverlap(day, start, end, s));
+        }
+
+        RestaurantScheduleManager.addSchedule(restaurant, day, start, end, capacity);
+    }
+
+           
+    public static void updateCapacity(Restaurant restaurant, DayOfTheWeek day, LocalTime start, LocalTime end, int capacity) throws ScheduleNoExist {
+        Objects.requireNonNull(day);
+        Objects.requireNonNull(start);
+        Objects.requireNonNull(end);
+
+        boolean found = false;
+        for (RestaurantSchedule s : restaurant.getRestaurantSchedules()) {
+            if (scheduleInRange(day, start, end, s)) {
+                s.setCapacity(capacity);
+                found = true;
+            }
+        }
+        if (!found) {
+            throw new ScheduleNoExist("Le créneau à modifier n'existe pas : " + day + " " + start + " → " + end);
+        }
+    }
+
+    private static boolean schedulesOverlap(DayOfTheWeek targetDay, LocalTime start, LocalTime end, RestaurantSchedule s) {
+        DayOfTheWeek sDay = s.getDay();
+        LocalTime sStart = s.getStart();
+        LocalTime sEnd = sStart.plusMinutes(30);
+
+        if (sDay == targetDay) {
+            return intervalOverlap(start, end, sStart, sEnd);
+        }
+        return false;
+    }
+
+    private static boolean scheduleInRange(DayOfTheWeek targetDay, LocalTime start, LocalTime end, RestaurantSchedule s) {
+        DayOfTheWeek sDay = s.getDay();
+        LocalTime sStart = s.getStart();
+        LocalTime sEnd = sStart.plusMinutes(30);
+
+        if (start.equals(end)) return false;
+        if (!end.isBefore(start)) {
+            if (sDay != targetDay) return false;
+            return intervalOverlap(start, end, sStart, sEnd);
+        } else {
+            if (sDay == targetDay && !sStart.isBefore(start)) return true;
+            return sDay == RestaurantScheduleManager.nextDay(targetDay) && sStart.isBefore(end);
+        }
+    }
+
+    private static boolean intervalOverlap(LocalTime aStart, LocalTime aEnd, LocalTime bStart, LocalTime bEnd) {
+        return !aEnd.isBefore(bStart) && !bEnd.isBefore(aStart);
+    }
+
 
     public static boolean removeScheduleById(Restaurant restaurant, String id) {
         if (restaurant == null || restaurant.getRestaurantSchedules() == null) return false;

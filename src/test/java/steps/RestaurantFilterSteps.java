@@ -42,19 +42,7 @@ public class RestaurantFilterSteps {
             d2.setDishTag(new ArrayList<>(t2));
             List<Dish> dishes = List.of(d1,d2);
             List<RestaurantSchedule> schedules = new ArrayList<>();
-            schedules.add(makeSchedule(DayOfTheWeek.MONDAY, row.get("start1"), row.get("end1"), row.get("capacity1")));
-            schedules.add(makeSchedule(DayOfTheWeek.MONDAY, row.get("start2"), row.get("end2"), row.get("capacity2")));
-            schedules.add(makeSchedule(DayOfTheWeek.TUESDAY, row.get("start1"), row.get("end1"), row.get("capacity1")));
-            schedules.add(makeSchedule(DayOfTheWeek.TUESDAY, row.get("start2"), row.get("end2"), row.get("capacity2")));
-            schedules.add(makeSchedule(DayOfTheWeek.WEDNESDAY, row.get("start1"), row.get("end1"), row.get("capacity1")));
-            schedules.add(makeSchedule(DayOfTheWeek.WEDNESDAY, row.get("start2"), row.get("end2"), row.get("capacity2")));
-            schedules.add(makeSchedule(DayOfTheWeek.THURSDAY, row.get("start1"), row.get("end1"), row.get("capacity1")));
-            schedules.add(makeSchedule(DayOfTheWeek.THURSDAY, row.get("start2"), row.get("end2"), row.get("capacity2")));
-            schedules.add(makeSchedule(DayOfTheWeek.FRIDAY, row.get("start1"), row.get("end1"), row.get("capacity1")));
-            schedules.add(makeSchedule(DayOfTheWeek.FRIDAY, row.get("start2"), row.get("end2"), row.get("capacity2")));
-            schedules.add(makeSchedule(DayOfTheWeek.SATURDAY, row.get("start1"), row.get("end1"), row.get("capacity1")));
-            schedules.add(makeSchedule(DayOfTheWeek.SUNDAY, row.get("start1"), row.get("end1"), row.get("capacity1")));
-            schedules.add(makeSchedule(DayOfTheWeek.SUNDAY, row.get("start2"), row.get("end2"), row.get("capacity2")));
+
             Restaurant r = new Restaurant.Builder()
                     .name(name)
                     .dishes(dishes)
@@ -62,6 +50,13 @@ public class RestaurantFilterSteps {
                     .cuisineType(c)
                     .establishmentType(e)
                     .build();
+
+            DayOfTheWeek[] days = DayOfTheWeek.values();
+            for (DayOfTheWeek day : days) {
+                RestaurantScheduleManager.addSchedule(r, day, hhmm(row.get("start1")), hhmm(row.get("end1")), Integer.parseInt(row.get("capacity1")));
+                RestaurantScheduleManager.addSchedule(r, day, hhmm(row.get("start2")), hhmm(row.get("end2")), Integer.parseInt(row.get("capacity2")));
+            }
+
             repo.addRestaurant(r);
         }
     }
@@ -147,20 +142,83 @@ public class RestaurantFilterSteps {
         resultats = service.filterByAllTags(tags);
     }
 
+    //filtres multiples
 
-
-
-    // --- Helpers SCHEDULES ---
-
-    private static RestaurantSchedule makeSchedule(DayOfTheWeek day, String start, String end, String capStr) {
-        if (start == null || end == null || start.isBlank() || end.isBlank()) {
-            // pas de créneau fourni : on met un créneau neutre capacité 0
-            return new RestaurantSchedule(day, hhmm("00:00"), hhmm("00:00"), 0);
-        }
-        int cap = (capStr == null || capStr.isBlank()) ? 0 : Integer.parseInt(capStr.trim());
-        return new RestaurantSchedule(day, hhmm(start.trim()), hhmm(end.trim()), cap);
+    @When("je commence une recherche")
+    public void je_commence_une_recherche() {
+        // point de départ = tout le catalogue
+        resultats = new ArrayList<>(repo.getRestaurants());
     }
 
+    @And("j'applique le filtre cuisine {string}")
+    public void j_applique_le_filtre_cuisine(String cuisine) {
+        cuisineType type = cuisineType.valueOf(cuisine.toUpperCase());
+        List<Restaurant> nouveau = service.filterByCuisine(type);
+        resultats = intersectOrdered(resultats, nouveau);
+    }
+
+    @And("j'applique le filtre etablissement {string}")
+    public void j_applique_le_filtre_etablissement(String etab) {
+        establishmentType e = establishmentType.valueOf(etab.toUpperCase());
+        List<Restaurant> nouveau = service.filterByType(e);
+        resultats = intersectOrdered(resultats, nouveau);
+    }
+
+    @And("j'applique le filtre nom contenant {string}")
+    public void j_applique_le_filtre_nom(String fragment) {
+        List<Restaurant> nouveau = service.findByName(fragment);
+        resultats = intersectOrdered(resultats, nouveau);
+    }
+
+    @And("j'applique le filtre ouvert a {string}")
+    public void j_applique_le_filtre_ouvert_a(String hhmmStr) {
+        LocalTime t = hhmm(hhmmStr);
+        List<Restaurant> nouveau = service.filterByAvailability(t);
+        resultats = intersectOrdered(resultats, nouveau);
+    }
+
+    @And("j'applique le filtre prix max {double}")
+    public void j_applique_le_filtre_prix_max(double max) {
+        List<Restaurant> nouveau = service.filterByPriceMax(max);
+        resultats = intersectOrdered(resultats, nouveau);
+    }
+
+    @And("j'applique le filtre prix min {double}")
+    public void j_applique_le_filtre_prix_min(double min) {
+        List<Restaurant> nouveau = service.filterByPriceMin(min);
+        resultats = intersectOrdered(resultats, nouveau);
+    }
+
+    @And("j'applique le filtre prix entre {double} et {double}")
+    public void j_applique_le_filtre_prix_entre(double min, double max) {
+        List<Restaurant> nouveau = service.filterByPriceRange(min, max);
+        resultats = intersectOrdered(resultats, nouveau);
+    }
+
+    @And("j'applique le filtre tag {string}")
+    public void j_applique_le_filtre_tag(String tagText) {
+        DishTag tag = toTag(tagText); // tu as déjà toTag(...) dans ta classe
+        List<Restaurant> nouveau = service.filterByTag(tag);
+        resultats = intersectOrdered(resultats, nouveau);
+    }
+
+    @And("j'applique le filtre tous les tags {string}")
+    public void j_applique_le_filtre_tous_les_tags(String tagsCsv) {
+        // séparateur virgule ou point-virgule selon ton parseTags existant
+        List<DishTag> tags = parseTags(tagsCsv);
+        List<Restaurant> nouveau = service.filterByAllTags(tags);
+        resultats = intersectOrdered(resultats, nouveau);
+    }
+
+    // helper: intersecte en gardant l'ordre de la liste courante
+    private static <T> List<T> intersectOrdered(List<T> base, List<T> other) {
+        if (base.isEmpty() || other.isEmpty()) return java.util.Collections.emptyList();
+        List<T> res = new ArrayList<>();
+        for (T x : base) if (other.contains(x)) res.add(x);
+        return res;
+    }
+
+    // --- Helpers SCHEDULES ---
     private static LocalTime hhmm(String s) {
         String[] p = s.split(":");
         int h = Integer.parseInt(p[0].trim());
@@ -196,6 +254,8 @@ public class RestaurantFilterSteps {
         }
         throw new IllegalArgumentException("Tag inconnu: " + raw);
     }
+
+
 
 
 }

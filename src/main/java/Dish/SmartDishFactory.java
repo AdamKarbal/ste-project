@@ -49,7 +49,7 @@ public class SmartDishFactory {
         }
 
         Dish dish = new Dish(price, name, description, category, type, tags);
-        for (DishTopping t : tops) dish.addSelectedTopping(t);
+        for (DishTopping t : tops) dish.addAvailableTopping(t);
         return dish;
     }
 

@@ -37,7 +37,7 @@ public class RestaurantManagerTest {
     @Test
     void testUpdateSchedule_AddNewScheduleIfNotExists() {
         LocalTime start = LocalTime.of(12, 0);
-        LocalTime end   = LocalTime.of(15, 0);
+        LocalTime end = LocalTime.of(15, 0);
 
         manager.updateSchedule(DayOfTheWeek.MONDAY, start, end, 40);
 
@@ -50,15 +50,13 @@ public class RestaurantManagerTest {
     void testUpdateCapacity_ChangesExistingCapacity() throws Exception {
         LocalTime start = LocalTime.of(10, 0);
         LocalTime end = LocalTime.of(14, 0);
+        DayOfTheWeek day = DayOfTheWeek.WEDNESDAY;
 
-        RestaurantSchedule rs = new RestaurantSchedule(DayOfTheWeek.WEDNESDAY, start, end, 20);
-        restaurant.setRestaurantSchedules(new ArrayList<>(List.of(rs)));
+        RestaurantScheduleManager.addSchedule(restaurant, day, start, end, 20);
 
-        manager.updateCapacity(DayOfTheWeek.WEDNESDAY, start, end, 50);
+        manager.updateCapacity(day, start, end, 50);
 
         assertEquals(50, restaurant.getRestaurantSchedules().get(0).getCapacity());
-
-
     }
 
     @Test
@@ -112,7 +110,7 @@ public class RestaurantManagerTest {
         assertEquals("Pizza Margherita", created.getName());
         assertEquals(12.0, created.getPrice(), 1e-6);     // user > suggestion
         assertTrue(created.getAvailableToppings().stream()
-                .anyMatch(t -> t.getName().equalsIgnoreCase("Olives"))); // merge toppings*/
+                .anyMatch(t -> t.getName().equalsIgnoreCase("Olives"))); // merge toppings
     }
 
     @Test

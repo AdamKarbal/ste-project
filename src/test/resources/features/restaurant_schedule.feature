@@ -9,12 +9,12 @@ Feature: Gestion des créneaux
       | KebabKorner | VIETNAMIENNE| FAST_FOOD         | Pizza     | 11.0   | Gnocchi  | 13.0   | 22:00  | 02:00 | 110       | 11:00  | 14:00 | 100       |                                 |                            |
 
   Scenario: Un client passe une commande classique
-    Given que le restaurant "Pasta Mia" propose le plat "Spaghetti" à 12.5€
-    And que "Pasta Mia" a un créneau de 12:00 à 12:30 avec une capacité de 10 repas
-    And que le client "Younes" est connecté à son compte
-    When "Younes" sélectionne le restaurant "Pasta Mia"
-    And il ajoute 1 "Spaghetti" à son panier
-    And il choisit le lieu de livraison "" et valide sa commande
+    Given le restaurant "Pasta Mia" propose le plat "Spaghetti" à 12.5€
+    And le restaurant "Pasta Mia" a un créneau de 12:00 à 12:30 avec une capacité de 10 repas
+    And le client "Younes" est connecté à son compte
+    When le client "Younes" sélectionne le restaurant "Pasta Mia"
+    And il ajoute 1 plat "Spaghetti" à son panier
+    And il choisit le point de livraison "LIBRARY"
     And il choisit le créneau de 12:00 et valide sa commande
     And il procède au paiement avec son crédit
     And il a assez sur son compte

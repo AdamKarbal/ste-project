@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -24,12 +25,16 @@ class OrderTest {
         client = new AccountUser("Adam");
         restaurant = new Restaurant.Builder()
                 .name("Campus Cafeteria")
+                .restaurantSchedules(new ArrayList<>())
                 .build();
 
-
         var today = RestaurantScheduleManager.convertDayOfWeek(LocalDate.now().getDayOfWeek());
-        schedule = new RestaurantSchedule(today, LocalTime.now().minusMinutes(15), LocalTime.now().plusMinutes(30), 10);
-        restaurant.setRestaurantSchedules(List.of(schedule));
+        LocalTime start = LocalTime.now().minusMinutes(15);
+        LocalTime end = LocalTime.now().plusMinutes(30);
+
+        RestaurantScheduleManager.addSchedule(restaurant, today, start, end, 10);
+
+        schedule = restaurant.getRestaurantSchedules().get(0);
 
         order = new Order(client, restaurant);
     }
@@ -75,7 +80,7 @@ class OrderTest {
     @Test
     void testAssignScheduleFailsIfNotInRestaurant() {
         var otherSchedule = new RestaurantSchedule(
-                schedule.getDay(), schedule.getStart(), schedule.getEnd(), schedule.getCapacity()
+                schedule.getDay(), schedule.getStart(), schedule.getCapacity()
         );
 
         boolean result = order.assignSchedule(otherSchedule);

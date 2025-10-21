@@ -16,14 +16,8 @@ public class RestaurantManager {
     private final SmartDishFactory smartDishFactory = new SmartDishFactory();
 
     //Constructeur
-    public RestaurantManager(String name){
-        Restaurant.Builder builder = new Restaurant.Builder()
-                .name(name)
-                .dishes(new ArrayList<>())
-                .restaurantSchedules(new ArrayList<>())
-                .cuisineType(new ArrayList<>())
-                .establishmentType(null);
-        this.restaurant = builder.build();
+    public RestaurantManager(Restaurant restaurant){
+        this.restaurant= restaurant;
     }
 
     // Getter & setter

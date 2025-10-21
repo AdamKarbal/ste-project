@@ -40,9 +40,14 @@ public class DemoStep {
     private Order currentOrder;
     private OrderManager currentOrderManager;
     private OrderState orderStatus;
+    private RestaurantFactory factory;
+
     @Before
     public void setup() {
         repo = new RestaurantRepo(new ArrayList<>());
+        service = new RestaurantService(repo);
+        factory = new RestaurantFactory(service);
+        restaurateurs = new HashMap<>();
     }
 
     @Given("un catalogue de restos")
@@ -79,14 +84,17 @@ public class DemoStep {
                     .cuisineType(c)
                     .establishmentType(e)
                     .build();
-            service.addRestaurant(r);
+            try {
+                service.addRestaurant(r);
+            } catch (Exception ignored) {}
         }
     }
 
     @Given("que le restaurant {string} propose le plat {string} à {double}€")
     public void que_le_restaurant_propose_le_plat_à_€(String string, String string2, Double double1) throws DishInDishes {
-        currentManager = new RestaurantManager(string);
-        currentRestaurant = currentManager.getRestaurant();
+        currentRestaurant = service.getRestaurantByName(string);
+        Assertions.assertNotNull(currentRestaurant, "Le restaurant '" + string + "' doit exister pour ce step");
+        currentManager = new RestaurantManager(currentRestaurant);
 
         Dish dish=new Dish(double1,string2,null,null,null,null);
         currentManager.addDish(dish);
@@ -148,19 +156,16 @@ public class DemoStep {
 
     @Then("l'historique de commandes de {string} doit contenir la commande N°{int}")
     public void l_historique_de_commandes_de_doit_contenir_la_commande_n(String string, Integer int1) {
-        // Write code here that turns the phrase above into concrete actions
         throw new io.cucumber.java.PendingException();
     }
 
     @Then("la capacité du créneau de {int}:{int} à {int}:{int} de {string} doit être maintenant de {int} repas")
     public void la_capacité_du_créneau_de_à_de_doit_être_maintenant_de_repas(Integer int1, Integer int2, Integer int3, Integer int4, String string, Integer int5) {
-        // Write code here that turns the phrase above into concrete actions
         throw new io.cucumber.java.PendingException();
     }
 
     @Then("le restaurateur de {string} doit voir la commande N°{int} dans sa liste de commandes à préparer")
     public void le_restaurateur_de_doit_voir_la_commande_n_dans_sa_liste_de_commandes_à_préparer(String string, Integer int1) {
-        // Write code here that turns the phrase above into concrete actions
         throw new io.cucumber.java.PendingException();
     }
 
@@ -171,12 +176,12 @@ public class DemoStep {
     }
 
     @When("{string} crée son restaurant {string}")
-    public void crée_son_restaurant(String nomRestaurateur, String nomRestaurant) {
+    public void crée_son_restaurant(String nomRestaurateur, String nomRestaurant) throws Exception {
         AccountManager account = restaurateurs.get(nomRestaurateur);
         Assertions.assertNotNull(account, "Le restaurateur doit être enregistré avant de créer un restaurant");
-        currentManager = new RestaurantManager(nomRestaurant);
+        account.createRestaurant(nomRestaurant, factory);
+        currentManager = account.getRestaurantManager();
         currentRestaurant = currentManager.getRestaurant();
-        repo.addRestaurant(currentRestaurant);
         Assertions.assertNotNull(currentRestaurant, "Le restaurant n’a pas été créé correctement");
     }
 
@@ -229,11 +234,8 @@ public class DemoStep {
         Assertions.assertTrue(platTrouvé, "Le client " + nomClient + " ne trouve pas le plat " + nomPlat);
     }
 
-    // --- Helpers SCHEDULES ---
-
     private static RestaurantSchedule makeSchedule(DayOfTheWeek day, String start, String end, String capStr) {
         if (start == null || end == null || start.isBlank() || end.isBlank()) {
-            // pas de créneau fourni : on met un créneau neutre capacité 0
             return new RestaurantSchedule(day, hhmm("00:00"), hhmm("00:00"), 0);
         }
         int cap = (capStr == null || capStr.isBlank()) ? 0 : Integer.parseInt(capStr.trim());
@@ -261,11 +263,8 @@ public class DemoStep {
     }
 
     private static DishTag toTag(String raw) {
-        // essai direct par nom d'enum (VEGAN, GLUTEN_FREE, ...)
         String candidate = raw.trim().toUpperCase().replace(' ', '_').replace('-', '_');
         try { return DishTag.valueOf(candidate); } catch (IllegalArgumentException ignore) {}
-
-        // essai par label ("Vegan", "Gluten-free", ...) en normalisant
         String norm = java.text.Normalizer.normalize(raw.trim(), java.text.Normalizer.Form.NFD)
                 .replaceAll("\\p{M}+", "").toUpperCase().replace(' ', '_').replace('-', '_');
         for (DishTag t : DishTag.values()) {

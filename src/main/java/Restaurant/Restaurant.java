@@ -17,7 +17,6 @@ public class Restaurant {
     private List<RestaurantSchedule> restaurantSchedules;
     private List<CuisineType> CuisineTypes;
     private establishmentType establishmentType;
-
     //Constructeur
 
     public Restaurant(Builder builder){

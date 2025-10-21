@@ -1,6 +1,8 @@
 package Dish;
 
 
+import Restaurant.Restaurant;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -105,6 +107,15 @@ public class Dish {
             total += t.getPrice();
         }
         return total;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        Dish other = (Dish) obj;
+        double delta=1e-6;
+        return name.equals(other.name) && Math.abs(other.price-price)<=delta;
     }
 
 

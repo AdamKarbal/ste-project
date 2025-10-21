@@ -7,7 +7,10 @@ public class AccountManager extends Account {
 
     public AccountManager(String name){
         super(name);
-        this.restaurantManager = new RestaurantManager(name);
+    }
+
+    public void createRestaurant(String restaurantName, RestaurantFactory restaurantFactory){
+        this.restaurantManager = restaurantFactory.createRestaurant(restaurantName);
     }
 
     public RestaurantManager getRestaurantManager() {

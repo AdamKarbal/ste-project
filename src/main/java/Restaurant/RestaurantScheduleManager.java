@@ -13,6 +13,13 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class RestaurantScheduleManager {
+    public static List<RestaurantSchedule> getSchedules(Restaurant restaurant) {
+        if (restaurant == null || restaurant.getRestaurantSchedules() == null)
+            return List.of();
+
+        return restaurant.getRestaurantSchedules();
+    }
+
     public static List<RestaurantSchedule> getTodaySchedules(Restaurant restaurant) {
         if (restaurant == null || restaurant.getRestaurantSchedules() == null)
             return List.of();
@@ -27,40 +34,32 @@ public class RestaurantScheduleManager {
                 .collect(Collectors.toList());
     }
 
-    public static Optional<RestaurantSchedule> getAvailableScheduleFor(Restaurant restaurant, LocalTime requestedTime) { // important : changer l'utilisation de requestedTime.isBefore()
+    public static Optional<RestaurantSchedule> getAvailableScheduleFor(Restaurant restaurant, LocalTime requestedTime) {
         if (restaurant == null || restaurant.getRestaurantSchedules() == null || requestedTime == null)
             return Optional.empty();
-
-        LocalDateTime now = LocalDateTime.now();
-
-        /*if (requestedTime.isBefore(now.toLocalTime().plusMinutes(15))) {
-            return Optional.empty();
-        }*/
 
         DayOfTheWeek today = convertDayOfWeek(LocalDate.now().getDayOfWeek());
 
         return restaurant.getRestaurantSchedules().stream()
                 .filter(s -> s.getDay() == today)
-                .filter(s -> !requestedTime.isBefore(s.getStart()) && requestedTime.isBefore(s.getEnd()))
+                .filter(s -> !requestedTime.isBefore(s.getStart()) &&
+                        requestedTime.isBefore(s.getStart().plusMinutes(30))) // use start + 30min
                 .filter(s -> s.getCapacity() > 0)
                 .findFirst();
     }
 
     public static boolean addSchedule(Restaurant restaurant, DayOfTheWeek day, LocalTime start, LocalTime end, int capacity) {
-        if (restaurant == null || restaurant.getRestaurantSchedules() == null) return false;
-        if (start == null || end == null || day == null) return false;
+        if (restaurant == null || restaurant.getRestaurantSchedules() == null || start == null || end == null || day == null)
+            return false;
 
-        if (end.isAfter(start.plusMinutes(30))) {
+        if (!end.isBefore(start)) {
             createIntervals(restaurant, day, start, end, capacity);
-            return true;
+        } else {
+            createIntervals(restaurant, day, start, LocalTime.of(23, 30), capacity);
+            createIntervals(restaurant, nextDay(day), LocalTime.MIDNIGHT, end, capacity);
         }
 
-        if (!restaurant.alreadyScheduled(start, start.plusMinutes(30), day)) {
-            restaurant.addSchedule(new RestaurantSchedule(day, start, capacity));
-            return true;
-        }
-
-        return false;
+        return true;
     }
 
 
@@ -70,9 +69,7 @@ public class RestaurantScheduleManager {
             if (!restaurant.alreadyScheduled(current, current.plusMinutes(30), day)) {
                 restaurant.addSchedule(new RestaurantSchedule(day, current, capacity));
             }
-
             current = current.plusMinutes(30);
-
         } while (!current.equals(LocalTime.MIDNIGHT) && current.isBefore(end));
     }
 
@@ -185,16 +182,13 @@ public class RestaurantScheduleManager {
     public static boolean isOpenAt(Restaurant restaurant, LocalDateTime dateTime) {
         if (restaurant == null || restaurant.getRestaurantSchedules() == null) return false;
 
-        var schedules = restaurant.getRestaurantSchedules();
-        if (schedules.isEmpty()) return false;
-
-        DayOfTheWeek today = convertDayOfWeek(dateTime.getDayOfWeek());
         LocalTime time = dateTime.toLocalTime();
+        DayOfTheWeek today = convertDayOfWeek(dateTime.getDayOfWeek());
 
-        return schedules.stream().anyMatch(s ->
+        return restaurant.getRestaurantSchedules().stream().anyMatch(s ->
                 s.getDay() == today &&
                         !time.isBefore(s.getStart()) &&
-                        time.isBefore(s.getEnd())
+                        time.isBefore(s.getStart().plusMinutes(30))
         );
     }
 

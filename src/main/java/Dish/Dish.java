@@ -1,6 +1,5 @@
 package Dish;
 
-import Restaurant.Restaurant;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,7 +11,8 @@ public class Dish {
     private DishCategory category;
     private DishType type;
     private List<DishTag> dishTag;
-    private List<DishTopping> toppings;
+    private List<DishTopping> availableToppings;
+    private List<DishTopping> selectedToppings;
 
     public Dish(double price, String name, String description, DishCategory category, DishType type,List<DishTag> dishTag) {
         this.price = price;
@@ -22,7 +22,8 @@ public class Dish {
         this.type = type;
         this.dishTag = dishTag;
 
-        this.toppings = new ArrayList<>();
+        this.availableToppings = new ArrayList<>();
+        this.selectedToppings = new ArrayList<>();
     }
 
     public double getPrice() {
@@ -67,35 +68,46 @@ public class Dish {
         return this.dishTag.add(dishTag);
     }
 
-    public List<DishTopping> getToppings() {
-        return toppings;
+    public List<DishTopping> getAvailableToppings() {
+        return new ArrayList<>(availableToppings);
     }
 
-    public void addTopping(DishTopping topping) {
-        if(!toppings.contains(topping)){
-            this.toppings.add(topping);
+    public void addAvailableTopping(DishTopping topping) {
+        if (!availableToppings.contains(topping)) {
+            availableToppings.add(topping);
         }
     }
 
-    public void setToppings(List<DishTopping> toppings) {
-        this.toppings = toppings;
-    }
-    public void removeTopping(DishTopping topping) {
-        this.toppings.remove(topping);
+    public void removeAvailableTopping(DishTopping topping) {
+        availableToppings.remove(topping);
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Dish)) return false;
-        Dish other = (Dish) o;
-        double delta = 1e-6;
-        return name != null && other.name != null
-                && name.equalsIgnoreCase(other.name) && Math.abs(price - other.price) < delta;
+
+    public void addSelectedTopping(DishTopping topping) {
+        if (availableToppings.contains(topping) && !selectedToppings.contains(topping)) {
+            selectedToppings.add(topping);
+        } else {
+            throw new IllegalArgumentException("Ce topping n'est pas disponible pour ce plat !");
+        }
     }
-    @Override
-    public int hashCode() {
-        return name == null ? 0 : name.toLowerCase().hashCode();
+
+    public List<DishTopping> getSelectedToppings() {
+        return new ArrayList<>(selectedToppings);
     }
+
+    public void removeSelectedTopping(DishTopping topping) {
+        selectedToppings.remove(topping);
+    }
+
+    public double getToppingTotalPrice() {
+        double total = price;
+        for (DishTopping t : selectedToppings) {
+            total += t.getPrice();
+        }
+        return total;
+    }
+
+
+
 
 }

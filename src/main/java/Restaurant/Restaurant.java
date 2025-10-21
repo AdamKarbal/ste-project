@@ -149,10 +149,10 @@ public class Restaurant {
 
 
 
-    @Override
+    /*@Override
     public String toString(){
         return name + " " + establishmentType + "\n.";
-    }
+    }*/
 
     @Override
     public boolean equals(Object obj) {

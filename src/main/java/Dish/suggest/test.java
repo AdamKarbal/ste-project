@@ -29,7 +29,7 @@ public class test {
         System.out.println("name=" + created.getName());
         System.out.println("type=" + created.getType());          // attendu: PIZZA (depuis la suggestion)
         System.out.println("price=" + created.getPrice());        // attendu: 12.0 (user > suggestion)
-        System.out.println("toppings=" + created.getToppings());  // attendu (merge): Mozzarella, Basilic, Olives
+        System.out.println("toppings=" + created.getAvailableToppings());  // attendu (merge): Mozzarella, Basilic, Olives
 
         System.out.println("\n=== Dishes dans le restaurant ===");
         System.out.println(manager.getRestaurant().getDishes().size()); // attendu: 1

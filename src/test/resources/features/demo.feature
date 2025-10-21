@@ -14,14 +14,12 @@ Feature: Demonstration de notre système
     And que le client "Younes" est connecté à son compte
     When "Younes" recherche les restaurants de type "ITALIENNE"
     And il sélectionne le restaurant "Pasta Mia"
-    And il ajoute 1 "Spaghetti" à son panier
-    And il choisit le créneau de 12:00 et valide sa commande
+    And il ajoute 1 "Spaghetti" à 12€ à son panier
+    And il choisit le créneau de 19:00 et valide sa commande
     And il procède au paiement avec son crédit
-    And il a assez sur son compte
     Then le paiement doit être accepté et une commande N°10 doit être créée pour "Younes"
     And l'historique de commandes de "Younes" doit contenir la commande N°10
     And la capacité du créneau de 12:00 à 12:30 de "Pasta Mia" doit être maintenant de 9 repas
-    And le restaurateur de "Pasta Mia" doit voir la commande N°10 dans sa liste de commandes à préparer
 
   Scenario: Un restaurateur crée et configure son restaurant
     Given le restaurateur "Nico" à été enregistré

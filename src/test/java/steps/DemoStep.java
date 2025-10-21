@@ -1,5 +1,7 @@
 package steps;
 import Account.AccountUser;
+import Payment.PaymentMethod;
+import Payment.PaymentState;
 import Restaurant.*;
 import Account.AccountManager;
 import Restaurant.Exception.CuisineTypeInList;
@@ -13,7 +15,9 @@ import org.junit.jupiter.api.*;
 
 import java.time.LocalTime;
 import java.util.*;
-import Utils.MyDate;
+import Order.Order;
+import Order.OrderManager;
+import Order.OrderState;
 
 
 import Restaurant.Restaurant;
@@ -21,8 +25,6 @@ import Restaurant.RestaurantRepo;
 import Restaurant.RestaurantService;
 import Restaurant.Enum.*;
 import Dish.*;
-
-import javax.xml.crypto.Data;
 
 
 public class DemoStep {
@@ -34,18 +36,20 @@ public class DemoStep {
     private RestaurantManager currentManager;
     private Restaurant currentRestaurant;
     private AccountUser client;
-
+    private List<Restaurant> restaurantsByType;
+    private Order currentOrder;
+    private OrderManager currentOrderManager;
+    private OrderState orderStatus;
     @Before
     public void setup() {
         repo = new RestaurantRepo(new ArrayList<>());
-        service = new RestaurantService(repo);
     }
 
     @Given("un catalogue de restos")
     public void un_catalogue_de_restos(DataTable table) {
         for(Map<String,String> row : table.asMaps()){
             String name = row.get("name");
-            List<cuisineType> c = List.of(cuisineType.valueOf(row.get("cuisineType").toUpperCase()));
+            List<CuisineType> c = List.of(CuisineType.valueOf(row.get("cuisineType").toUpperCase()));
             establishmentType e = establishmentType.valueOf(row.get("establishmentType").toUpperCase());
             List<DishTag> t1 = parseTags(row.get("tags1"));
             List<DishTag> t2 = parseTags(row.get("tags2"));
@@ -81,8 +85,9 @@ public class DemoStep {
 
     @Given("que le restaurant {string} propose le plat {string} à {double}€")
     public void que_le_restaurant_propose_le_plat_à_€(String string, String string2, Double double1) throws DishInDishes {
-        currentRestaurant = service.getRestaurantByName(string);
         currentManager = new RestaurantManager(string);
+        currentRestaurant = currentManager.getRestaurant();
+
         Dish dish=new Dish(double1,string2,null,null,null,null);
         currentManager.addDish(dish);
         Assertions.assertNotNull(currentRestaurant);
@@ -99,49 +104,46 @@ public class DemoStep {
     @Given("que le client {string} est connecté à son compte")
     public void que_le_client_est_connecté_à_son_compte(String string) {
         client=new AccountUser(string);
-        throw new io.cucumber.java.PendingException();
     }
 
     @When("{string} recherche les restaurants de type {string}")
     public void recherche_les_restaurants_de_type(String string, String string2) {
-        // Write code here that turns the phrase above into concrete actions
-        throw new io.cucumber.java.PendingException();
+        CuisineType type = CuisineType.valueOf(string2);
+        restaurantsByType = service.filterByCuisine(type);
     }
 
     @When("il sélectionne le restaurant {string}")
     public void il_sélectionne_le_restaurant(String string) {
-        // Write code here that turns the phrase above into concrete actions
-        throw new io.cucumber.java.PendingException();
+        currentOrderManager= new OrderManager();
+        currentOrderManager.createOrder(client,currentRestaurant);
     }
 
-    @When("il ajoute {int} {string} à son panier")
-    public void il_ajoute_à_son_panier(Integer int1, String string) {
-        // Write code here that turns the phrase above into concrete actions
-        throw new io.cucumber.java.PendingException();
+    @And("il ajoute {int} {string} à {int}€ à son panier")
+    public void ilAjouteÀ€ÀSonPanier(int arg0, String arg1, int arg2) {
+        Dish chosenDish = new Dish(arg2,arg1,null,null,null,null);
+        currentOrderManager.addItem(chosenDish,arg0);
     }
 
     @When("il choisit le créneau de {int}:{int} et valide sa commande")
     public void il_choisit_le_créneau_de_et_valide_sa_commande(Integer int1, Integer int2) {
-        // Write code here that turns the phrase above into concrete actions
-        throw new io.cucumber.java.PendingException();
+        currentOrder.chooseSchedule(
+                new RestaurantSchedule(
+                        DayOfTheWeek.MONDAY,
+                        LocalTime.of(int1, int2),
+                        LocalTime.of(int1, int2).plusMinutes(30),
+                        10
+                )
+        );
     }
 
     @When("il procède au paiement avec son crédit")
     public void il_procède_au_paiement_avec_son_crédit() {
-        // Write code here that turns the phrase above into concrete actions
-        throw new io.cucumber.java.PendingException();
-    }
-
-    @When("il a assez sur son compte")
-    public void il_a_assez_sur_son_compte() {
-        // Write code here that turns the phrase above into concrete actions
-        throw new io.cucumber.java.PendingException();
+        orderStatus=currentOrderManager.proceedPayement(PaymentMethod.CASH);
     }
 
     @Then("le paiement doit être accepté et une commande N°{int} doit être créée pour {string}")
     public void le_paiement_doit_être_accepté_et_une_commande_n_doit_être_créée_pour(Integer int1, String string) {
-        // Write code here that turns the phrase above into concrete actions
-        throw new io.cucumber.java.PendingException();
+        Assertions.assertEquals(client.getOrderHistory().get(currentOrder).getStatus(), PaymentState.PAID);
     }
 
     @Then("l'historique de commandes de {string} doit contenir la commande N°{int}")
@@ -181,7 +183,7 @@ public class DemoStep {
     @When("Il le configure : cuisineType {string}")
     public void il_le_configure_cuisine_type(String type) throws CuisineTypeInList {
         Assertions.assertNotNull(currentManager, "Aucun restaurant en cours de configuration");
-        currentManager.addCuisineType(cuisineType.valueOf(type.toUpperCase()));
+        currentManager.addCuisineType(CuisineType.valueOf(type.toUpperCase()));
     }
 
     @When("Il le configure : establishmentType {string}")
@@ -273,6 +275,4 @@ public class DemoStep {
         }
         throw new IllegalArgumentException("Tag inconnu: " + raw);
     }
-
-
 }

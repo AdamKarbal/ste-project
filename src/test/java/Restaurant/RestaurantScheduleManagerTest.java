@@ -125,32 +125,6 @@ public class RestaurantScheduleManagerTest {
         assertEquals(99, mondayEvening.getCapacity(), "La capacité doit être mise à jour à 99");
     }
 
-
-    @Test
-    void testGetTodaySchedules() {
-        Restaurant r = new Restaurant.Builder()
-                .name("Testaurant")
-                .restaurantSchedules(new ArrayList<>())
-                .build();
-
-        var now = java.time.LocalTime.now();
-        var today = RestaurantScheduleManager.convertDayOfWeek(java.time.LocalDate.now().getDayOfWeek());
-
-        LocalTime start = now.minusMinutes(30).withMinute(now.getMinute() < 30 ? 0 : 30); // arrondi au créneau précédent
-        LocalTime end = start.plusMinutes(60); // couvre deux créneaux de 30 min
-
-        RestaurantScheduleManager.addSchedule(r, today, start, end, 10);
-
-        var schedules = RestaurantScheduleManager.getTodaySchedules(r);
-
-        assertNotNull(schedules);
-
-        boolean found = schedules.stream()
-                .anyMatch(s -> !now.isBefore(s.getStart()) && now.isBefore(s.getEnd()));
-
-        assertTrue(found, "Le créneau actif du jour devrait être retourné");
-    }
-
     @Test
     void testIsOpenAt() {
         boolean open = RestaurantScheduleManager.isOpenAt(

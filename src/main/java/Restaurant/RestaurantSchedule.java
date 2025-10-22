@@ -42,9 +42,21 @@ public class RestaurantSchedule {
 
     public void setCapacity(int capacity) { this.capacity = capacity; }
 
+    public void addCapacity(int capacity){
+        this.capacity+=capacity;
+    }
+
     @Override
     public String toString() {
         return "[" + id + "] " + day + " | " +
                 "Début : " + start + " - Fin : " + end + " | Capacité : " + capacity;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        RestaurantSchedule other = (RestaurantSchedule) obj;
+        return start.equals(other.start) && end.equals(other.end);
     }
 }

@@ -66,3 +66,27 @@ Feature: Filtrer les restaurants
           When je filtre les restaurants par tous les tags "Vegan; Organic"
           Then je vois exactement 1 restaurants
           And la liste contient "MammaRita"
+
+        Scenario: Recherche multi-critères pas à pas
+          When je commence une recherche
+          And j'applique le filtre cuisine "ITALIENNE"
+          And j'applique le filtre prix max 12.0
+          And j'applique le filtre ouvert a "12:15"
+          Then je vois exactement 1 restaurants
+          And la liste contient "MammaRita"
+
+        Scenario: Tag végétarien ET sans lactose à une heure donnée
+          When je commence une recherche
+          And j'applique le filtre tous les tags "VEGETARIAN, LACTOSE_FREE"
+          And j'applique le filtre ouvert a "12:15"
+          Then je vois exactement 1 restaurants
+          And la liste contient "Pasta Mia"
+
+
+        Scenario: Nom partiel + type
+                When je commence une recherche
+                And j'applique le filtre nom contenant "Mia"
+                And j'applique le filtre etablissement "RESTAURANT"
+                Then je vois exactement 1 restaurants
+                And la liste contient "Pasta Mia"
+

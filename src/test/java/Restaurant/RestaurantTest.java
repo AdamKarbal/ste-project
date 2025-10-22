@@ -1,7 +1,7 @@
 package Restaurant;
 
 import Restaurant.Enum.DayOfTheWeek;
-import Restaurant.Enum.cuisineType;
+import Restaurant.Enum.CuisineType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -34,7 +34,7 @@ public class RestaurantTest {
 
         RestaurantScheduleManager.addSchedule(restaurant, DayOfTheWeek.SUNDAY, LocalTime.of(10, 0), LocalTime.of(14, 0), 30);
         RestaurantScheduleManager.addSchedule(restaurant, DayOfTheWeek.SUNDAY, LocalTime.of(18, 0), LocalTime.of(23, 0), 50);
-        RestaurantScheduleManager.addSchedule(restaurant, DayOfTheWeek.SUNDAY, LocalTime.of(22, 0), LocalTime.of(2, 0), 20); // overnight
+        RestaurantScheduleManager.addSchedule(restaurant, DayOfTheWeek.SUNDAY, LocalTime.of(22, 0), LocalTime.of(2, 0), 20);
     }
 
 
@@ -100,20 +100,20 @@ public class RestaurantTest {
     void testAlreadyCuisineType_WhenTypeAlreadyPresent() {
         Restaurant r = new Restaurant.Builder()
                 .name("R")
-                .cuisineType(List.of(cuisineType.ITALIENNE, cuisineType.JAPONAISE))
+                .cuisineType(List.of(CuisineType.ITALIENNE, CuisineType.JAPONAISE))
                 .build();
 
-        assertTrue(r.alreadyCuisineType(cuisineType.ITALIENNE));
+        assertTrue(r.alreadyCuisineType(CuisineType.ITALIENNE));
     }
 
     @Test
     void testAlreadyCuisineType_WhenTypeNotPresent() {
         Restaurant r = new Restaurant.Builder()
                 .name("R")
-                .cuisineType(List.of(cuisineType.ITALIENNE, cuisineType.JAPONAISE))
+                .cuisineType(List.of(CuisineType.ITALIENNE, CuisineType.JAPONAISE))
                 .build();
 
-        assertFalse(r.alreadyCuisineType(cuisineType.MEXICAINE));
+        assertFalse(r.alreadyCuisineType(CuisineType.MEXICAINE));
     }
 
     @Test

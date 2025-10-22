@@ -1,14 +1,25 @@
 package Dish.suggest;
 
+import Account.AccountManager;
 import Dish.*;
+import Restaurant.RestaurantFactory;
 import Restaurant.RestaurantManager;
+import Restaurant.RestaurantRepo;
+import Restaurant.RestaurantService;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class test {
     public static void main(String[] args) throws Exception {
         // 1) Préparer un restaurant “vide”
-        RestaurantManager manager = new RestaurantManager("Chez Test");
+        RestaurantRepo repo = new RestaurantRepo(new ArrayList<>());
+        RestaurantService restaurantService = new RestaurantService(repo);
+        RestaurantFactory restaurantFactory = new RestaurantFactory(restaurantService);
+        AccountManager Olivier = new AccountManager("Olivier");
+        Olivier.createRestaurant("Chez test", restaurantFactory);
+        RestaurantManager manager =  Olivier.getRestaurantManager();
+
 
         // 2) Prévisualiser les suggestions à partir du nom
         Suggestion pref = manager.previewSuggestion("Pizza Margherita");

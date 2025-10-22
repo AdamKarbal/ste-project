@@ -1,7 +1,9 @@
 package steps;
 
+import Account.AccountManager;
 import Dish.*;
 import Dish.suggest.Suggestion;
+import Restaurant.*;
 import Restaurant.RestaurantManager;
 import Restaurant.Exception.DishInDishes;
 import io.cucumber.datatable.DataTable;
@@ -19,19 +21,26 @@ public class R4aSteps {
     private Dish created;
     private Suggestion suggestion;
     private Exception caught;
+    private RestaurantService restaurantService;
+    private RestaurantFactory restaurantFactory;
+    private RestaurantRepo repo;
+    private AccountManager owner;
 
     // ---------- Background ----------
 
     @Given("un RestaurantManager initialisé pour {string}")
     public void unRestaurantManagerInitialisePour(String name) {
-        manager = new RestaurantManager(name);
+        repo = new RestaurantRepo(new ArrayList<>());
+        restaurantService = new RestaurantService(repo);
+        restaurantFactory = new RestaurantFactory(restaurantService);
+        owner = new AccountManager("Olivier");
+        owner.createRestaurant(name,restaurantFactory);
+        Restaurant restaurant = owner.getRestaurantManager().getRestaurant();
+        manager = owner.getRestaurantManager();
     }
 
     @And("un référentiel de suggestions")
     public void unReferentielDeSuggestions(DataTable table) {
-        // Pour l’instant, le KeywordSuggester est codé en dur.
-        // On parse juste pour valider la table (et pouvoir la tracer au besoin).
-        // (Tu pourras plus tard brancher ces données dans un suggester injectable.)
         List<Map<String, String>> rows = table.asMaps(String.class, String.class);
         assertFalse(rows.isEmpty(), "Le référentiel de suggestions ne doit pas être vide");
     }
@@ -82,7 +91,6 @@ public class R4aSteps {
     @When("je saisis un plat avec")
     public void jeSaisisUnPlatAvec(io.cucumber.datatable.DataTable table) {
         input = new DishInput();
-        // Chaque ligne est une paire (clé, valeur)
         for (java.util.List<String> row : table.asLists()) {
             if (row.isEmpty()) continue;
             String key = row.get(0).trim();
@@ -116,7 +124,6 @@ public class R4aSteps {
     }
 
     private List<DishTopping> parseToppings(String spec) {
-        // Format attendu: "Olives:0.8; Mozzarella:1.2" ou "Olives:0.8, Mozzarella:1.2"
         if (spec == null || spec.isBlank()) return List.of();
         List<DishTopping> list = new ArrayList<>();
         for (String part : spec.split("[,;]")) {

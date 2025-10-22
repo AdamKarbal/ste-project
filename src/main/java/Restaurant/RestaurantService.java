@@ -1,7 +1,7 @@
 package Restaurant;
 
 import Dish.*;
-import Restaurant.Enum.cuisineType;
+import Restaurant.Enum.CuisineType;
 import Restaurant.Enum.establishmentType;
 import Restaurant.Exception.RestaurantExist;
 
@@ -9,12 +9,13 @@ import java.time.LocalTime;
 import java.util.List;
 
 public class RestaurantService {
+
     private RestaurantRepo repo;
     private RestaurantFilter filter;
 
-    public RestaurantService(RestaurantRepo r){
+    public RestaurantService(RestaurantRepo r) {
         this.repo = r;
-        this.filter=new RestaurantFilter(repo);
+        this.filter = new RestaurantFilter(repo);
     }
 
     public void addRestaurant(Restaurant restaurant) throws RestaurantExist {
@@ -24,50 +25,54 @@ public class RestaurantService {
         repo.addRestaurant(restaurant);
     }
 
-    public Restaurant getRestaurantByName(String name){
+    public Restaurant getRestaurantByName(String name) {
         return repo.getRestaurantByName(name);
     }
 
     // --- Méthodes de filtrage exposées par le service ---
-    public List<Restaurant> findByName(String name){
+
+    public List<Restaurant> findByName(String name) {
         return filter.findName(name);
     }
 
-    public List<Restaurant> filterByType(establishmentType type){
+    public List<Restaurant> filterByType(establishmentType type) {
         return filter.filterByType(type);
     }
 
-    public List<Restaurant> filterByAvailability(){
+    public List<Restaurant> filterByAvailability() {
         return filter.filterByAvailability();
     }
 
-    public List<Restaurant> filterByAvailability(LocalTime at){
+    public List<Restaurant> filterByAvailability(LocalTime at) {
         return filter.filterByAvailability(at);
     }
 
-    public List<Restaurant> filterByCuisine(cuisineType type){
+    public List<Restaurant> filterByCuisine(CuisineType type) {
         return filter.filterByCuisineType(type);
     }
 
-    public List<Restaurant> filterByTag(DishTag tag){
+    public List<Restaurant> filterByTag(DishTag tag) {
         return filter.filterByTag(tag);
     }
 
-    public List<Restaurant> filterByAllTags(List<DishTag> tags){
+    public List<Restaurant> filterByAllTags(List<DishTag> tags) {
         return filter.filterByAllTags(tags);
     }
 
-    public List<Restaurant> filterByPriceMin(double min){
+    public List<Restaurant> filterByPriceMin(double min) {
         return filter.filterByPriceMin(min);
     }
 
-    public List<Restaurant> filterByPriceMax(double max){
+    public List<Restaurant> filterByPriceMax(double max) {
         return filter.filterByPriceMax(max);
     }
 
-    public List<Restaurant> filterByPriceRange(double min, double max){
+    public List<Restaurant> filterByPriceRange(double min, double max) {
         return filter.filterByPriceRange(min, max);
     }
 
+    public List<Restaurant> filter(FilterCriteria c ){
+        return filter.filter(c);
+    }
 
 }

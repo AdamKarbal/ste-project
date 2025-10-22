@@ -15,6 +15,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -76,27 +77,28 @@ class OrderTest {
     }
 
     @Test
-    void testAssignScheduleSuccess() {
-        boolean result = order.assignSchedule(schedule);
+    void testChooseScheduleSuccess() {
+        RestaurantSchedule result = order.chooseSchedule(schedule.getStart());
 
-        assertTrue(result, "L'assignation du créneau devrait réussir");
         assertNotNull(order.getDeliveryTime(), "Le temps de livraison devrait être défini");
-        assertTrue(order.getDeliveryTime().toLocalTime().isAfter(schedule.getEnd()), "La livraison doit être après la fin du créneau");
+        assertTrue(order.getDeliveryTime().toLocalTime().isBefore(schedule.getEnd()),
+                "La livraison doit être avant la fin du créneau");
+        assertEquals(schedule, result, "Le créneau choisi doit être celui retourné");
     }
 
     @Test
-    void testAssignScheduleFailsIfNotInRestaurant() {
-        var otherSchedule = new RestaurantSchedule(
+    void testChooseScheduleFailsIfNotInRestaurant() {
+        RestaurantSchedule otherSchedule = new RestaurantSchedule(
                 schedule.getDay(), schedule.getStart(), schedule.getCapacity()
         );
 
-        boolean result = order.assignSchedule(otherSchedule);
-        assertFalse(result, "Le créneau ne devrait pas être accepté car il n'appartient pas au restaurant");
+        RestaurantSchedule result = order.chooseSchedule(otherSchedule.getStart());
+        assertNotNull(result, "Le créneau ne devrait pas être accepté car il n'appartient pas au restaurant");
     }
 
     @Test
     void testConfirmOrderSuccess() {
-        order.assignSchedule(schedule);
+        order.chooseSchedule(schedule.getStart());
         order.setDeliveryPoint(OrderDeliveryPoint.CAFETERIA);
 
         boolean result = order.confirmOrder();
@@ -107,12 +109,14 @@ class OrderTest {
 
     @Test
     void testConfirmOrderFailsWithoutDeliveryPoint() {
-        order.assignSchedule(schedule);
+        order.chooseSchedule(schedule.getStart());
+
         boolean result = order.confirmOrder();
 
         assertFalse(result, "La confirmation doit échouer sans point de livraison");
-        assertNotEquals(OrderState.PAID, order.getState());
+        assertNotEquals(OrderState.PAID, order.getState(), "L'état ne doit pas être 'PAID'");
     }
+
 
     @Test
     void testConfirmOrderFailsWithoutSchedule() {

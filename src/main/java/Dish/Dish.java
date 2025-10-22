@@ -1,6 +1,8 @@
 package Dish;
 
 
+import Restaurant.Restaurant;
+
 import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.List;

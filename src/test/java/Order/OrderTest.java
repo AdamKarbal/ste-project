@@ -1,6 +1,10 @@
 package Order;
 
 import Account.AccountUser;
+import Dish.Dish;
+import Dish.DishCategory;
+import Dish.DishType;
+import Dish.DishTag;
 import Restaurant.Restaurant;
 import Restaurant.RestaurantSchedule;
 import Restaurant.RestaurantScheduleManager;
@@ -20,6 +24,7 @@ class OrderTest {
     private Restaurant restaurant;
     private RestaurantSchedule schedule;
     private Order order;
+    private Dish pizza, burger;
 
     @BeforeEach
     void setup() {
@@ -38,6 +43,8 @@ class OrderTest {
         schedule = restaurant.getRestaurantSchedules().get(0);
 
         order = new Order(client, restaurant);
+        pizza = new Dish(10.0, "Pizza Margherita", "Pizza italienne", DishCategory.MAIN_COURSE, DishType.PIZZA, List.of(DishTag.HALAL));
+        burger = new Dish(12.0, "Burger", "Burger maison", DishCategory.MAIN_COURSE, DishType.MEAT, List.of(DishTag.HALAL));
     }
 
     @Test
@@ -119,4 +126,76 @@ class OrderTest {
 
         assertFalse(result, "La confirmation doit échouer sans créneau horaire");
     }
+
+
+    //====================================Test Ali=============================
+
+
+    @Test
+    void testAddDish_ShouldAddAndUpdatePrice() throws DifferentRestaurantException {
+        boolean added = order.addDish(pizza, 2);
+        assertTrue(added, "Le plat devrait être ajouté");
+        assertEquals(20.0, order.getPrice(), 0.01);
+        assertEquals(OrderState.IN_PREPARATION, order.getState());
+    }
+
+    @Test
+    void testAddMultipleDishes_ShouldAccumulateQuantitiesAndPrice() throws DifferentRestaurantException {
+        order.addDish(pizza, 1);
+        order.addDish(pizza, 2);
+
+        assertEquals(3, order.getDishes().get(pizza), "La quantité doit s'accumuler");
+        assertEquals(30.0, order.getPrice(), 0.01);
+    }
+
+    @Test
+    void testRemoveDish_ShouldUpdatePriceAndState() throws DifferentRestaurantException {
+        order.addDish(pizza, 1);
+        order.addDish(burger, 1);
+        order.removeDish(pizza);
+
+        assertEquals(12.0, order.getPrice(), 0.01, "Le prix doit être mis à jour");
+        order.removeDish(burger);
+        assertEquals(0.0, order.getPrice());
+        assertEquals(OrderState.CREATED, order.getState());
+    }
+
+    @Test
+    void testUpdateDishQuantity_ShouldChangePrice() throws DifferentRestaurantException {
+        order.addDish(pizza, 1);
+        order.updateDishQuantity(pizza, 3);
+
+        assertEquals(30.0, order.getPrice(), 0.01);
+    }
+
+    @Test
+    void testUpdateDishQuantityToZero_ShouldRemoveDish() throws DifferentRestaurantException {
+        order.addDish(pizza, 1);
+        order.updateDishQuantity(pizza, 0);
+
+        assertTrue(order.getDishes().isEmpty(), "Le plat doit être supprimé si la quantité devient 0");
+    }
+
+    @Test
+    void testUpdatePrice_ShouldRecalculateTotal() throws DifferentRestaurantException {
+        order.addDish(pizza, 1);
+        order.addDish(burger, 2);
+        order.updatePrice();
+
+        double expected = 10.0 + 24.0;
+        assertEquals(expected, order.getPrice(), 0.01);
+    }
+
+    @Test
+    void testSetState_ShouldChangeState() {
+        order.setState(OrderState.IN_PREPARATION);
+        assertEquals(OrderState.IN_PREPARATION, order.getState());
+    }
+
+    @Test
+    void testSetState_ShouldNotThrowWhenSameState() {
+        order.setState(OrderState.CREATED);
+        assertDoesNotThrow(() -> order.setState(OrderState.CREATED));
+    }
+
 }

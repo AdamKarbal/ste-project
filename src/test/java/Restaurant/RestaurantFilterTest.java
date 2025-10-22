@@ -255,4 +255,63 @@ class RestaurantFilterTest {
         assertTrue(result.contains(restoC));
     }
 
+    @Test
+    void filter_combinesMultipleCriteriaCorrectly() {
+        // 🔹 1) On crée des critères combinés
+        FilterCriteria criteria = FilterCriteria.builder()
+                .cuisine(CuisineType.ITALIENNE)
+                .priceMax(15.0)
+                .availableAt(LocalTime.of(12, 0))
+                .tagsAnyOf(List.of(DishTag.VEGAN))
+                .build();
+
+        // 🔹 2) On exécute le filtre global
+        List<Restaurant> result = filter.filter(criteria);
+
+        // 🔹 3) Vérification du résultat
+        assertEquals(1, result.size(), "Un seul restaurant doit correspondre");
+        assertTrue(result.contains(restoA), "Pizza Palace doit être le restaurant correspondant");
+    }
+
+    @Test
+    void filter_returnsAllIfNoCriteria() {
+        // 🔹 Aucun critère défini
+        FilterCriteria criteria = FilterCriteria.builder().build();
+
+        List<Restaurant> result = filter.filter(criteria);
+
+        // 🔹 Tous les restaurants doivent être retournés
+        assertEquals(4, result.size(), "Tous les restaurants doivent être présents sans filtre");
+        assertTrue(result.containsAll(List.of(restoA, restoB, restoC, restoD)));
+    }
+
+    @Test
+    void filter_filtersByNameAndCuisine() {
+        // 🔹 Nom contient "pasta" et cuisine française
+        FilterCriteria criteria = FilterCriteria.builder()
+                .nameContains("pasta")
+                .cuisine(CuisineType.FRANCAISE)
+                .build();
+
+        List<Restaurant> result = filter.filter(criteria);
+
+        // 🔹 Seul Pasta House correspond
+        assertEquals(1, result.size());
+        assertTrue(result.contains(restoD));
+    }
+
+    @Test
+    void filter_filtersByAllTags() {
+        // 🔹 Tous les tags doivent être présents : VEGAN + GLUTEN_FREE
+        FilterCriteria criteria = FilterCriteria.builder()
+                .tagsAllOf(List.of(DishTag.VEGAN, DishTag.GLUTEN_FREE))
+                .build();
+
+        List<Restaurant> result = filter.filter(criteria);
+
+        // 🔹 Seul Pizza Palace correspond
+        assertEquals(1, result.size());
+        assertTrue(result.contains(restoA));
+    }
+
 }

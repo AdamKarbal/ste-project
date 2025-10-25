@@ -11,7 +11,7 @@ QA & PO : MADANDAR ARANI Ali  (FISE)
 ## doc
 - [Rendue TD1](doc/RenduTD1.pdf)
 - [Rendue D0](doc/D0.pdf)
-- [Rendue D1](doc/O-renduD1.pdf)
+- [Rendue D1](doc/TeamO-renduD1.pdf)
 
 
 

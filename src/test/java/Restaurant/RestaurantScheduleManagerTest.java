@@ -125,7 +125,6 @@ public class RestaurantScheduleManagerTest {
         assertEquals(99, mondayEvening.getCapacity(), "La capacité doit être mise à jour à 99");
     }
 
-
     @Test
     void testIsOpenAt() {
         boolean open = RestaurantScheduleManager.isOpenAt(

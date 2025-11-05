@@ -1,79 +1,127 @@
 package Dish;
 
 import org.junit.jupiter.api.Test;
+
 import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class DishFactoryTest {
+    // ---------- 1️⃣ Test création valide ----------
+    @Test
+    void testCreateDish_ValidData_ShouldCreateDish() {
+        Dish dish = DishFactory.createDish(
+                12.5,
+                "Pâtes Carbonara",
+                "Pâtes fraîches à la crème et au lard",
+                DishCategory.MAIN_COURSE,
+                DishType.PASTA,
+                List.of(DishTag.HALAL, DishTag.GLUTEN_FREE)
+        );
 
-    /*@Test
-    void create_userOverridesPrice_andMergesToppings() {
-        SmartDishFactory factory = new SmartDishFactory();
+        assertNotNull(dish);
+        assertEquals(12.5, dish.getPrice());
+        assertEquals("Pâtes Carbonara", dish.getName());
+        assertEquals("Pâtes fraîches à la crème et au lard", dish.getDescription());
+        assertEquals(DishCategory.MAIN_COURSE, dish.getCategory());
+        assertEquals(DishType.PASTA, dish.getType());
+        assertEquals(2, dish.getDishTag().size());
+        assertTrue(dish.getDishTag().contains(DishTag.HALAL));
+    }
 
-        DishInput in = new DishInput();
-        in.name = "Pizza Margherita";                 // déclenche PIZZA
-        in.price = 12.0;                              // l’utilisateur prime
-        in.toppings = List.of(new DishTopping("Olives", 0.8f)); // ajout
+    // ---------- 2️⃣ Test création sans tags ----------
+    @Test
+    void testCreateDish_WithoutTags_ShouldWork() {
+        Dish dish = DishFactory.createDish(
+                8.0,
+                "Soupe de légumes",
+                "Soupe maison aux légumes frais",
+                DishCategory.STARTER,
+                DishType.SOUP
+        );
 
-        Dish d = factory.create(in);
+        assertNotNull(dish);
+        assertEquals("Soupe de légumes", dish.getName());
+        assertEquals(0, dish.getDishTag().size());
+    }
 
-        assertEquals("Pizza Margherita", d.getName());
-        assertEquals(DishType.PIZZA, d.getType());    // vient de la suggestion
-        assertEquals(12.0, d.getPrice(), 1e-6);       // user > suggestion
-        assertTrue(d.getAvailableToppings().stream().anyMatch(t -> t.getName().equalsIgnoreCase("Olives")));
-        // merge : Mozzarella, Basilic (suggérés) + Olives (user)
-        assertTrue(d.getAvailableToppings().size() >= 3);
+    // ---------- 3️⃣ Validation du prix ----------
+    @Test
+    void testCreateDish_InvalidPrice_ShouldThrowException() {
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> DishFactory.createDish(
+                        0,
+                        "Pizza Margherita",
+                        "Pizza classique",
+                        DishCategory.MAIN_COURSE,
+                        DishType.PIZZA
+                )
+        );
+        assertEquals("Le prix du plat doit être supérieur à 0.", exception.getMessage());
+    }
+
+    // ---------- 4️⃣ Validation du nom ----------
+    @Test
+    void testCreateDish_NullName_ShouldThrowException() {
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> DishFactory.createDish(
+                        10,
+                        null,
+                        "Plat sans nom",
+                        DishCategory.MAIN_COURSE,
+                        DishType.MEAT
+                )
+        );
+        assertEquals("Le nom du plat ne peut pas être vide.", exception.getMessage());
     }
 
     @Test
-    void create_whenNoSuggestion_usesUserFields() {
-        SmartDishFactory factory = new SmartDishFactory();
-
-        DishInput in = new DishInput();
-        in.name = "Plat mystère";
-        in.type = DishType.OTHER;
-        in.category = DishCategory.MAIN_COURSE;
-        in.price = 9.9;
-
-        Dish d = factory.create(in);
-
-        assertEquals("Plat mystère", d.getName());
-        assertEquals(DishType.OTHER, d.getType());
-        assertEquals(DishCategory.MAIN_COURSE, d.getCategory());
-        assertEquals(9.9, d.getPrice(), 1e-6);
+    void testCreateDish_BlankName_ShouldThrowException() {
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> DishFactory.createDish(
+                        10,
+                        "   ",
+                        "Nom vide",
+                        DishCategory.MAIN_COURSE,
+                        DishType.MEAT
+                )
+        );
+        assertEquals("Le nom du plat ne peut pas être vide.", exception.getMessage());
     }
 
+    // ---------- 5️⃣ Validation de la catégorie ----------
     @Test
-    void create_negativePrice_throws() {
-        SmartDishFactory factory = new SmartDishFactory();
-        DishInput in = new DishInput();
-        in.name = "Burger";
-        in.price = -1.0;
-
-        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> factory.create(in));
-        assertTrue(ex.getMessage().toLowerCase().contains("price"));
+    void testCreateDish_NullCategory_ShouldThrowException() {
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> DishFactory.createDish(
+                        10,
+                        "Burger",
+                        "Burger maison",
+                        null,
+                        DishType.SANDWICH
+                )
+        );
+        assertEquals("La catégorie du plat est obligatoire.", exception.getMessage());
     }
 
+    // ---------- 6️⃣ Validation du type ----------
     @Test
-    void create_blankName_throws() {
-        SmartDishFactory f = new SmartDishFactory();
-        DishInput in = new DishInput();
-        in.name = "   ";
-        assertThrows(IllegalArgumentException.class, () -> f.create(in));
+    void testCreateDish_NullType_ShouldThrowException() {
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> DishFactory.createDish(
+                        10,
+                        "Salade César",
+                        "Salade au poulet et parmesan",
+                        DishCategory.STARTER,
+                        null
+                )
+        );
+        assertEquals("Le type du plat est obligatoire.", exception.getMessage());
     }
-
-    @Test
-    void create_mergeToppings_noDuplicates() {
-        SmartDishFactory f = new SmartDishFactory();
-
-        DishInput in = new DishInput();
-        in.name = "Pizza Margherita";
-        in.toppings = List.of(new DishTopping("Mozzarella", 1.2f)); // déjà dans la suggestion
-
-        Dish d = f.create(in);
-        long mozzaCount = d.getAvailableToppings().stream()
-                .filter(t -> t.getName().equalsIgnoreCase("Mozzarella")).count();
-        assertEquals(1, mozzaCount); // pas de doublon
-    }*/
 
 }

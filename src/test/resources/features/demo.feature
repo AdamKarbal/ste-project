@@ -28,7 +28,7 @@ Feature: Demonstration de notre système
     And Il le configure : cuisineType "INDIENNE"
     And Il le configure : establishmentType "RESTAURANT"
     And Il ajoute le plat "Riz coco curry" à 12.5€
-    And Il ajoute un creneau de 11:30 à 11:45 avec 5 capacités
+    And Il ajoute un creneau de 11:30 à 12:00 avec 5 capacités
     Then Le restaurant doit être disponible sous le nom de "Les delices de new delices"
     And "Younes" peut passer trouver le restaurant "Les delices de new delices"
     And "Younes" peut trouver le plat "Riz coco curry"

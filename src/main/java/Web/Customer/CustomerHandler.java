@@ -14,8 +14,8 @@ public class CustomerHandler implements HttpHandler {
         String path = exchange.getRequestURI().getPath();
 //...
         exchange.getResponseHeaders().set("Content-Type", "application/json");
-        exchange.sendResponseHeaders(200, response.length());
-        exchange.getResponseBody().write(response.getBytes());
+        //exchange.sendResponseHeaders(200, response.length());
+        //exchange.getResponseBody().write(response.getBytes());
         exchange.close();
     }
 

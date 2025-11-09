@@ -1,5 +1,6 @@
 package Api.Customer;
 
+import Order.OrderManager;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import java.io.IOException;
@@ -7,6 +8,8 @@ import java.io.IOException;
 
 public class CustomerHandler implements HttpHandler {
 //...
+    private OrderManager orderManager;
+    public CustomerHandler(){}
     @Override
     public void handle(HttpExchange exchange) throws IOException {
 //...
@@ -14,7 +17,7 @@ public class CustomerHandler implements HttpHandler {
         String path = exchange.getRequestURI().getPath();
 //...
 
-        System.out.println("Requête reçue : " + method + " " + path);
+        /*System.out.println("Requête reçue : " + method + " " + path);
 
         if("GET".equalsIgnoreCase(method)) {
             String response = "Bienvenu dans le Customer Service";
@@ -27,7 +30,7 @@ public class CustomerHandler implements HttpHandler {
             exchange.sendResponseHeaders(404, 0);
         }
 
-        exchange.close();
+        exchange.close();*/
     }
 
 

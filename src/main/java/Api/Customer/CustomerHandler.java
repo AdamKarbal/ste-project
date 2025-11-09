@@ -1,4 +1,4 @@
-package Web.Customer;
+package Api.Customer;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;

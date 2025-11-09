@@ -1,4 +1,4 @@
-package Web.Customer;
+package Api.Customer;
 
 import com.sun.net.httpserver.HttpServer;
 import java.io.IOException;

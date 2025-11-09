@@ -18,96 +18,96 @@ import java.util.Optional;
 
 
 public class OrderManager {
-    private Order currentOrder;
+    private OrderRepo repo;
 
-    public OrderManager() {
+    public OrderManager(OrderRepo repo) {
+        this.repo=repo;
+    }
+
+    private Order require(int orderId) {
+        return repo.findById(orderId).orElseThrow(
+                () -> new OrderNotFoundException("Commande " + orderId + " introuvable.")
+        );
     }
 
 
     public Order createOrder(AccountUser client, Restaurant restaurant) {
-        if (currentOrder != null && currentOrder.getState() != OrderState.CANCELED) {
-            throw new IllegalStateException("Une commande est déjà en cours.");
-        }
-        currentOrder = new Order(client, restaurant);
-        return currentOrder;
+        Order order = new Order(client, restaurant);
+        return repo.save(order);
     }
 
-    public Order getCurrentOrder() {
-        if (currentOrder == null) {
-            throw new OrderNotFoundException("Aucune commande active trouvée.");
-        }
-        return currentOrder;
+    public void cancelOrder(int orderId) {
+        Order order = require(orderId);
+        order.setState(OrderState.CANCELED);
     }
 
-    public void cancelOrder() {
-        if (currentOrder == null) {
-            throw new OrderNotFoundException("Aucune commande active à annuler.");
-        }
-        currentOrder.setState(OrderState.CANCELED);
-        currentOrder = null;
+    public OrderState proceedPayement(int orderId,PaymentMethod paymentMethod){
+        Order order = require(orderId);
+        order.setState(OrderState.COMPLETED);
+        OrderState newState = PaymentService.getInstance().handleCompletedOrder(order, paymentMethod);
+        order.setState(newState);
+        return newState;
     }
 
-    public OrderState proceedPayement(PaymentMethod paymentMethod){
-        currentOrder.setState(OrderState.COMPLETED); // à changer pour l'instant je garde pour les tests mais une autre méthode doit mettre l'OrderState à completed
-        currentOrder.setState(PaymentService.getInstance().handleCompletedOrder(this.currentOrder,paymentMethod));
-        return currentOrder.getState();
+    public void chooseSchedule(int orderId,LocalTime time){
+        require(orderId).chooseSchedule(time);
     }
 
-    public void chooseSchedule(LocalTime time){
-        getCurrentOrder().chooseSchedule(time);
-    }
-
-    public OrderState finishOrder(PaymentMethod paymentMethod){
-        OrderState status = proceedPayement(paymentMethod);
-        if(RestaurantScheduleManager.checkCapacity(getCurrentOrder().getRestaurant(),getCurrentOrder().getIdSchedule())){
-            RestaurantScheduleManager.incrementCapacityById(getCurrentOrder().getRestaurant(), getCurrentOrder().getIdSchedule(), -1);
+    public OrderState finishOrder(int orderId,PaymentMethod paymentMethod){
+        Order order = require(orderId);
+        OrderState status = proceedPayement(orderId,paymentMethod);
+        if(RestaurantScheduleManager.checkCapacity(order.getRestaurant(),order.getIdSchedule())){
+            RestaurantScheduleManager.incrementCapacityById(order.getRestaurant(), order.getIdSchedule(), -1);
             return status;
         }
         return status;
     }
 
-    public void addItem(Dish dish, int quantity) {
-        Order order = getCurrentOrder();
+    public void addItem(int orderId,Dish dish, int quantity) {
+        if (quantity <= 0) throw new IllegalArgumentException("Quantité invalide.");
+        Order order = require(orderId);
         order.addDish(dish, quantity);
     }
 
-    public void removeItem(Dish dish) {
-        Order order = getCurrentOrder();
+    public void removeItem(int orderId,Dish dish) {
+        Order order = require(orderId);
         order.removeDish(dish);
-
         if (order.getDishes().isEmpty()) {
             order.setState(OrderState.CANCELED);
-            currentOrder = null;
         }
     }
 
-    public void updateItem(Dish dish, int newQuantity) {
-        Order order = getCurrentOrder();
+    public void updateItem(int orderId,Dish dish, int newQuantity) {
+        if (newQuantity < 0) throw new IllegalArgumentException("Quantité négative interdite.");
+        Order order = require(orderId);
         order.updateDishQuantity(dish, newQuantity);
 
+        if (newQuantity == 0) {
+            order.removeDish(dish);
+        } else {
+            order.updateDishQuantity(dish, newQuantity);
+        }
         if (order.getDishes().isEmpty()) {
             order.setState(OrderState.CANCELED);
-            currentOrder = null;
         }
     }
 
 
-    public OrderState followOrder() {
-        Order order = getCurrentOrder();
-        return order.getState();
+    public OrderState followOrder(int orderId) {
+        return require(orderId).getState();
     }
 
-    public void addToppingToDish(Dish dish, DishTopping topping) {
-        Order order = getCurrentOrder();
+    public void addToppingToDish(int orderId,Dish dish, DishTopping topping) {
+        Order order = require(orderId);
         if (!order.getDishes().containsKey(dish)) {
-            throw new IllegalArgumentException("Le plat n'existe pas dans la commande actuelle.");
+            throw new IllegalArgumentException("Le plat n'existe pas dans cette commande.");
         }
-
         if (!dish.getAvailableToppings().contains(topping)) {
-            throw new IllegalArgumentException("Ce topping n'est pas proposé pour ce plat !");
+            throw new IllegalArgumentException("Topping non disponible pour ce plat.");
         }
-
         dish.addSelectedTopping(topping);
         order.updatePrice();
+
     }
 }
+

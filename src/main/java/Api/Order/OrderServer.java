@@ -1,6 +1,8 @@
 package Api.Order;
 
 import Api.Customer.CustomerHandler;
+import Order.OrderManager;
+import Order.OrderRepo;
 import com.sun.net.httpserver.HttpServer;
 
 import java.io.IOException;
@@ -11,8 +13,8 @@ public class OrderServer {
         int port = 8000;
         String path = "/api/order/";// port dédié au Customer Service
         HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
-
-        server.createContext(path, new CustomerHandler());
+        OrderRepo orderRepo = new OrderRepo();
+        server.createContext(path, new OrderHandler(new OrderManager(orderRepo)));
         server.setExecutor(null);
         server.start();
 

@@ -58,9 +58,9 @@ public class OrderHandler implements HttpHandler{
                             String name = (String) attributes.get("name");
                             ArrayList<Dish> dishes = (ArrayList<Dish>) attributes.get("dishes");
                             ArrayList<RestaurantSchedule> schedules = (ArrayList<RestaurantSchedule>) attributes.get("restaurantSchedules");
-                            //establishmentType type = establishmentType().get("establishmentType");
+                            establishmentType type = establishmentType.valueOf((String) attributes.get("establishmentType"));
                             ArrayList<CuisineType> cuisineType = (ArrayList<CuisineType>) attributes.get("cuisineTypes");
-                            return new Restaurant.Builder().name(name).dishes(dishes).restaurantSchedules(schedules).cuisineType(cuisineType).establishmentType(null).build();
+                            return new Restaurant.Builder().name(name).dishes(dishes).restaurantSchedules(schedules).cuisineType(cuisineType).establishmentType(type).build();
                         }
                         catch(JsonProcessingException e){
                             System.out.println(e);
@@ -70,7 +70,7 @@ public class OrderHandler implements HttpHandler{
             );
             restaurant.thenAccept(resto->{
                 Order order = orderManager.createOrder(null,resto);
-                //System.out.println(order);
+                System.out.println(resto);
                 try {
                     System.out.println("Commande créee");
                     Sender.sendResponse(exchange,200,order.getId()+"");

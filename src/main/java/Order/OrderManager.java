@@ -36,9 +36,13 @@ public class OrderManager {
         return repo.save(order);
     }
 
-    public void cancelOrder(int orderId) {
+    public Order cancelOrder(int orderId) {
         Order order = require(orderId);
-        order.setState(OrderState.CANCELED);
+        if (order!=null){
+            order.setState(OrderState.CANCELED);
+            repo.deleteById(orderId);
+        }
+        return order;
     }
 
     public OrderState proceedPayement(int orderId,PaymentMethod paymentMethod){

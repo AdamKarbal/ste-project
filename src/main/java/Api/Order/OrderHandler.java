@@ -35,6 +35,7 @@ public class OrderHandler implements HttpHandler{
     public OrderHandler(OrderManager orderManager){
         this.orderManager=orderManager;
         ApiRegistry.addRoute("POST", "/api/order/", this::createOrder);
+        ApiRegistry.addRoute("DELETE", "/api/order/{orderID}", this::createOrder);
     }
 
     private void createOrder(HttpExchange exchange, String param) throws IOException {
@@ -93,9 +94,19 @@ public class OrderHandler implements HttpHandler{
         }
     }
 
+
+    private void cancelOrder(HttpExchange exchange, String param) throws IOException {
+        Order order =orderManager.cancelOrder(Integer.parseInt(param));
+        if(order!=null){
+            Sender.sendResponse(exchange,200,order.getId()+"");
+        }
+        Sender.sendResponse(exchange,400,"Invalid request");
+    }
+
+
     public void handle(HttpExchange exchange) throws IOException {
         exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*"); // Remplacez par votre origine cliente
-        exchange.getResponseHeaders().add("Access-Control-Allow-Methods", "POST, OPTIONS");
+        exchange.getResponseHeaders().add("Access-Control-Allow-Methods", "POST, OPTIONS, DELETE");
         exchange.getResponseHeaders().add("Access-Control-Allow-Headers", "Accept, X-Requested-With, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization");
 
         String requestMethod = exchange.getRequestMethod();

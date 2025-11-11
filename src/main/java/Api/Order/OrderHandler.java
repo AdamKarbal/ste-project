@@ -35,7 +35,7 @@ public class OrderHandler implements HttpHandler{
     public OrderHandler(OrderManager orderManager){
         this.orderManager=orderManager;
         ApiRegistry.addRoute("POST", "/api/order/", this::createOrder);
-        ApiRegistry.addRoute("DELETE", "/api/order/{orderID}", this::createOrder);
+        ApiRegistry.addRoute("DELETE", "/api/order/", this::cancelOrder);
     }
 
     private void createOrder(HttpExchange exchange, String param) throws IOException {
@@ -96,11 +96,23 @@ public class OrderHandler implements HttpHandler{
 
 
     private void cancelOrder(HttpExchange exchange, String param) throws IOException {
-        Order order =orderManager.cancelOrder(Integer.parseInt(param));
-        if(order!=null){
-            Sender.sendResponse(exchange,200,order.getId()+"");
+        try {
+            int orderId = Integer.parseInt(param);
+            Order order = orderManager.cancelOrder(orderId);
+
+            if (order != null) {
+                Sender.sendResponse(exchange, 200, "Commande " + order.getId() + " annulée");
+            } else {
+                Sender.sendResponse(exchange, 404, "Commande non trouvée");
+            }
+        } catch (NumberFormatException e) {
+            Sender.sendResponse(exchange, 400, "ID invalide");
         }
-        Sender.sendResponse(exchange,400,"Invalid request");
+    }
+
+
+    private void finishOrder(HttpExchange exchange, String param) throws IOException {
+
     }
 
 

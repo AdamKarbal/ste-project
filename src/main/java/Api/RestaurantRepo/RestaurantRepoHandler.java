@@ -38,6 +38,8 @@ public class RestaurantRepoHandler implements HttpHandler {
 
         sendResponse(exchange, 200, response);
     }
+
+
     @Override
     public void handle(HttpExchange exchange) throws IOException {
         exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*"); // Remplacez par votre origine cliente

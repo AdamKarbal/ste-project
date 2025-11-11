@@ -21,7 +21,6 @@ import Restaurant.*;
 
 
 public class CustomerHandler implements HttpHandler {
-    private OrderManager orderManager;
     private final RestaurantService restaurantService = new RestaurantService(new RestaurantRepo(new ArrayList<Restaurant>()));
     public CustomerHandler(){
         try {

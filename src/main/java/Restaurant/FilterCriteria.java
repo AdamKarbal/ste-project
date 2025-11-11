@@ -11,12 +11,12 @@ import java.util.Set;
 
 public class FilterCriteria {
     String restaurantName;
-    double priceMin;
-    double priceMax;
+    Double priceMin;
+    Double priceMax;
     establishmentType establishment;
     CuisineType cuisine;
     LocalTime availableAt;
-    boolean openNow;
+    Boolean openNow;
     Set<DishTag> tagsAllOf;
     Set<DishTag> tagsAnyOf;
 
@@ -26,6 +26,7 @@ public class FilterCriteria {
         return new Builder();
     }
 
+    // Getters
     public String getNameContains() { return restaurantName; }
     public CuisineType getCuisine() { return cuisine; }
     public establishmentType getEstablishment() { return establishment; }
@@ -36,7 +37,6 @@ public class FilterCriteria {
     public Set<DishTag> getTagsAllOf() { return tagsAllOf; }
     public Set<DishTag> getTagsAnyOf() { return tagsAnyOf; }
 
-
     public static class Builder {
         private final FilterCriteria c = new FilterCriteria();
 
@@ -46,6 +46,7 @@ public class FilterCriteria {
         public Builder priceMin(Double v) { c.priceMin = v; return this; }
         public Builder priceMax(Double v) { c.priceMax = v; return this; }
         public Builder availableAt(LocalTime t) { c.availableAt = t; return this; }
+        public Builder openNow(Boolean b) { c.openNow = b; return this; }
         public Builder tagsAllOf(Collection<DishTag> tags) { c.tagsAllOf = toSet(tags); return this; }
         public Builder tagsAnyOf(Collection<DishTag> tags) { c.tagsAnyOf = toSet(tags); return this; }
 

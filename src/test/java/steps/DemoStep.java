@@ -17,7 +17,7 @@ import java.time.LocalTime;
 import java.util.*;
 import Order.Order;
 import Order.OrderManager;
-import Order.OrderState;
+import Order.OrderRepo;
 
 
 import Restaurant.Restaurant;
@@ -31,19 +31,18 @@ public class DemoStep {
 
     private RestaurantRepo repo;
     private RestaurantService service;
-    private List<Restaurant> resultats = new ArrayList<>();
+    private int currentOrderid;
+    private OrderRepo orderRepo;
     private Map<String, AccountManager> restaurateurs = new HashMap<>();
     private RestaurantManager currentManager;
     private Restaurant currentRestaurant;
     private AccountUser client;
     private List<Restaurant> restaurantsByType;
-    private Order currentOrder;
     private OrderManager currentOrderManager;
-    private OrderState orderStatus;
     private RestaurantFactory factory;
     @Before
     public void setup() {
-
+        orderRepo = new OrderRepo();
         repo = new RestaurantRepo(new ArrayList<>());
         service = new RestaurantService(repo);
         factory = new RestaurantFactory(service);
@@ -115,29 +114,32 @@ public class DemoStep {
 
     @When("il sélectionne le restaurant {string}")
     public void il_sélectionne_le_restaurant(String string) {
-        currentOrderManager= new OrderManager();
-        currentOrderManager.createOrder(client,currentRestaurant);
+        currentOrderManager= new OrderManager(orderRepo);
+        Order order = currentOrderManager.createOrder(client,currentRestaurant);
+        currentOrderid = order.getId();
     }
 
     @And("il ajoute {int} {string} à {int}€ à son panier")
     public void ilAjouteÀ€ÀSonPanier(int arg0, String arg1, int arg2) {
         Dish chosenDish = new Dish(arg2,arg1,null,null,null,null);
-        currentOrderManager.addItem(chosenDish,arg0);
+        currentOrderManager.addItem(currentOrderid,chosenDish,arg0);
     }
 
     @When("il choisit le créneau de {int}:{int} et valide sa commande")
     public void il_choisit_le_créneau_de_et_valide_sa_commande(Integer int1, Integer int2) {
-        currentOrderManager.chooseSchedule(LocalTime.of(int1,int2));
+        currentOrderManager.chooseSchedule(currentOrderid,LocalTime.of(int1,int2));
     }
 
     @When("il procède au paiement avec son crédit")
     public void il_procède_au_paiement_avec_son_crédit() {
-        orderStatus=currentOrderManager.finishOrder(PaymentMethod.CASH);
+        currentOrderManager.finishOrder(currentOrderid,PaymentMethod.CASH);
     }
 
     @Then("le paiement doit être accepté et une commande payeé par cash doit être créée pour {string}")
     public void le_paiement_doit_être_accepté_et_une_commande_n_doit_être_créée_pour(String string) {
-        Assertions.assertEquals(client.getOrderHistory().get(currentOrderManager.getCurrentOrder()).getStatus(), PaymentState.PAID);
+        Order order = orderRepo.findById(currentOrderid)
+                .orElseThrow(() -> new AssertionError("Order not found"));
+        Assertions.assertEquals(client.getOrderHistory().get(order).getStatus(), PaymentState.PAID);
     }
 
     @Then("l'historique de commandes de {string} doit contenir {int} commandes")
@@ -147,7 +149,12 @@ public class DemoStep {
 
     @Then("la capacité du créneau de {int}:{int} à {int}:{int} de {string} doit être maintenant de {int} repas")
     public void la_capacité_du_créneau_de_à_de_doit_être_maintenant_de_repas(Integer int1, Integer int2, Integer int3, Integer int4, String string, Integer int5) {
-        Assertions.assertEquals(RestaurantScheduleManager.getCapacityById(currentRestaurant,currentOrderManager.getCurrentOrder().getIdSchedule()),int5);
+        Order order = orderRepo.findById(currentOrderid)
+                .orElseThrow(() -> new AssertionError("Order not found"));
+        Assertions.assertEquals(
+                RestaurantScheduleManager.getCapacityById(currentRestaurant, order.getIdSchedule()),
+                int5
+        );
     }
 
 

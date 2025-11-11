@@ -4,25 +4,28 @@ import Account.AccountUser;
 import Dish.Dish;
 import Order.Order;
 import Order.OrderManager;
-import Order.CompletedOrderManager;
+import Order.OrderRepo;
 import Order.OrderState;
 import Payment.Payment;
 import Payment.PaymentMethod;
 import Payment.PaymentService;
 import io.cucumber.java.en.*;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 
 import java.util.HashMap;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class OrderManagerTest {
-
+    OrderRepo repo= new OrderRepo();
     Order order;
+    Order order1;
     Order order2;
     AccountUser client;
     HashMap<Order, Payment> history;
     double creditInitial;
     OrderManager orderManager;
+
 
     // Classe interne pour stocker les données de test
     private static class TestClientData {
@@ -31,12 +34,12 @@ public class OrderManagerTest {
         public Order order2;
     }
 
-    public static TestClientData createClientWithTwoPaidOrders() {
+    public TestClientData createClientWithTwoPaidOrders() {
         TestClientData data = new TestClientData();
         data.client = new AccountUser("Adam");
         data.client.setCredit(3);
-        OrderManager orderManager1 = new OrderManager();
-        OrderManager orderManager2 = new OrderManager();
+        OrderManager orderManager1 = new OrderManager(repo);
+        OrderManager orderManager2 = new OrderManager(repo);
 
         data.order1 = orderManager1.createOrder(data.client,null);
         data.order2= orderManager2.createOrder(data.client,null);
@@ -45,8 +48,8 @@ public class OrderManagerTest {
         Dish dish2 = new Dish(2.0, "ee", "edd", null, null, null);
 
 
-        orderManager1.proceedPayement(PaymentMethod.CASH);
-        orderManager2.proceedPayement(PaymentMethod.ONLINE);
+        orderManager1.proceedPayement(data.order1.getId(),PaymentMethod.CASH);
+        orderManager2.proceedPayement(data.order2.getId(),PaymentMethod.ONLINE);
 
         return data;
     }
@@ -87,15 +90,15 @@ public class OrderManagerTest {
 
     @And("il a passé une commande de {double} euros")
     public void qu_il_a_passé_une_commande_de_euros(double montant) {
-        orderManager = new OrderManager();
-        orderManager.createOrder(client,null);
+        orderManager = new OrderManager(repo);
+        order1 =orderManager.createOrder(client,null);
         Dish dish = new Dish(montant, "Pizza", "Délicieuse pizza", null, null, null);
-        orderManager.addItem(dish, 1);
+        orderManager.addItem(order1.getId(),dish, 1);
     }
 
     @When("il paie la commande avec son crédit")
     public void il_paie_la_commande_avec_son_crédit() {
-        orderManager.proceedPayement(PaymentMethod.CASH);
+        orderManager.proceedPayement(order1.getId(),PaymentMethod.CASH);
     }
 
     @Then("son crédit doit être débité de {double} euros")

@@ -15,6 +15,8 @@ import java.util.Map;
 import java.util.Optional;
 
 public class Order {
+    private static int compteur=0;
+    private int id;
     private double price;
     private OrderState state;
     private final Map<Dish, Integer> dishes;
@@ -25,6 +27,8 @@ public class Order {
     private String idSchedule;
 
     public Order(AccountUser client,Restaurant restaurant){
+        compteur++;
+        id=compteur;
         price=0;
         state=OrderState.CREATED;
         this.dishes = new HashMap<>();
@@ -34,6 +38,7 @@ public class Order {
 
 
     public Restaurant getRestaurant() {
+
         return restaurant;
     }
 
@@ -42,6 +47,9 @@ public class Order {
     }
     public AccountUser getClient(){
         return client;
+    }
+    public int getId(){
+        return id;
     }
 
     public void setPrice(float price) { this.price = price; }
@@ -156,6 +164,11 @@ public class Order {
         for (Map.Entry<Dish, Integer> entry : dishes.entrySet()) {
             price += entry.getKey().getPrice() * entry.getValue();
         }
+    }
+
+    @Override
+    public String toString(){
+        return "Commande id "+getId();
     }
 
 

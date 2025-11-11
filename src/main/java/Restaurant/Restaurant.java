@@ -164,6 +164,10 @@ public class Restaurant {
     public int hashCode() {
         return name != null ? name.hashCode() : 0;
     }
+    @Override
+    public String toString(){
+        return "Nom : "+name+"plats :"+dishes+"schedules : "+restaurantSchedules+"typeCuisine"+getCuisineTypes();
+    }
 
     public boolean isOpenNow() {
         return RestaurantScheduleManager.isOpenNow(this);

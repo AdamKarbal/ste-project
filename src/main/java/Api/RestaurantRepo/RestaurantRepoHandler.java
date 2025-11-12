@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Optional;
 import java.util.regex.Matcher;
 
@@ -23,6 +24,7 @@ public class RestaurantRepoHandler implements HttpHandler {
     public RestaurantRepoHandler(RestaurantRepo repo){
         this.repo=repo;
         ApiRegistry.addRoute("GET", "/api/restaurantrepo/{restaurantName}", this::getRestaurant);
+        ApiRegistry.addRoute("GET","api/restaurantrepo/",this::getAllRestaurants);
     }
     public void getRestaurant(HttpExchange exchange,String param1) throws IOException {
         // 2️⃣ Récupère le paramètre 'name' depuis la query string
@@ -37,6 +39,22 @@ public class RestaurantRepoHandler implements HttpHandler {
         String response = mapper.writeValueAsString(restaurantOpt);
 
         sendResponse(exchange, 200, response);
+    }
+
+    public void getAllRestaurants(HttpExchange exchange,String param) throws IOException{
+        try{List<Restaurant> restaurants = repo.getRestaurants();
+        if(restaurants==null){
+            sendResponse(exchange,404,"Liste des restos vide");
+            return;
+        }
+        ObjectMapper mapper = new ObjectMapper();
+        String responseJson = mapper.writeValueAsString(restaurants);
+        sendResponse(exchange, 200, responseJson);}
+        catch(Exception e){
+            e.printStackTrace();
+            sendResponse(exchange, 500, "Erreur interne du serveur : " + e.getMessage());
+        }
+
     }
 
 

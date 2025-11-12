@@ -21,6 +21,7 @@ public class RestaurantRepoServer {
         HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
         RestaurantRepo repo = new RestaurantRepo(new ArrayList<>());
         repo.addRestaurant(setUpTest());
+        repo.addRestaurant(new Restaurant.Builder().name("Clément la grosse merde").establishmentType(establishmentType.RESTAURANT).restaurantSchedules(null).dishes(null).cuisineType(null).build());
         server.createContext(path, new RestaurantRepoHandler(repo));
         server.setExecutor(null);
         server.start();

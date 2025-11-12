@@ -1,6 +1,5 @@
 package Api.Customer;
 
-import Order.OrderManager;
 import Restaurant.Enum.CuisineType;
 import Restaurant.Enum.establishmentType;
 import Restaurant.Exception.RestaurantExist;
@@ -154,6 +153,13 @@ public class CustomerHandler implements HttpHandler {
 
                 // 3️⃣ Construire les critères finaux et filtrer
                 FilterCriteria criteria = builder.build();
+                System.out.println("🔍 CRITÈRES REÇUS : ");
+                System.out.println("name = " + criteria.getNameContains());
+                System.out.println("cuisine = " + criteria.getCuisine());
+                System.out.println("type = " + criteria.getEstablishment());
+                System.out.println("priceMin = " + criteria.getPriceMin());
+                System.out.println("priceMax = " + criteria.getPriceMax());
+                System.out.println("openNow = " + criteria.getOpenNow());
                 restaurants = restaurantService.filter(criteria);
 
             }
@@ -167,6 +173,9 @@ public class CustomerHandler implements HttpHandler {
         String response = mapper.writeValueAsString(restaurants != null ? restaurants : new ArrayList<>());
 
         exchange.getResponseHeaders().set("Content-Type", "application/json");
+        exchange.getResponseHeaders().set("Access-Control-Allow-Origin", "*");
+        exchange.getResponseHeaders().set("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+        exchange.getResponseHeaders().set("Access-Control-Allow-Headers", "Content-Type, Authorization");
         exchange.sendResponseHeaders(statusCode, response.getBytes().length);
         exchange.getResponseBody().write(response.getBytes());
         exchange.close();

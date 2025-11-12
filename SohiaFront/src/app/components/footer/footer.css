@@ -1,0 +1,13 @@
+footer {
+  background-color: #E53935;
+  color: white;
+  text-align: center;
+  padding: 1.5rem;
+  font-size: 0.95rem;
+}
+
+.credits {
+  margin-top: 0.5rem;
+  font-size: 0.85rem;
+  opacity: 0.8;
+}

@@ -1,0 +1,37 @@
+<app-navbar></app-navbar>
+
+<!-- 🧠 SECTION HERO -->
+<section class="hero">
+  <div class="overlay"></div>
+  <div class="hero-content">
+    <h1>Découvrez les meilleures saveurs près de chez vous 🍕</h1>
+    <p>Commandez depuis vos restaurants préférés en quelques clics.</p>
+
+    <div class="search-bar">
+      <input
+        type="text"
+        placeholder="Rechercher un restaurant ou un plat..."
+        [(ngModel)]="searchTerm"
+        (keyup.enter)="onSearch()"
+      />
+      <button (click)="onSearch()">🔍</button>
+    </div>
+  </div>
+</section>
+
+<!-- 🍽️ SECTION RESTAURANTS -->
+<section class="restaurant-section">
+  <h2>🍴 Restaurants disponibles</h2>
+
+  <div class="restaurant-list">
+    <app-loader *ngIf="loading"></app-loader>
+
+    <app-restaurant-card
+      *ngFor="let resto of restaurants"
+      [restaurant]="resto"
+    ></app-restaurant-card>
+  </div>
+</section>
+
+<!-- 🦶 FOOTER -->
+<app-footer></app-footer>

@@ -27,7 +27,7 @@ public class RestaurantFilter {
     public List<Restaurant> filterByAvailability() {
         return restaurantRepo.getRestaurants()
                 .stream()
-                .filter(Restaurant::isOpenNow)
+                .filter(r -> RestaurantScheduleManager.isOpenNow(r.getName()))
                 .toList();
     }
 
@@ -36,7 +36,7 @@ public class RestaurantFilter {
 
         return restaurantRepo.getRestaurants()
                 .stream()
-                .filter(r -> r.isOpenAt(targetDateTime)) // ← utilise la version LocalDateTime de isOpenAt
+                .filter(r -> RestaurantScheduleManager.isOpenAt(r.getName(), targetDateTime))
                 .toList();
     }
 

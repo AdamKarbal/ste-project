@@ -8,8 +8,8 @@ import java.net.InetSocketAddress;
 
 public class RestaurantServer {
     public static void main(String[] args) throws IOException {
-        int port = 8002;
-        String path = "/api/restaurant/";// port dédié au Restaurant Service
+        int port = 8003;
+        String path = "/api/restaurant/";// port dédié au Restaurant
         HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
 
         server.createContext(path, new CustomerHandler());

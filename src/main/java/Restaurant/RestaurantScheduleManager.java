@@ -31,7 +31,7 @@ public class RestaurantScheduleManager {
         return restaurant.getRestaurantSchedules();
     }
 
-    public static List<RestaurantSchedule> getTodaySchedules(String restaurantName) {
+    public List<RestaurantSchedule> getTodaySchedules(String restaurantName) {
         Restaurant restaurant = getRestaurant(restaurantName);
         if (restaurant == null || restaurant.getRestaurantSchedules() == null)
             return List.of();
@@ -46,7 +46,7 @@ public class RestaurantScheduleManager {
                 .collect(Collectors.toList());
     }
 
-    public static Optional<RestaurantSchedule> getAvailableScheduleFor(String restaurantName, LocalTime requestedTime) {
+    public Optional<RestaurantSchedule> getAvailableScheduleFor(String restaurantName, LocalTime requestedTime) {
         Restaurant restaurant = getRestaurant(restaurantName);
         if (restaurant == null || restaurant.getRestaurantSchedules() == null || requestedTime == null)
             return Optional.empty();
@@ -61,7 +61,7 @@ public class RestaurantScheduleManager {
                 .findFirst();
     }
 
-    public static boolean addSchedule(String restaurantName, DayOfTheWeek day, LocalTime start, LocalTime end, int capacity) {
+    public boolean addSchedule(String restaurantName, DayOfTheWeek day, LocalTime start, LocalTime end, int capacity) {
         Restaurant restaurant = getRestaurant(restaurantName);
         if (restaurant == null || restaurant.getRestaurantSchedules() == null || start == null || end == null || day == null)
             return false;
@@ -77,7 +77,7 @@ public class RestaurantScheduleManager {
     }
 
 
-    private static void createIntervals(Restaurant restaurant, DayOfTheWeek day, LocalTime start, LocalTime end, int capacity) {
+    private void createIntervals(Restaurant restaurant, DayOfTheWeek day, LocalTime start, LocalTime end, int capacity) {
         LocalTime current = start;
         do {
             if (!restaurant.alreadyScheduled(current, current.plusMinutes(30), day)) {
@@ -88,7 +88,7 @@ public class RestaurantScheduleManager {
     }
 
 
-    public static void updateSchedule(String restaurantName, DayOfTheWeek day, LocalTime start, LocalTime end, int capacity) {
+    public void updateSchedule(String restaurantName, DayOfTheWeek day, LocalTime start, LocalTime end, int capacity) {
         Restaurant restaurant = getRestaurant(restaurantName);
         Objects.requireNonNull(day);
         Objects.requireNonNull(start);
@@ -99,11 +99,11 @@ public class RestaurantScheduleManager {
             schedules.removeIf(s -> schedulesOverlap(day, start, end, s));
         }
 
-        RestaurantScheduleManager.addSchedule(restaurantName, day, start, end, capacity);
+        addSchedule(restaurantName, day, start, end, capacity);
     }
 
            
-    public static void updateCapacity(String restaurantName, DayOfTheWeek day, LocalTime start, LocalTime end, int capacity) throws ScheduleNoExist {
+    public void updateCapacity(String restaurantName, DayOfTheWeek day, LocalTime start, LocalTime end, int capacity) throws ScheduleNoExist {
         Restaurant restaurant = getRestaurant(restaurantName);
         Objects.requireNonNull(day);
         Objects.requireNonNull(start);
@@ -121,7 +121,7 @@ public class RestaurantScheduleManager {
         }
     }
 
-    private static boolean schedulesOverlap(DayOfTheWeek targetDay, LocalTime start, LocalTime end, RestaurantSchedule s) {
+    private boolean schedulesOverlap(DayOfTheWeek targetDay, LocalTime start, LocalTime end, RestaurantSchedule s) {
         DayOfTheWeek sDay = s.getDay();
         LocalTime sStart = s.getStart();
         LocalTime sEnd = sStart.plusMinutes(30);
@@ -132,7 +132,7 @@ public class RestaurantScheduleManager {
         return false;
     }
 
-    private static boolean scheduleInRange(DayOfTheWeek targetDay, LocalTime start, LocalTime end, RestaurantSchedule s) {
+    private boolean scheduleInRange(DayOfTheWeek targetDay, LocalTime start, LocalTime end, RestaurantSchedule s) {
         DayOfTheWeek sDay = s.getDay();
         LocalTime sStart = s.getStart();
         LocalTime sEnd = sStart.plusMinutes(30);
@@ -143,21 +143,21 @@ public class RestaurantScheduleManager {
             return intervalOverlap(start, end, sStart, sEnd);
         } else {
             if (sDay == targetDay && !sStart.isBefore(start)) return true;
-            return sDay == RestaurantScheduleManager.nextDay(targetDay) && sStart.isBefore(end);
+            return sDay == nextDay(targetDay) && sStart.isBefore(end);
         }
     }
 
-    private static boolean intervalOverlap(LocalTime aStart, LocalTime aEnd, LocalTime bStart, LocalTime bEnd) {
+    private boolean intervalOverlap(LocalTime aStart, LocalTime aEnd, LocalTime bStart, LocalTime bEnd) {
         return !aEnd.isBefore(bStart) && !bEnd.isBefore(aStart);
     }
 
-    public static boolean removeScheduleById(String restaurantName, String id) {
+    public boolean removeScheduleById(String restaurantName, String id) {
         Restaurant restaurant = getRestaurant(restaurantName);
         if (restaurant == null || restaurant.getRestaurantSchedules() == null) return false;
         return restaurant.getRestaurantSchedules().removeIf(s -> s.getId().equals(id));
     }
 
-    public static int getCapacityById(String restaurantName, String id) {
+    public int getCapacityById(String restaurantName, String id) {
         Restaurant restaurant = getRestaurant(restaurantName);
         if (restaurant == null || restaurant.getRestaurantSchedules() == null) throw new RuntimeException("t'es une merde le s");
         for (RestaurantSchedule s : restaurant.getRestaurantSchedules()) {
@@ -166,11 +166,11 @@ public class RestaurantScheduleManager {
         throw new ScheduleNoExist("ce schedule n'existe pas");
     }
 
-    public static boolean checkCapacity(String restaurantName,String id){
+    public boolean checkCapacity(String restaurantName,String id){
         return getCapacityById(restaurantName, id)>0;
     }
 
-    public static boolean updateCapacityById(String restaurantName, String id, int capacity) {
+    public boolean updateCapacityById(String restaurantName, String id, int capacity) {
         Restaurant restaurant = getRestaurant(restaurantName);
         if (restaurant == null || restaurant.getRestaurantSchedules() == null) return false;
         for (RestaurantSchedule s : restaurant.getRestaurantSchedules()) {
@@ -182,7 +182,7 @@ public class RestaurantScheduleManager {
         return false;
     }
 
-    public static boolean incrementCapacityById(String restaurantName, String id, int capacity) {
+    public boolean incrementCapacityById(String restaurantName, String id, int capacity) {
         Restaurant restaurant = getRestaurant(restaurantName);
         if (restaurant == null || restaurant.getRestaurantSchedules() == null) return false;
         for (RestaurantSchedule s : restaurant.getRestaurantSchedules()) {
@@ -194,11 +194,11 @@ public class RestaurantScheduleManager {
         return false;
     }
 
-    public static boolean isOpenNow(String restaurantName) {
+    public boolean isOpenNow(String restaurantName) {
         return isOpenAt(restaurantName, LocalDateTime.now());
     }
 
-    public static boolean isOpenAt(String restaurantName, LocalDateTime dateTime) {
+    public boolean isOpenAt(String restaurantName, LocalDateTime dateTime) {
         Restaurant restaurant = getRestaurant(restaurantName);
         if (restaurant == null || restaurant.getRestaurantSchedules() == null) return false;
 
@@ -212,7 +212,7 @@ public class RestaurantScheduleManager {
         );
     }
 
-    public static DayOfTheWeek convertDayOfWeek(DayOfWeek dow) {
+    public DayOfTheWeek convertDayOfWeek(DayOfWeek dow) {
         return switch (dow) {
             case MONDAY -> DayOfTheWeek.MONDAY;
             case TUESDAY -> DayOfTheWeek.TUESDAY;
@@ -224,7 +224,7 @@ public class RestaurantScheduleManager {
         };
     }
 
-    private static DayOfTheWeek nextDay(DayOfTheWeek day){
+    private DayOfTheWeek nextDay(DayOfTheWeek day){
         return switch (day) {
             case MONDAY -> DayOfTheWeek.TUESDAY;
             case TUESDAY -> DayOfTheWeek.WEDNESDAY;
@@ -237,7 +237,7 @@ public class RestaurantScheduleManager {
         };
     }
 
-    private static Restaurant getRestaurant(String restaurantName) {
+    private Restaurant getRestaurant(String restaurantName) {
         ObjectMapper mapper = new ObjectMapper();
         HttpClient client = HttpClient.newHttpClient();
         HttpRequest request = HttpRequest.newBuilder()

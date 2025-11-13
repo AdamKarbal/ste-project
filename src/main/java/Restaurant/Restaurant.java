@@ -144,9 +144,6 @@ public class Restaurant {
                 .orElse(null);
     }
 
-
-
-
     /*@Override
     public String toString(){
         return name + " " + establishmentType + "\n.";

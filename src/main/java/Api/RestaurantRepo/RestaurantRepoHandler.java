@@ -25,7 +25,6 @@ public class RestaurantRepoHandler implements HttpHandler {
         ApiRegistry.addRoute("GET", "/api/restaurantrepo/{restaurantName}", this::getRestaurant);
     }
     public void getRestaurant(HttpExchange exchange,String param1) throws IOException {
-        // 2️⃣ Récupère le paramètre 'name' depuis la query string
         System.out.println("Get reçu");
         String name = URLDecoder.decode(param1, StandardCharsets.UTF_8);
         Restaurant restaurantOpt = repo.getRestaurantByName(name);

@@ -166,14 +166,6 @@ public class Restaurant {
         return "Nom : "+name+"plats :"+dishes+"schedules : "+restaurantSchedules+"typeCuisine"+getCuisineTypes();
     }
 
-    public boolean isOpenNow() {
-        return RestaurantScheduleManager.isOpenNow(this);
-    }
-
-    public boolean isOpenAt(LocalDateTime dateTime) {
-        return RestaurantScheduleManager.isOpenAt(this, dateTime);
-    }
-
     // InnerClass builder pour éviter d'avoir à faire plusieurs constructeurs en fonction du nombre de paramètre qu'on entre
     public static class Builder {
         private String name;

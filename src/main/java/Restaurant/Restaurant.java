@@ -174,9 +174,7 @@ public class Restaurant {
         return RestaurantScheduleManager.isOpenAt(this, dateTime);
     }
 
-
     // InnerClass builder pour éviter d'avoir à faire plusieurs constructeurs en fonction du nombre de paramètre qu'on entre
-
     public static class Builder {
         private String name;
         private List<Dish> dishes;

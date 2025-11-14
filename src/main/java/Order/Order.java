@@ -1,6 +1,7 @@
 package Order;
 
 import Account.AccountUser;
+import Api.Utils.Requester;
 import Restaurant.Exception.ScheduleNoExist;
 import Restaurant.Restaurant;
 import Restaurant.RestaurantSchedule;
@@ -44,31 +45,7 @@ public class Order {
         this.client=client;
     }
     public Order(){}
-    public Dish getDishById(int dishId) throws IOException, InterruptedException {
-        try {
-            HttpClient client = HttpClient.newHttpClient();
 
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create("http://localhost:8004/api/dishRepo/" + dishId))
-                    .GET()
-                    .build();
-
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-
-            if (response.statusCode() == 404) {
-                throw new OrderNotFoundException("Commande " + dishId + " introuvable.");
-            }
-            if (response.statusCode() != 200) {
-                throw new RuntimeException("Erreur GET : code " + response.statusCode());
-            }
-
-            return mapper.readValue(response.body(), Dish.class);
-
-        } catch (IOException | InterruptedException e) {
-            throw new RuntimeException("Erreur GET require(" + dishId + ")", e);
-        }
-
-    }
 
 
     public String getRestaurant() {
@@ -203,7 +180,7 @@ public class Order {
             int quantity = entry.getValue();
 
             try {
-                Dish dish = getDishById(dishId);
+                Dish dish = Requester.getDishById(dishId);
                 price += dish.getPrice() * quantity;
             } catch (Exception e) {
                 System.err.println("Impossible de récupérer le plat " + dishId);

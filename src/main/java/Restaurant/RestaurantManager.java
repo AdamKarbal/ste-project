@@ -8,7 +8,6 @@ import Restaurant.Exception.*;
 
 
 import java.time.LocalTime;
-import java.util.ArrayList;
 
 public class RestaurantManager {
     //Instances
@@ -41,8 +40,8 @@ public class RestaurantManager {
         RestaurantScheduleManager.updateCapacity(restaurant, day, start, end, capacity);
     }
 
-    public void addDish(Dish d) throws DishInDishes {
-        if(restaurant.alreadyDish(d)) throw new DishInDishes("Le plat "+ d+ " est déjà dans le restaurant." ) ;
+    public void addDish(Dish d) throws DishAlreadyInDishes {
+        if(restaurant.alreadyDish(d)) throw new DishAlreadyInDishes("Le plat "+ d+ " est déjà dans le restaurant." ) ;
         restaurant.addDish(d);
     }
 
@@ -90,7 +89,7 @@ public class RestaurantManager {
         return smartDishFactory.suggest(nameOrKeyword);
     }
 
-    public Dish createDish(DishInput input) throws DishInDishes {
+    public Dish createDish(DishInput input) throws DishAlreadyInDishes {
         Dish dish = smartDishFactory.create(input);
         this.addDish(dish); // tes règles (doublon, etc.)
         return dish;

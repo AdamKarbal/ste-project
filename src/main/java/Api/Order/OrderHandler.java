@@ -35,7 +35,7 @@ public class OrderHandler implements HttpHandler{
     public OrderHandler(OrderManager orderManager){
         this.orderManager=orderManager;
         ApiRegistry.addRoute("POST", "/api/order/", this::createOrder);
-        ApiRegistry.addRoute("DELETE", "/api/order/", this::cancelOrder);
+        ApiRegistry.addRoute("DELETE", "/api/order/{orderId}", this::cancelOrder);
     }
 
     private void createOrder(HttpExchange exchange, String param) throws IOException {
@@ -71,7 +71,6 @@ public class OrderHandler implements HttpHandler{
             );
             restaurant.thenAccept(resto->{
                 Order order = orderManager.createOrder(null,resto);
-                System.out.println(resto);
                 try {
                     System.out.println("Commande créee");
                     Sender.sendResponse(exchange,200,order.getId()+"");

@@ -13,8 +13,7 @@ public class OrderServer {
         int port = 8000;
         String path = "/api/order/";// port dédié au Customer Service
         HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
-        OrderRepo orderRepo = new OrderRepo();
-        server.createContext(path, new OrderHandler(new OrderManager(orderRepo)));
+        server.createContext(path, new OrderHandler(new OrderManager()));
         server.setExecutor(null);
         server.start();
 

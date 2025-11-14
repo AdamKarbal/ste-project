@@ -42,53 +42,10 @@ public class OrderHandler implements HttpHandler{
         try {
             String body = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
             Map<String, Object> data = mapper.readValue(body, Map.class);
-            String restaurantName = (String) data.get("restaurantName");
-
-            HttpClient client = HttpClient.newHttpClient();
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create("http://localhost:8002/api/restaurantrepo/" + restaurantName))
-                    .GET()
-                    .build();
-
-            CompletableFuture<String> response = client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
-                    .thenApply(HttpResponse::body);
-            CompletableFuture<Restaurant> restaurant =response.thenApply(
-                    (corps) ->{
-                        try{
-                            Map<String,Object> attributes = mapper.readValue(corps,Map.class);
-                            String name = (String) attributes.get("name");
-                            ArrayList<Dish> dishes = (ArrayList<Dish>) attributes.get("dishes");
-                            ArrayList<RestaurantSchedule> schedules = (ArrayList<RestaurantSchedule>) attributes.get("restaurantSchedules");
-                            establishmentType type = establishmentType.valueOf((String) attributes.get("establishmentType"));
-                            ArrayList<CuisineType> cuisineType = (ArrayList<CuisineType>) attributes.get("cuisineTypes");
-                            return new Restaurant.Builder().name(name).dishes(dishes).restaurantSchedules(schedules).cuisineType(cuisineType).establishmentType(type).build();
-                        }
-                        catch(JsonProcessingException e){
-                            System.out.println(e);
-                            return null;
-                        }
-                    }
-            );
-            restaurant.thenAccept(resto->{
-                Order order = orderManager.createOrder(null,resto);
-                try {
-                    System.out.println("Commande créee");
-                    Sender.sendResponse(exchange,200,order.getId()+"");
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-            });
-            restaurant.exceptionally(e->{
-                System.err.println("Erreur: " + e.getMessage());
-                try {
-                    Sender.sendResponse(exchange, 500, "Erreur interne");
-                } catch (IOException ex) {
-                    throw new RuntimeException(ex);
-                }
-                return null;
-            });
-
+            Order order=orderManager.createOrder(null,(String)data.get("restaurantId"));
+            Sender.sendResponse(exchange,200,order.getId()+"");
         } catch (Exception e) {
+            e.printStackTrace();
             Sender.sendResponse(exchange, 400, "Invalid request");
         }
     }

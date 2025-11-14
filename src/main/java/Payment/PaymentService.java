@@ -34,7 +34,7 @@ public final class PaymentService {
     }
 
     private void addHistory(Order order,Payment payment){
-        order.getClient().registerOrder(order,payment);
+        order.getClient().registerOrder(order.getId(),payment);
     }
 
 }

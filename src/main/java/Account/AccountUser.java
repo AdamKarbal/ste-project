@@ -8,7 +8,7 @@ import java.util.HashMap;
 
 public class AccountUser extends Account {
     private double credit;
-    private HashMap<Order, Payment> orderHistory;
+    private HashMap<Integer, Payment> orderHistory;
     public AccountUser(String name){
         super(name);
         credit=0;
@@ -20,11 +20,11 @@ public class AccountUser extends Account {
     public void setCredit(double newCredit){
         credit+=newCredit;
     }
-    public void registerOrder(Order order,Payment payment){
-        if(orderHistory.keySet().contains(order)) throw new AlreadyExistingOrder("La commande existe déjà");
-        orderHistory.put(order,payment);
+    public void registerOrder(int orderId,Payment payment){
+        if(orderHistory.keySet().contains(orderId)) throw new AlreadyExistingOrder("La commande existe déjà");
+        orderHistory.put(orderId,payment);
     }
-    public HashMap<Order,Payment> getOrderHistory(){
+    public HashMap<Integer,Payment> getOrderHistory(){
         return orderHistory;
     }
 }

@@ -10,6 +10,7 @@ import java.util.Locale;
 
 public class Dish {
     private double price;
+    private static int compteur=0;
     private String name;
     private String description;
     private DishCategory category;
@@ -17,8 +18,10 @@ public class Dish {
     private List<DishTag> dishTag;
     private List<DishTopping> availableToppings;
     private List<DishTopping> selectedToppings;
+    private int id;
 
     public Dish(double price, String name, String description, DishCategory category, DishType type,List<DishTag> dishTag) {
+        this.id=++compteur;
         this.price = price;
         this.name = name;
         this.description = description;
@@ -47,6 +50,9 @@ public class Dish {
     }
     public void setDescription(String description) {
         this.description = description;
+    }
+    public int getId(){
+        return id;
     }
 
     public DishCategory getCategory() {

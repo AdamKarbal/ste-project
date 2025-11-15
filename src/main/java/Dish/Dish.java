@@ -2,6 +2,7 @@ package Dish;
 
 
 import Restaurant.Restaurant;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.text.Normalizer;
 import java.util.ArrayList;
@@ -32,7 +33,7 @@ public class Dish {
         this.availableToppings = new ArrayList<>();
         this.selectedToppings = new ArrayList<>();
     }
-
+    public Dish(){}
     public double getPrice() {
         return price;
     }
@@ -108,7 +109,7 @@ public class Dish {
     public void removeSelectedTopping(DishTopping topping) {
         selectedToppings.remove(topping);
     }
-
+    @JsonIgnore
     public double getToppingTotalPrice() {
         double total = price;
         for (DishTopping t : selectedToppings) {

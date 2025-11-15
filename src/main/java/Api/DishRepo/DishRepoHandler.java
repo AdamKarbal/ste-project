@@ -32,23 +32,28 @@ public class DishRepoHandler implements HttpHandler {
         ApiRegistry.addRoute("GET","/api/dishRepo/{dishId}/",this::getDish);
         ApiRegistry.addRoute("POST","/api/dishRepo/",this::createDish);
     }
-    private void getDish(HttpExchange exchange,String dishId) throws IOException {
-        System.out.println("Get reçu");
-        int id = Integer.parseInt(URLDecoder.decode(dishId, StandardCharsets.UTF_8));
-        Optional<Dish> optionalDish = repo.findById(id);
+    private void getDish(HttpExchange exchange,String... dishId) throws IOException {
+        try{
+            int id = Integer.parseInt(URLDecoder.decode(dishId[0], StandardCharsets.UTF_8));
 
-        if (optionalDish.isEmpty()) {
-            Sender.sendResponse(exchange, 404, "{\"error\":\"Dish not found\"}");
-            return;
+            Optional<Dish> optionalDish = repo.findById(id);
+
+            if (optionalDish.isEmpty()) {
+                Sender.sendResponse(exchange, 404, "{\"error\":\"Dish not found\"}");
+                return;
+            }
+            Dish dish=optionalDish.get();
+            String response = mapper.writeValueAsString(dish);
+
+            Sender.sendResponse(exchange, 200, response);
         }
-        Dish dish=optionalDish.get();
-        String response = mapper.writeValueAsString(dish);
-
-        sendResponse(exchange, 200, response);
+        catch (Exception e){
+            System.out.println(e);
+            Sender.sendResponse(exchange,500,"Erreur interne");
+        }
     }
 
-    private void createDish(HttpExchange exchange,String id) throws IOException {
-        System.out.println("POST reçu");
+    private void createDish(HttpExchange exchange,String... id) throws IOException {
         String body = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
         Map<String,Object> attributes=mapper.readValue(body,Map.class);
         double price = (double)attributes.get("price");

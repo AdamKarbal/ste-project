@@ -28,4 +28,8 @@ public class RouteInfo {
     public RouteHandler getHandler() {
         return handler;
     }
+    public String getMethod(){
+        return method;
+    }
 }
+

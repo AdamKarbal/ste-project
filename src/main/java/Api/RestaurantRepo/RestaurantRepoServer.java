@@ -32,18 +32,12 @@ public class RestaurantRepoServer {
         Dish dishSansGlutenEtVegan = new Dish(0f, "Dish SG+V", null, null, null,
                 new ArrayList<>(List.of(DishTag.GLUTEN_FREE, DishTag.VEGAN)));
 
-        Dish dishVegan = new Dish(0f, "Dish Vegan",null, null, null,
-                new ArrayList<>(List.of(DishTag.VEGAN)));
-
-        Dish dishSansGluten = new Dish(0f, "Dish SG", null, null, null,
-                new ArrayList<>(List.of(DishTag.GLUTEN_FREE)));
-
         return new Restaurant.Builder()
                 .name("Tacos")
                 .establishmentType(establishmentType.RESTAURANT)
                 .restaurantSchedules(new ArrayList<>())     // always
-                .dishes(List.of(dishSansGluten, dishVegan,dishSansGlutenEtVegan))
-                .cuisineType(List.of(CuisineType.ITALIENNE))
+                .dishes(List.of(dishSansGlutenEtVegan))
+                .cuisineType(null)
                 .build();
     }
 }

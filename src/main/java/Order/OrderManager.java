@@ -3,6 +3,7 @@ package Order;
 import Account.AccountUser;
 import Api.Utils.Requester;
 import Dish.Dish;
+import Dish.DishNotFound;
 import Payment.Payment;
 import Payment.PaymentMethod;
 import Payment.PaymentService;
@@ -69,12 +70,37 @@ public class OrderManager {
         return status;
     }*/
 
-    public void addItem(int orderId,int dishId, int quantity) {
+    public boolean addItem(int orderId,int dishId, int quantity)
+            throws IOException, InterruptedException, DishNotFound {
+
+        System.out.println("addItem start, orderId=" + orderId + ", dishId=" + dishId + ", q=" + quantity);
+
         if (quantity <= 0) throw new IllegalArgumentException("Quantité invalide.");
+
+        System.out.println("Avant getDishById");
+        Dish requestedDish = Requester.getDishById(dishId);
+        System.out.println("Après getDishById");
+
+        if(requestedDish==null){
+            throw new DishNotFound("Le plat demandé n'existe pas");
+        }
+
+        System.out.println("Avant getOrderById");
         Order order = Requester.getOrderById(orderId);
-        order.addDish(dishId, quantity);
-        Requester.updateOrder(orderId, order);
+        System.out.println("Après getOrderById");
+
+        boolean completed = order.addDish(dishId, quantity);
+        System.out.println("Après order.addDish, completed=" + completed);
+
+        if(completed){
+            System.out.println("Avant updateOrder");
+            Requester.updateOrder(orderId, order);
+            System.out.println("Après updateOrder");
+            return true;
+        }
+        return false;
     }
+
 
     public void removeItem(int orderId,int dishId) {
         Order order = Requester.getOrderById(orderId);

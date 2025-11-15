@@ -1,10 +1,12 @@
 package Api.Order;
 
 import Api.Utils.ApiRegistry;
+import Api.Utils.Requester;
 import Api.Utils.RouteInfo;
 import Api.Utils.Sender;
 import Order.Order;
 import Order.OrderManager;
+import Dish.DishNotFound;
 import Restaurant.Restaurant;
 import Restaurant.Enum.establishmentType;
 import Restaurant.Enum.CuisineType;
@@ -35,10 +37,11 @@ public class OrderHandler implements HttpHandler{
     public OrderHandler(OrderManager orderManager){
         this.orderManager=orderManager;
         ApiRegistry.addRoute("POST", "/api/order/", this::createOrder);
-        ApiRegistry.addRoute("DELETE", "/api/order/{orderId}", this::cancelOrder);
+        ApiRegistry.addRoute("DELETE", "/api/order/{orderId}/", this::cancelOrder);
+        ApiRegistry.addRoute("POST","/api/order/{orderId}/dish/{dishId}/",this::addItem);
     }
 
-    private void createOrder(HttpExchange exchange, String param) throws IOException {
+    private void createOrder(HttpExchange exchange, String... param) throws IOException {
         try {
             String body = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
             Map<String, Object> data = mapper.readValue(body, Map.class);
@@ -51,11 +54,10 @@ public class OrderHandler implements HttpHandler{
     }
 
 
-    private void cancelOrder(HttpExchange exchange, String param) throws IOException {
+    private void cancelOrder(HttpExchange exchange, String... param) throws IOException {
         try {
-            int orderId = Integer.parseInt(param);
+            int orderId = Integer.parseInt(param[0]);
             Order order = orderManager.cancelOrder(orderId);
-
             if (order != null) {
                 Sender.sendResponse(exchange, 200, "Commande " + order.getId() + " annulée");
             } else {
@@ -63,6 +65,27 @@ public class OrderHandler implements HttpHandler{
             }
         } catch (NumberFormatException e) {
             Sender.sendResponse(exchange, 400, "ID invalide");
+        }
+    }
+
+    private void addItem(HttpExchange exchange,String... param) throws IOException {
+        try{
+            System.out.println("item ajt");
+            int orderId=Integer.parseInt(param[0]);
+            int dishId=Integer.parseInt(param[1]);
+            String body = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
+            boolean completed = orderManager.addItem(orderId,dishId,(Integer)mapper.readValue(body,Map.class).get("quantity"));
+            if(completed) Sender.sendResponse(exchange,200, Requester.getOrderById(orderId) +"");
+            else{
+                Sender.sendResponse(exchange,400,"Dish not existing");
+            }
+        }
+        catch(DishNotFound d){
+            Sender.sendResponse(exchange,402,"Dish Not Found");
+        }
+        catch(Exception e){
+            System.out.println(e);
+            Sender.sendResponse(exchange,401,"Erreur");
         }
     }
 
@@ -77,17 +100,19 @@ public class OrderHandler implements HttpHandler{
         exchange.getResponseHeaders().add("Access-Control-Allow-Methods", "POST, OPTIONS, DELETE");
         exchange.getResponseHeaders().add("Access-Control-Allow-Headers", "Accept, X-Requested-With, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization");
 
-        String requestMethod = exchange.getRequestMethod();
-        String requestPath = exchange.getRequestURI().getPath();
-        for (RouteInfo route : ApiRegistry.getRoutes()) {
-            if (route.matches(requestMethod, requestPath)) {
-                Matcher matcher = route.getPathMatcher(requestPath);
-                String param = "";
-                if (matcher.find() && matcher.groupCount()>0) {
-                    param = matcher.group(1);
-                }
+        String method = exchange.getRequestMethod();
+        String path = exchange.getRequestURI().getPath();
 
-                route.getHandler().handle(exchange, param);
+        for (RouteInfo route : ApiRegistry.getRoutes()) {
+            if (!route.getMethod().equalsIgnoreCase(method)) continue;
+
+            Matcher matcher = route.getPathMatcher(path);
+            if (matcher.matches()) {
+                String[] params = new String[matcher.groupCount()];
+                for (int i = 0; i < matcher.groupCount(); i++) {
+                    params[i] = matcher.group(i + 1);
+                }
+                route.getHandler().handle(exchange, params);
                 return;
             }
         }

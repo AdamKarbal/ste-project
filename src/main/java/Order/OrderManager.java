@@ -48,11 +48,11 @@ public class OrderManager {
         return order;
     }
 
-    public OrderState proceedPayement(int orderId,PaymentMethod paymentMethod){
-        Order order = Requester.getOrderById(orderId);
+    public OrderState proceedPayement(Order order,PaymentMethod paymentMethod){
         order.setState(OrderState.COMPLETED);
         OrderState newState = PaymentService.getInstance().handleCompletedOrder(order, paymentMethod);
         order.setState(newState);
+        Requester.updateOrder(order.getId(),order);
         return newState;
     }
 
@@ -60,15 +60,16 @@ public class OrderManager {
         require(orderId).chooseSchedule(time);
     }*/
 
-    /*public OrderState finishOrder(int orderId,PaymentMethod paymentMethod){
-        Order order = require(orderId);
-        OrderState status = proceedPayement(orderId,paymentMethod);
-        if(RestaurantScheduleManager.checkCapacity(order.getRestaurant(),order.getIdSchedule())){
-            RestaurantScheduleManager.incrementCapacityById(order.getRestaurant(), order.getIdSchedule(), -1);
+    public OrderState finishOrder(int orderId,PaymentMethod paymentMethod){ // faudra appeler le service restaurant schedule
+        Order order = Requester.getOrderById(orderId);
+        OrderState status = proceedPayement(order,paymentMethod);
+        /*Restaurant restaurant = Requester.getRestaurantByName(order.getRestaurant());
+        if(RestaurantScheduleManager.checkCapacity(restaurant,order.getIdSchedule())){
+            RestaurantScheduleManager.incrementCapacityById(restaurant, order.getIdSchedule(), -1);
             return status;
-        }
+        }*/
         return status;
-    }*/
+    }
 
     public boolean addItem(int orderId,int dishId, int quantity)
             throws IOException, InterruptedException, DishNotFound {

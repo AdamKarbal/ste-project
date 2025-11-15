@@ -11,8 +11,12 @@ public abstract class Account {
         id=compteur;
         this.name=name;
     }
+    public Account(){}
     public int getId(){
         return id;
+    }
+    public String getName(){
+        return name;
     }
 
 

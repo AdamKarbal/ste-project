@@ -1,12 +1,15 @@
 package Api.Order;
 
+import Account.AccountUser;
 import Api.Utils.ApiRegistry;
 import Api.Utils.Requester;
 import Api.Utils.RouteInfo;
 import Api.Utils.Sender;
 import Order.Order;
 import Order.OrderManager;
+import Order.OrderState;
 import Dish.DishNotFound;
+import Payment.PaymentMethod;
 import Restaurant.Restaurant;
 import Restaurant.Enum.establishmentType;
 import Restaurant.Enum.CuisineType;
@@ -40,13 +43,16 @@ public class OrderHandler implements HttpHandler{
         ApiRegistry.addRoute("DELETE", "/api/order/{orderId}/", this::cancelOrder);
         ApiRegistry.addRoute("POST","/api/order/{orderId}/dish/{dishId}/",this::addItem);
         ApiRegistry.addRoute("DELETE","/api/order/{orderId}/dish/{dishId}/",this::removeItem);
+        ApiRegistry.addRoute("POST","/api/order/{orderId}/pay/{paymentMethod}/",this::finishOrder);
     }
 
     private void createOrder(HttpExchange exchange, String... param) throws IOException {
         try {
             String body = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
             Map<String, Object> data = mapper.readValue(body, Map.class);
-            Order order=orderManager.createOrder(null,(String)data.get("restaurantId"));
+            AccountUser iencli = new AccountUser("Iencli smr");
+            iencli.setCredit(900);
+            Order order=orderManager.createOrder(iencli,(String)data.get("restaurantId"));
             Sender.sendResponse(exchange,200,order.getId()+"");
         } catch (Exception e) {
             e.printStackTrace();
@@ -105,7 +111,23 @@ public class OrderHandler implements HttpHandler{
             Sender.sendResponse(exchange,401,"Erreur");
         }
     }
-
+    private void finishOrder(HttpExchange exchange,String... param) throws IOException {
+        try{
+            System.out.println("finish reçu");
+            int orderId=Integer.parseInt(param[0]);
+            PaymentMethod paymentMethod = PaymentMethod.valueOf((String) param[1].toUpperCase());
+            OrderState state = orderManager.finishOrder(orderId,paymentMethod);
+            if(state==OrderState.PAID){
+                Sender.sendResponse(exchange,200,"commande payée");
+            }
+            else{
+                Sender.sendResponse(exchange,401,"Erreur");
+            }
+        } catch (IOException e) {
+            System.out.println(e);
+            Sender.sendResponse(exchange,400,"erreur du paiement");
+        }
+    }
 
     public void handle(HttpExchange exchange) throws IOException {
         exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*"); // Remplacez par votre origine cliente

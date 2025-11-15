@@ -27,7 +27,6 @@ public class OrderRepoHandler implements HttpHandler {
     }
     public void getOrderById(HttpExchange exchange, String... param){
         try{
-            System.out.println("Get reçu repo");
             int id = Integer.parseInt(param[0]);
             Optional<Order> optionalOrder = repo.findById(id);
             if (optionalOrder.isEmpty()) {

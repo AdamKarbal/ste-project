@@ -57,7 +57,7 @@ public class Order {
         return state;
     }
     public AccountUser getClient(){
-        return null;
+        return client;
     }
     public int getId(){
         return id;
@@ -111,7 +111,7 @@ public class Order {
         }*/
         if(this.state!=newState){
             this.state = newState;
-            System.out.println("L'état de la commande a bien changé pour : " + newState);
+            //System.out.println("L'état de la commande a bien changé pour : " + newState);
         }
     }
 

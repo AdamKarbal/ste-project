@@ -3,6 +3,7 @@ package Api.Utils;
 import Dish.Dish;
 import Order.Order;
 import Order.OrderNotFoundException;
+import Restaurant.Restaurant;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
@@ -64,10 +65,37 @@ public class Requester {
         }
     }
 
+    public static Restaurant getRestaurantByName(String restaurantName){
+        try{
+            HttpClient client = HttpClient.newHttpClient();
+
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create("http://localhost:8003/api/orderRepo/" + restaurantName+"/"))
+                    .GET()
+                    .build();
+
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+            if (response.statusCode() == 404) {
+                throw new OrderNotFoundException("Commande " + restaurantName + " introuvable.");
+            }
+            if (response.statusCode() != 200) {
+                throw new RuntimeException("Erreur GET : code " + response.statusCode());
+            }
+
+            return mapper.readValue(response.body(), Restaurant.class);
+
+        } catch (IOException | InterruptedException e) {
+            throw new RuntimeException("Erreur GET require(" + restaurantName + ")", e);
+        }
+    }
+
     public static Order updateOrder(int oldOrderId, Order newOrder) {
         try {
             getOrderById(oldOrderId);
+            System.out.println("avant");
             String json = mapper.writeValueAsString(newOrder);
+            System.out.println("après");
             HttpClient client = HttpClient.newHttpClient();
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create("http://localhost:8003/api/orderRepo/" + oldOrderId+"/"))
@@ -84,6 +112,7 @@ public class Requester {
             return mapper.readValue(response.body(), Order.class);
 
         } catch (Exception e) {
+            System.out.println(e);
             throw new RuntimeException("Erreur PUT save(" + oldOrderId + ")", e);
         }
     }

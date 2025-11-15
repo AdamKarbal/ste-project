@@ -16,14 +16,11 @@ public class InternalPayment extends Payment{
             setStatus(paymentCorrect(currentClient));
             return getStatus();
         }
-        else
-        {
-            setStatus(PaymentState.FAILED);
-            throw new NotEnoughMoney("Vous n'avez pas assez de crédits");
-        }
+        setStatus(PaymentState.FAILED);
+        return PaymentState.FAILED;
     }
     private PaymentState paymentCorrect(AccountUser client){
-        client.setCredit(-getOrder().getPrice());
+        client.setCredit(client.getCredit()-getOrder().getPrice());
         return PaymentState.PAID;
     }
 }

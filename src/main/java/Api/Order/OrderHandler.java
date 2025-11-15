@@ -39,6 +39,7 @@ public class OrderHandler implements HttpHandler{
         ApiRegistry.addRoute("POST", "/api/order/", this::createOrder);
         ApiRegistry.addRoute("DELETE", "/api/order/{orderId}/", this::cancelOrder);
         ApiRegistry.addRoute("POST","/api/order/{orderId}/dish/{dishId}/",this::addItem);
+        ApiRegistry.addRoute("DELETE","/api/order/{orderId}/dish/{dishId}/",this::removeItem);
     }
 
     private void createOrder(HttpExchange exchange, String... param) throws IOException {
@@ -70,7 +71,6 @@ public class OrderHandler implements HttpHandler{
 
     private void addItem(HttpExchange exchange,String... param) throws IOException {
         try{
-            System.out.println("item ajt");
             int orderId=Integer.parseInt(param[0]);
             int dishId=Integer.parseInt(param[1]);
             String body = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
@@ -90,8 +90,20 @@ public class OrderHandler implements HttpHandler{
     }
 
 
-    private void finishOrder(HttpExchange exchange, String param) throws IOException {
-
+    private void removeItem(HttpExchange exchange, String... param) throws IOException {
+        try{
+            int orderId=Integer.parseInt(param[0]);
+            int dishId=Integer.parseInt(param[1]);
+            boolean completed = orderManager.removeItem(orderId,dishId);
+            if(completed) Sender.sendResponse(exchange,200, Requester.getOrderById(orderId) +"");
+            else{
+                Sender.sendResponse(exchange,400,"Dish not existing");
+            }
+        }
+        catch(Exception e){
+            System.out.println(e);
+            Sender.sendResponse(exchange,401,"Erreur");
+        }
     }
 
 

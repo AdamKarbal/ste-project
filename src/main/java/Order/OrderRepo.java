@@ -25,4 +25,14 @@ public class OrderRepo {
         }
         return false;
     }
+    public boolean updateOrder(int id, Order updatedOrder) {
+        Order oldOrder = findById(id).orElseThrow(
+                () -> new OrderNotFoundException("Commande " + id + " introuvable."));
+        if (oldOrder!=null) {
+            orders.remove(id);
+            orders.put(id,updatedOrder);
+            return true;
+        }
+        return false;
+    }
 }

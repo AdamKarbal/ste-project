@@ -2,6 +2,7 @@ package Order;
 
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -34,5 +35,9 @@ public class OrderRepo {
             return true;
         }
         return false;
+    }
+
+    public List<Order> getAllOrders(){
+        return orders.values().stream().toList();
     }
 }

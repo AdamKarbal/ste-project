@@ -12,6 +12,7 @@ import com.sun.net.httpserver.HttpHandler;
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Optional;
 import java.util.regex.Matcher;
 
@@ -24,8 +25,9 @@ public class OrderRepoHandler implements HttpHandler {
         ApiRegistry.addRoute("POST",   "/api/orderRepo/",          this::createOrder);
         ApiRegistry.addRoute("PUT",    "/api/orderRepo/{orderId}/", this::updateOrder);
         ApiRegistry.addRoute("DELETE", "/api/orderRepo/{orderId}/", this::deleteOrder);
+        ApiRegistry.addRoute("GET","/api/orderRepo/",this::getAllOrders);
     }
-    public void getOrderById(HttpExchange exchange, String... param){
+    public void getOrderById(HttpExchange exchange, String... param) throws IOException {
         try{
             int id = Integer.parseInt(param[0]);
             Optional<Order> optionalOrder = repo.findById(id);
@@ -40,6 +42,7 @@ public class OrderRepoHandler implements HttpHandler {
         }
         catch(Exception e){
             System.out.println(e);
+            Sender.sendResponse(exchange,500,"Erreur");
         }
 
     }
@@ -101,14 +104,32 @@ public class OrderRepoHandler implements HttpHandler {
             Sender.sendResponse(exchange, 500, "Internal server error");
         }
     }
+    private void getAllOrders(HttpExchange exchange,String... params) throws IOException {
+        try{
+            List<Order> orders=repo.getAllOrders();
+            if(orders==null){
+                Sender.sendResponse(exchange,400,"List des orders vide");
+                return;
+            }
+            String responseJson = mapper.writeValueAsString(orders);
+            Sender.sendResponse(exchange,200,responseJson);
+        } catch (IOException e) {
+            Sender.sendResponse(exchange,500,"Erreur");
+            throw new RuntimeException(e);
+        }
+    }
     @Override
     public void handle(HttpExchange exchange) throws IOException{
         exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*"); // Remplacez par votre origine cliente
-        exchange.getResponseHeaders().add("Access-Control-Allow-Methods", "GET");
+        exchange.getResponseHeaders().add("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
         exchange.getResponseHeaders().add("Access-Control-Allow-Headers", "Accept, X-Requested-With, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization");
 
         String requestMethod = exchange.getRequestMethod();
         String requestPath = exchange.getRequestURI().getPath();
+        if ("OPTIONS".equalsIgnoreCase(exchange.getRequestMethod())) {
+            Sender.sendResponse(exchange, 204, "");
+            return;
+        }
         for (RouteInfo route : ApiRegistry.getRoutes()) {
             if (route.matches(requestMethod, requestPath)) {
                 Matcher matcher = route.getPathMatcher(requestPath);

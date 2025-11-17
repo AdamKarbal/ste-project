@@ -2,6 +2,7 @@ package Api.RestaurantRepo;
 
 import Api.Utils.ApiRegistry;
 import Api.Utils.RouteInfo;
+import Api.Utils.Sender;
 import Restaurant.RestaurantRepo;
 import Restaurant.Restaurant;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -25,6 +26,7 @@ public class RestaurantRepoHandler implements HttpHandler {
         this.repo=repo;
         ApiRegistry.addRoute("GET", "/api/restaurantrepo/{restaurantName}/", this::getRestaurant);
         ApiRegistry.addRoute("GET","api/restaurantrepo/",this::getAllRestaurants);
+        //faudra ajouter le POST
     }
     public void getRestaurant(HttpExchange exchange,String... param1) throws IOException {
         String name = URLDecoder.decode(param1[0], StandardCharsets.UTF_8);
@@ -64,6 +66,10 @@ public class RestaurantRepoHandler implements HttpHandler {
 
         String requestMethod = exchange.getRequestMethod();
         String requestPath = exchange.getRequestURI().getPath();
+        if ("OPTIONS".equalsIgnoreCase(exchange.getRequestMethod())) {
+            Sender.sendResponse(exchange, 204, "");
+            return;
+        }
         for (RouteInfo route : ApiRegistry.getRoutes()) {
             if (route.matches(requestMethod, requestPath)) {
                 Matcher matcher = route.getPathMatcher(requestPath);

@@ -146,6 +146,16 @@ public class Dish {
         return (n == null) ? 0 : n.hashCode();
     }
 
+    public DishCreateDTO toCreateDTO() {
+        return new DishCreateDTO(
+                this.price,
+                this.name,
+                this.description,
+                this.category,
+                this.type
+        );
+    }
+
 
 
 }

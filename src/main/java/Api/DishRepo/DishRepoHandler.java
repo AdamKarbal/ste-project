@@ -54,18 +54,24 @@ public class DishRepoHandler implements HttpHandler {
     }
 
     private void createDish(HttpExchange exchange,String... id) throws IOException {
-        String body = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
-        Map<String,Object> attributes=mapper.readValue(body,Map.class);
-        double price = (double)attributes.get("price");
-        String name = (String) attributes.get("name");
-        String description = (String) attributes.get("description");
-        DishCategory category = DishCategory.valueOf(((String) attributes.get("category")).toUpperCase());
-        DishType type = DishType.valueOf(((String) attributes.get("type")).toUpperCase());
-        Dish dish= repo.save(DishFactory.createDish(price,name,description,category,type));
-        if(dish==null){
+        try{
+            System.out.println(">> createDish appelé");
+            String body = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
+            //Dish dish = mapper.readValue(body,Dish.class);
+            Map<String,Object> attributes=mapper.readValue(body,Map.class);
+            Number priceNumber = (Number) attributes.get("price");
+            double price = priceNumber.doubleValue();
+            String name = (String) attributes.get("name");
+            String description = (String) attributes.get("description");
+            DishCategory category = DishCategory.valueOf(((String) attributes.get("category")).toUpperCase());
+            DishType type = DishType.valueOf(((String) attributes.get("type")).toUpperCase());
+            Dish dish = repo.save(DishFactory.createDish(price,name,description,category,type));
+            String json = mapper.writeValueAsString(dish);
+            Sender.sendResponse(exchange,200,json);
+        } catch (Exception e) {
+            System.out.println(e);
             Sender.sendResponse(exchange,400,"Param manquant");
         }
-        Sender.sendResponse(exchange,200,dish.getId()+"");
     }
 
     @Override
@@ -76,6 +82,10 @@ public class DishRepoHandler implements HttpHandler {
 
         String requestMethod = exchange.getRequestMethod();
         String requestPath = exchange.getRequestURI().getPath();
+        if ("OPTIONS".equalsIgnoreCase(exchange.getRequestMethod())) {
+            Sender.sendResponse(exchange, 204, "");
+            return;
+        }
         for (RouteInfo route : ApiRegistry.getRoutes()) {
             if (route.matches(requestMethod, requestPath)) {
                 Matcher matcher = route.getPathMatcher(requestPath);

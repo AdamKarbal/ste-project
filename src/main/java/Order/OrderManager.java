@@ -39,6 +39,11 @@ public class OrderManager {
         return Requester.createOrder(order);
     }
 
+    public Order createOrder(AccountUser client,String restaurantId,double price){
+        Order order = new Order(client,restaurantId,price);
+        return Requester.createOrder(order);
+    }
+
     public Order cancelOrder(int orderId) { // api faite
         Order order = Requester.getOrderById(orderId);
         if (order!=null){
@@ -56,9 +61,9 @@ public class OrderManager {
         return newState;
     }
 
-    /*public void chooseSchedule(int orderId,LocalTime time){
-        require(orderId).chooseSchedule(time);
-    }*/
+    public void chooseSchedule(int orderId,LocalTime time){
+        Requester.getOrderById(orderId).chooseSchedule(time);
+    }
 
     public OrderState finishOrder(int orderId,PaymentMethod paymentMethod){ // faudra appeler le service restaurant schedule
         Order order = Requester.getOrderById(orderId);

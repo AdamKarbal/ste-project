@@ -136,7 +136,10 @@ public class OrderHandler implements HttpHandler{
 
         String method = exchange.getRequestMethod();
         String path = exchange.getRequestURI().getPath();
-
+        if ("OPTIONS".equalsIgnoreCase(exchange.getRequestMethod())) {
+            Sender.sendResponse(exchange, 204, "");
+            return;
+        }
         for (RouteInfo route : ApiRegistry.getRoutes()) {
             if (!route.getMethod().equalsIgnoreCase(method)) continue;
 

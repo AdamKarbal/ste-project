@@ -44,6 +44,10 @@ public class Order {
         this.restaurantId= restaurantId;
         this.client=client;
     }
+    public Order(AccountUser client,String restaurantId,double price){
+        this(client,restaurantId);
+        this.price=price;
+    }
     public Order(){}
 
 
@@ -67,7 +71,9 @@ public class Order {
         this.id=id;
     }
 
-    public void setPrice(float price) { this.price = price; }
+    public void setPrice(double price) {
+        this.price = price;
+    }
 
     public double getPrice() { return price; }
 
@@ -93,15 +99,15 @@ public class Order {
         return deliveryTime;
     }
 
-    /*public RestaurantSchedule chooseSchedule(LocalTime time) {
+    public RestaurantSchedule chooseSchedule(LocalTime time) {
         RestaurantSchedule schedule = RestaurantScheduleManager
-                .getAvailableScheduleFor(getRestaurant(), time)
+                .getAvailableScheduleFor(Requester.getRestaurantByName(getRestaurant()), time)
                 .orElseThrow(() -> new ScheduleNoExist("Aucun créneau disponible à cette heure : " + time));
 
         setIdSchedule(schedule.getId());
         setDeliveryTime(LocalDateTime.of(LocalDate.now(), time));
         return schedule;
-    }*/
+    }
 
     public void setState(OrderState newState) {
         /*if (deliveryPoint == null && newState != OrderState.CREATED && newState != OrderState.CANCELED){

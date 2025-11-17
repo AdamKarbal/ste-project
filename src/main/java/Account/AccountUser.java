@@ -3,6 +3,7 @@ package Account;
 import Order.Order;
 import Payment.Payment;
 import Payment.AlreadyExistingOrder;
+import Restaurant.Restaurant;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.util.HashMap;
@@ -10,7 +11,6 @@ import java.util.Map;
 
 public class AccountUser extends Account {
     private double credit;
-    @JsonIgnore
     private HashMap<Integer, Payment> orderHistory;
     public AccountUser(String name){
         super(name);
@@ -32,8 +32,14 @@ public class AccountUser extends Account {
         if(orderHistory.keySet().contains(orderId)) throw new AlreadyExistingOrder("La commande existe déjà");
         orderHistory.put(orderId,payment);
     }
-    @JsonIgnore
     public Map<Integer, Payment> getOrderHistory() {
         return Map.copyOf(orderHistory);
+    }
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        AccountUser other = (AccountUser) obj;
+        return name != null && id==other.id;
     }
 }

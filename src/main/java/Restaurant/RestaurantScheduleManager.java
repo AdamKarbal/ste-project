@@ -1,11 +1,7 @@
 package Restaurant;
 
-import Dish.Dish;
-import Restaurant.Enum.CuisineType;
 import Restaurant.Enum.DayOfTheWeek;
-import Restaurant.Enum.establishmentType;
 import Restaurant.Exception.ScheduleNoExist;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.net.URI;
@@ -17,7 +13,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 public class RestaurantScheduleManager {
@@ -238,32 +233,28 @@ public class RestaurantScheduleManager {
     }
 
     private Restaurant getRestaurant(String restaurantName) {
-        ObjectMapper mapper = new ObjectMapper();
-        HttpClient client = HttpClient.newHttpClient();
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("http://localhost:8002/api/restaurantrepo/" + restaurantName))
-                .GET()
-                .build();
+        try {
+            HttpClient client = HttpClient.newHttpClient();
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create("http://localhost:8002/api/restaurantrepo/" + restaurantName))
+                    .GET()
+                    .build();
 
-        CompletableFuture<String> response = client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
-                .thenApply(HttpResponse::body);
-        CompletableFuture<Restaurant> restaurant =response.thenApply(
-                (corps) ->{
-                    try{
-                        Map<String,Object> attributes = mapper.readValue(corps,Map.class);
-                        String name = (String) attributes.get("name");
-                        ArrayList<Dish> dishes = (ArrayList<Dish>) attributes.get("dishes");
-                        ArrayList<RestaurantSchedule> schedules = (ArrayList<RestaurantSchedule>) attributes.get("restaurantSchedules");
-                        establishmentType type = establishmentType.valueOf((String) attributes.get("establishmentType"));
-                        ArrayList<CuisineType> cuisineType = (ArrayList<CuisineType>) attributes.get("cuisineTypes");
-                        return new Restaurant.Builder().name(name).dishes(dishes).restaurantSchedules(schedules).cuisineType(cuisineType).establishmentType(type).build();
-                    }
-                    catch(JsonProcessingException e){
-                        System.out.println(e);
-                        return null;
-                    }
-                }
-        );
-        return null;
+            HttpResponse<String> response =
+                    client.send(request, HttpResponse.BodyHandlers.ofString());
+
+            if (response.statusCode() != 200) {
+                System.out.println("Restaurant not found : " + response.statusCode());
+                return null;
+            }
+
+            ObjectMapper mapper = new ObjectMapper();
+            return mapper.readValue(response.body(), Restaurant.class);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
+
 }

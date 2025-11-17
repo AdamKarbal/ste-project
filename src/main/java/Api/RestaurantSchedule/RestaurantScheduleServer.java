@@ -1,21 +1,26 @@
 package Api.RestaurantSchedule;
 
-import Api.Customer.CustomerHandler;
+import Restaurant.RestaurantScheduleManager;
 import com.sun.net.httpserver.HttpServer;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
 
 public class RestaurantScheduleServer {
+
     public static void main(String[] args) throws IOException {
         int port = 8004;
-        String path = "/api/restaurantSchedule/";// port dédié au Restaurant Schedule
+        String path = "/api/restaurantSchedule/";
+
         HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
 
-        server.createContext(path, new CustomerHandler());
+        RestaurantScheduleManager manager = new RestaurantScheduleManager();
+        RestaurantScheduleHandler handler = new RestaurantScheduleHandler(manager);
+
+        server.createContext(path, handler);
         server.setExecutor(null);
         server.start();
 
-        System.out.println("✅ RestaurantService en ligne sur http://localhost:" + port + path);
+        System.out.println("RestaurantScheduleService en ligne sur http://localhost:" + port + path);
     }
 }

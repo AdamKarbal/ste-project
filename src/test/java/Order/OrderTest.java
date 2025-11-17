@@ -25,6 +25,7 @@ class OrderTest {
     private RestaurantSchedule schedule;
     private Order order;
     private Dish pizza, burger;
+    private RestaurantScheduleManager scheduleManager;
 
     @BeforeEach
     void setup() {
@@ -34,11 +35,13 @@ class OrderTest {
                 .restaurantSchedules(new ArrayList<>())
                 .build();
 
-        var today = RestaurantScheduleManager.convertDayOfWeek(LocalDate.now().getDayOfWeek());
+        scheduleManager = new RestaurantScheduleManager();
+
+        var today = scheduleManager.convertDayOfWeek(LocalDate.now().getDayOfWeek());
         LocalTime start = LocalTime.now().minusMinutes(15);
         LocalTime end = LocalTime.now().plusMinutes(30);
 
-        RestaurantScheduleManager.addSchedule(restaurant, today, start, end, 10);
+        scheduleManager.addSchedule(restaurant.getName(), today, start, end, 10);
 
         schedule = restaurant.getRestaurantSchedules().get(0);
 

@@ -18,6 +18,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class RestaurantManagerTest {
 
     private RestaurantManager manager;
+    private RestaurantScheduleManager scheduleManager;
     private Restaurant restaurant;
     private RestaurantFactory restaurantFactory;
     private RestaurantService restaurantService;
@@ -28,6 +29,7 @@ public class RestaurantManagerTest {
         RestaurantRepo repo = new RestaurantRepo(new ArrayList<>());
         restaurantService = new RestaurantService(repo);
         restaurantFactory = new RestaurantFactory(restaurantService);
+        scheduleManager = new RestaurantScheduleManager();
         accountManager = new AccountManager("Adam");
         accountManager.createRestaurant("Chez akhi ali", restaurantFactory);
         manager = accountManager.getRestaurantManager();
@@ -39,7 +41,7 @@ public class RestaurantManagerTest {
         LocalTime start = LocalTime.of(12, 0);
         LocalTime end = LocalTime.of(15, 0);
 
-        manager.updateSchedule(DayOfTheWeek.MONDAY, start, end, 40);
+        scheduleManager.updateSchedule(manager.getRestaurant().getName(), DayOfTheWeek.MONDAY, start, end, 40);
 
         assertEquals(6, restaurant.getRestaurantSchedules().size());
         assertEquals(40, restaurant.getRestaurantSchedules().get(0).getCapacity());
@@ -52,9 +54,9 @@ public class RestaurantManagerTest {
         LocalTime end = LocalTime.of(14, 0);
         DayOfTheWeek day = DayOfTheWeek.WEDNESDAY;
 
-        RestaurantScheduleManager.addSchedule(restaurant, day, start, end, 20);
+        scheduleManager.addSchedule(manager.getRestaurant().getName(), day, start, end, 20);
 
-        manager.updateCapacity(day, start, end, 50);
+        scheduleManager.updateCapacity(manager.getRestaurant().getName(), day, start, end, 50);
 
         assertEquals(50, restaurant.getRestaurantSchedules().get(0).getCapacity());
     }

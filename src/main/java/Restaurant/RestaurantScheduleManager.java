@@ -159,7 +159,7 @@ public class RestaurantScheduleManager {
 
     public int getCapacityById(String restaurantName, String id) {
         Restaurant restaurant = getRestaurant(restaurantName);
-        if (restaurant == null || restaurant.getRestaurantSchedules() == null) throw new RuntimeException("t'es une merde le s");
+        if (restaurant == null || restaurant.getRestaurantSchedules() == null) throw new RuntimeException("Erreur");
         for (RestaurantSchedule s : restaurant.getRestaurantSchedules()) {
             if (s.getId().equals(id)) return s.getCapacity();
         }

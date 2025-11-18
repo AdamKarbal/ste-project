@@ -5,7 +5,7 @@ import Dish.*;
 import Dish.suggest.Suggestion;
 import Restaurant.*;
 import Restaurant.RestaurantManager;
-import Restaurant.Exception.DishInDishes;
+import Restaurant.Exception.DishAlreadyInDishes;
 import io.cucumber.datatable.DataTable;
 import io.cucumber.java.en.*;
 
@@ -221,7 +221,7 @@ public class R4aSteps {
     public void uneErreurDeTypeEstLevee(String typeName) {
         assertNotNull(caught, "Aucune erreur levée");
         switch (typeName) {
-            case "DishInDishes" -> assertTrue(caught instanceof DishInDishes,
+            case "DishInDishes" -> assertTrue(caught instanceof DishAlreadyInDishes,
                     "Erreur attendue DishInDishes, mais: " + caught.getClass());
             default -> fail("Type d'erreur non géré dans les steps: " + typeName);
         }

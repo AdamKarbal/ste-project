@@ -15,22 +15,26 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class RestaurantRepoServer {
+
     public static void main(String[] args) throws IOException {
-        int port = 8002;
-        String path = "/api/restaurantrepo/";// port dédié au Customer Service
+        startServer(8002);
+    }
+
+    public static HttpServer startServer(int port) throws IOException {
+        String path = "/api/restaurantrepo/";
         HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
         RestaurantRepo repo = new RestaurantRepo(new ArrayList<>());
         repo.addRestaurant(setUpTest());
         server.createContext(path, new RestaurantRepoHandler(repo));
         server.setExecutor(null);
         server.start();
-
         System.out.println("✅ RestaurantRepo en ligne sur http://localhost:" + port + path);
+        return server;
     }
+
     public static Restaurant setUpTest(){
         Dish dishSansGlutenEtVegan = new Dish(0f, "Dish SG+V", null, null, null,
                 new ArrayList<>(List.of(DishTag.GLUTEN_FREE, DishTag.VEGAN)));
-
         Dish dishVegan = new Dish(0f, "Dish Vegan",null, null, null,
                 new ArrayList<>(List.of(DishTag.VEGAN)));
 

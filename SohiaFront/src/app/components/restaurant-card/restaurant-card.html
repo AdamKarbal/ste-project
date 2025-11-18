@@ -1,8 +1,9 @@
 <div class="card">
   <img
-    [src]="restaurant.image || 'https://via.placeholder.com/300x180?text=Restaurant'"
+    [src]="restaurant.image ? restaurant.image : './assets/base_restaurant.png'"
     [alt]="restaurant.name"
   />
+
   <div class="card-content">
     <h3>{{ restaurant.name }}</h3>
     <p class="type">{{ restaurant.establishmentType }}</p>

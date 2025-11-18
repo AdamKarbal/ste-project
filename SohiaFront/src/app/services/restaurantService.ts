@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 
 @Injectable({
-  providedIn: 'root' // ✅ dit à Angular de fournir ce service globalement
+  providedIn: 'root'
 })
 export class RestaurantService {
   baseUrl = "http://localhost:8001";
@@ -20,6 +20,7 @@ export class RestaurantService {
   async getRestaurantByName(name: string) {
     const response = await fetch(`${this.baseUrl}/restaurants/filter?name=${name}`);
     const data = await response.json();
-    return data[0];
+    return Array.isArray(data) ? data : [data];
   }
+
 }

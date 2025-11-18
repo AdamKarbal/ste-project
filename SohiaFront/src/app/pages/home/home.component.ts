@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms'; // ✅ Ajoute ceci
+import { FormsModule } from '@angular/forms';
 import { RestaurantService } from '../../services/restaurantService';
 import { NavbarComponent } from '../../components/navbar/navbar';
 import { LoaderComponent } from '../../components/loader/loader';
@@ -12,7 +12,7 @@ import { FooterComponent } from '../../components/footer/footer';
   standalone: true,
   imports: [
     CommonModule,
-    FormsModule, // ✅ Et ici
+    FormsModule,
     NavbarComponent,
     LoaderComponent,
     RestaurantCardComponent,
@@ -24,7 +24,7 @@ import { FooterComponent } from '../../components/footer/footer';
 export class HomeComponent implements OnInit {
   restaurants: any[] = [];
   loading = true;
-  searchTerm: string = ''; // ✅ déjà ajouté
+  searchTerm: string = '';
 
   constructor(private restaurantService: RestaurantService) {}
 
@@ -38,7 +38,14 @@ export class HomeComponent implements OnInit {
   }
 
 
-  onSearch() {
+  async onSearch() {
     console.log('🔍 Recherche déclenchée :', this.searchTerm);
+    try {
+      this.restaurants = await this.restaurantService.getRestaurantByName(this.searchTerm);
+      console.log('Restaurant trouvés : ', this.restaurants);
+    } finally {
+      this.loading = false;
+    }
+
   }
 }

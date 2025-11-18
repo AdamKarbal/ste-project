@@ -4,6 +4,7 @@ import Restaurant.Enum.CuisineType;
 import Restaurant.Enum.establishmentType;
 import Restaurant.Exception.dishNoInDishes;
 import Restaurant.Enum.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -26,6 +27,7 @@ public class Restaurant {
         this.CuisineTypes = builder.CuisineTypes;
         this.establishmentType = builder.establishmentType;
     }
+    public Restaurant(){}
     // Getter & setter
 
 
@@ -168,7 +170,7 @@ public class Restaurant {
     public String toString(){
         return "Nom : "+name+"plats :"+dishes+"schedules : "+restaurantSchedules+"typeCuisine"+getCuisineTypes();
     }
-
+    @JsonIgnore
     public boolean isOpenNow() {
         return RestaurantScheduleManager.isOpenNow(this);
     }

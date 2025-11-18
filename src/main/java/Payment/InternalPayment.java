@@ -1,6 +1,7 @@
 package Payment;
 
 import Account.AccountUser;
+import Api.Utils.Requester;
 import Order.Order;
 
 public class InternalPayment extends Payment{
@@ -20,7 +21,7 @@ public class InternalPayment extends Payment{
         return PaymentState.FAILED;
     }
     private PaymentState paymentCorrect(AccountUser client){
-        client.setCredit(client.getCredit()-getOrder().getPrice());
+        Requester.updateCredit(client.getId(),client.getCredit()-getOrder().getPrice());
         return PaymentState.PAID;
     }
 }

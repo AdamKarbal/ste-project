@@ -5,7 +5,6 @@ import Dish.*;
 import Dish.suggest.Suggestion;
 import Restaurant.Enum.DayOfTheWeek;
 import Restaurant.Enum.CuisineType;
-import Restaurant.Exception.DishInDishes;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

@@ -7,8 +7,7 @@ public abstract class Account {
     protected int id;
     protected String name;
     public Account(String name){
-        compteur++;
-        id=compteur;
+        id=++compteur;
         this.name=name;
     }
     public Account(){}

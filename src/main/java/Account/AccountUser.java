@@ -17,6 +17,10 @@ public class AccountUser extends Account {
         credit=0;
         orderHistory=new HashMap<>();
     }
+    public AccountUser(String name,double credit){
+        this(name);
+        this.credit=credit;
+    }
     public AccountUser(){
         super();
         credit=0;
@@ -41,5 +45,9 @@ public class AccountUser extends Account {
         if (obj == null || getClass() != obj.getClass()) return false;
         AccountUser other = (AccountUser) obj;
         return name != null && id==other.id;
+    }
+    @Override
+    public String toString(){
+        return orderHistory.toString();
     }
 }

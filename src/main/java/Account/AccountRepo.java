@@ -26,7 +26,7 @@ public class AccountRepo {
         }
         return false;
     }
-    public boolean updateOrder(int id, AccountUser newAccount) {
+    public boolean updateAccount(int id, AccountUser newAccount) {
         Account oldAccount = findById(id).orElseThrow(
                 () -> new AccountNotFound("Compte " + id + " introuvable."));
         if (oldAccount !=null) {

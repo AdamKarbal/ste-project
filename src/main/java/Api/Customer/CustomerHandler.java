@@ -9,6 +9,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import java.io.IOException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
+import java.time.DayOfWeek;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -17,7 +21,8 @@ import Restaurant.*;
 
 public class CustomerHandler implements HttpHandler {
     private final RestaurantService restaurantService = new RestaurantService(new RestaurantRepo(new ArrayList<Restaurant>()));
-    public CustomerHandler(){
+
+    public CustomerHandler() {
         try {
             Restaurant r1 = new Restaurant.Builder()
                     .name("Cafeteria du Campus")
@@ -30,7 +35,7 @@ public class CustomerHandler implements HttpHandler {
             Restaurant r2 = new Restaurant.Builder()
                     .name("Pizza Express")
                     .establishmentType(establishmentType.RESTAURANT)
-                    .cuisineType(List.of(CuisineType.ITALIENNE,CuisineType.FRANCAISE))
+                    .cuisineType(List.of(CuisineType.ITALIENNE, CuisineType.FRANCAISE))
                     .dishes(new ArrayList<>())
                     .restaurantSchedules(new ArrayList<>())
                     .build();
@@ -48,15 +53,25 @@ public class CustomerHandler implements HttpHandler {
         String path = exchange.getRequestURI().getPath();
         System.out.println("Requête reçue : " + method + " " + path);
 
+        // --- Gestion CORS (préflight) ---
+        if ("OPTIONS".equalsIgnoreCase(method)) {
+            exchange.getResponseHeaders().set("Access-Control-Allow-Origin", "*");
+            exchange.getResponseHeaders().set("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+            exchange.getResponseHeaders().set("Access-Control-Allow-Headers", "Content-Type, Authorization");
+            exchange.sendResponseHeaders(204, -1);
+            exchange.close();
+            return;
+        }
+
         List<Restaurant> restaurants = null;
         int statusCode = 200;
 
         if ("GET".equalsIgnoreCase(method)) {
             if (path.equals("/restaurants")) {
                 restaurants = restaurantService.getAllRestaurants();
-            }
-            else if (path.equals("/restaurants/filter")) {
-                // Lire les paramètres (support multiple)
+            } else if (path.equals("/restaurants/filter")) {
+
+                // Lecture des paramètres multiples
                 String query = exchange.getRequestURI().getQuery();
                 Map<String, List<String>> params = new HashMap<>();
 
@@ -64,12 +79,14 @@ public class CustomerHandler implements HttpHandler {
                     for (String p : query.split("&")) {
                         String[] kv = p.split("=");
                         if (kv.length == 2) {
-                            params.computeIfAbsent(kv[0], k -> new ArrayList<>()).add(kv[1]);
+                            String key = URLDecoder.decode(kv[0], StandardCharsets.UTF_8);
+                            String value = URLDecoder.decode(kv[1], StandardCharsets.UTF_8);
+                            params.computeIfAbsent(key, k -> new ArrayList<>()).add(value);
                         }
                     }
                 }
 
-                // Construire dynamiquement les critères
+                // Construction dynamique des critères
                 FilterCriteria.Builder builder = new FilterCriteria.Builder();
 
                 // --- Nom ---
@@ -108,6 +125,7 @@ public class CustomerHandler implements HttpHandler {
                     } catch (NumberFormatException e) {
                         String errorJson = "{\"error\": \"Valeur invalide pour priceMin : " + params.get("priceMin").get(0) + "\"}";
                         exchange.getResponseHeaders().set("Content-Type", "application/json");
+                        exchange.getResponseHeaders().set("Access-Control-Allow-Origin", "*");
                         exchange.sendResponseHeaders(400, errorJson.getBytes().length);
                         exchange.getResponseBody().write(errorJson.getBytes());
                         exchange.close();
@@ -122,6 +140,7 @@ public class CustomerHandler implements HttpHandler {
                     } catch (NumberFormatException e) {
                         String errorJson = "{\"error\": \"Valeur invalide pour priceMax : " + params.get("priceMax").get(0) + "\"}";
                         exchange.getResponseHeaders().set("Content-Type", "application/json");
+                        exchange.getResponseHeaders().set("Access-Control-Allow-Origin", "*");
                         exchange.sendResponseHeaders(400, errorJson.getBytes().length);
                         exchange.getResponseBody().write(errorJson.getBytes());
                         exchange.close();
@@ -137,6 +156,7 @@ public class CustomerHandler implements HttpHandler {
                     } else {
                         String errorJson = "{\"error\": \"Valeur invalide pour openNow : " + value + " (attendu true/false)\"}";
                         exchange.getResponseHeaders().set("Content-Type", "application/json");
+                        exchange.getResponseHeaders().set("Access-Control-Allow-Origin", "*");
                         exchange.sendResponseHeaders(400, errorJson.getBytes().length);
                         exchange.getResponseBody().write(errorJson.getBytes());
                         exchange.close();
@@ -144,7 +164,61 @@ public class CustomerHandler implements HttpHandler {
                     }
                 }
 
-                // Construire les critères finaux et filtrer
+                // --- Ouvert à une heure / jour précis ---
+                if (params.containsKey("openAt")) {
+                    String raw = params.get("openAt").get(0);
+                    try {
+                        int idx = raw.indexOf('-');
+                        if (idx > 0 && idx < raw.length() - 1) {
+                            String dayStr = raw.substring(0, idx).trim().toUpperCase();
+                            String timeStr = raw.substring(idx + 1).trim();
+
+                            timeStr = timeStr.replace("%3A", ":").replace("%20", "");
+
+                            // ✅ Correction : correspondance FR → EN
+                            switch (dayStr) {
+                                case "LUNDI": dayStr = "MONDAY"; break;
+                                case "MARDI": dayStr = "TUESDAY"; break;
+                                case "MERCREDI": dayStr = "WEDNESDAY"; break;
+                                case "JEUDI": dayStr = "THURSDAY"; break;
+                                case "VENDREDI": dayStr = "FRIDAY"; break;
+                                case "SAMEDI": dayStr = "SATURDAY"; break;
+                                case "DIMANCHE": dayStr = "SUNDAY"; break;
+                            }
+
+                            DayOfWeek day = DayOfWeek.valueOf(dayStr);
+
+                            LocalTime time;
+                            try {
+                                time = LocalTime.parse(timeStr);
+                            } catch (Exception ex) {
+                                time = LocalTime.parse(timeStr + ":00");
+                            }
+
+                            builder.availableAt(time);
+                            System.out.println("Filtre: ouvert le " + day + " à " + time);
+                        } else {
+                            String errorJson = "{\"error\": \"Format openAt invalide : " + raw + " (attendu JOUR-HH:mm)\"}";
+                            exchange.getResponseHeaders().set("Content-Type", "application/json");
+                            exchange.getResponseHeaders().set("Access-Control-Allow-Origin", "*");
+                            exchange.sendResponseHeaders(400, errorJson.getBytes().length);
+                            exchange.getResponseBody().write(errorJson.getBytes());
+                            exchange.close();
+                            return;
+                        }
+                    } catch (Exception e) {
+                        String errorJson = "{\"error\": \"Format invalide pour openAt : " + raw + " (attendu JOUR-HH:mm)\"}";
+                        exchange.getResponseHeaders().set("Content-Type", "application/json");
+                        exchange.getResponseHeaders().set("Access-Control-Allow-Origin", "*");
+                        exchange.sendResponseHeaders(400, errorJson.getBytes().length);
+                        exchange.getResponseBody().write(errorJson.getBytes());
+                        exchange.close();
+                        return;
+                    }
+                }
+
+
+                // Application des filtres
                 FilterCriteria criteria = builder.build();
                 System.out.println("🔍 CRITÈRES REÇUS : ");
                 System.out.println("name = " + criteria.getNameContains());
@@ -153,8 +227,11 @@ public class CustomerHandler implements HttpHandler {
                 System.out.println("priceMin = " + criteria.getPriceMin());
                 System.out.println("priceMax = " + criteria.getPriceMax());
                 System.out.println("openNow = " + criteria.getOpenNow());
+                System.out.println("openAt = " + criteria.getOpenAt());
                 restaurants = restaurantService.filter(criteria);
             }
+
+            // --- Enums ---
             else if (path.equals("/restaurants/enums/cuisines")) {
                 String response = new ObjectMapper().writeValueAsString(CuisineType.values());
                 exchange.getResponseHeaders().set("Content-Type", "application/json");
@@ -165,8 +242,7 @@ public class CustomerHandler implements HttpHandler {
                 exchange.getResponseBody().write(response.getBytes());
                 exchange.close();
                 return;
-            }
-            else if (path.equals("/restaurants/enums/types")) {
+            } else if (path.equals("/restaurants/enums/types")) {
                 String response = new ObjectMapper().writeValueAsString(establishmentType.values());
                 exchange.getResponseHeaders().set("Content-Type", "application/json");
                 exchange.getResponseHeaders().set("Access-Control-Allow-Origin", "*");
@@ -182,7 +258,7 @@ public class CustomerHandler implements HttpHandler {
             statusCode = 405; // méthode non autorisée
         }
 
-        // Si on a trouvé des restaurants, on renvoie le JSON
+        // Réponse JSON
         ObjectMapper mapper = new ObjectMapper();
         String response = mapper.writeValueAsString(restaurants != null ? restaurants : new ArrayList<>());
 

@@ -148,6 +148,7 @@ public class Dish {
 
     public DishCreateDTO toCreateDTO() {
         return new DishCreateDTO(
+                this.id,
                 this.price,
                 this.name,
                 this.description,

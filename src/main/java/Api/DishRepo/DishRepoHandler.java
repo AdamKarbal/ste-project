@@ -32,10 +32,9 @@ public class DishRepoHandler implements HttpHandler {
         ApiRegistry.addRoute("GET","/api/dishRepo/{dishId}/",this::getDish);
         ApiRegistry.addRoute("POST","/api/dishRepo/",this::createDish);
     }
-    private void getDish(HttpExchange exchange,String... dishId) throws IOException {
+    private void getDish(HttpExchange exchange,String... params) throws IOException {
         try{
-            int id = Integer.parseInt(URLDecoder.decode(dishId[0], StandardCharsets.UTF_8));
-
+            int id = Integer.parseInt(URLDecoder.decode(params[0], StandardCharsets.UTF_8));
             Optional<Dish> optionalDish = repo.findById(id);
 
             if (optionalDish.isEmpty()) {

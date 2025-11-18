@@ -10,7 +10,15 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 
 public class DishRepoServer {
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args){
+        try{
+            startServer();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static HttpServer startServer() throws IOException{
         int port = 8004;
         String path = "/api/dishRepo/";// port dédié au Customer Service
         HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
@@ -20,5 +28,6 @@ public class DishRepoServer {
         server.start();
 
         System.out.println("✅ RestaurantRepo en ligne sur http://localhost:" + port + path);
+        return server;
     }
 }

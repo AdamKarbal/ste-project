@@ -36,5 +36,9 @@ public class DishRepo {
         }
         return false;
     }
+    @Override
+    public String toString(){
+        return dishes.toString();
+    }
 
 }

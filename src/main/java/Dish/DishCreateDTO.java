@@ -1,7 +1,7 @@
 package Dish;
 
 public class DishCreateDTO {
-
+    private int id;
     private double price;
     private String name;
     private String description;
@@ -10,7 +10,8 @@ public class DishCreateDTO {
 
     public DishCreateDTO() {}
 
-    public DishCreateDTO(double price, String name, String description, DishCategory category, DishType type) {
+    public DishCreateDTO(int id,double price, String name, String description, DishCategory category, DishType type) {
+        this.id=id;
         this.price = price;
         this.name = name;
         this.description = description;

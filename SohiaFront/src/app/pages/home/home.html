@@ -69,23 +69,25 @@
       </div>
 
       <!-- 🕒 Horaires -->
-      <h3>🕒 Horaires</h3>
       <div class="filter-time">
         <label>
           <input type="checkbox" [(ngModel)]="filters.openNow" />
           Ouverts maintenant
         </label>
 
-        <div class="time-input">
-          <label for="openAt">Ouverts à :</label>
-          <input
-            id="openAt"
-            type="time"
-            [(ngModel)]="filters.openAt"
-            [disabled]="filters.openNow"
-          />
+        <!-- Si non coché : choix jour + heure -->
+        <div class="time-input" *ngIf="!filters.openNow">
+          <label for="openDay">Jour :</label>
+          <select id="openDay" [(ngModel)]="filters.openDay">
+            <option value="">Choisir un jour</option>
+            <option *ngFor="let day of daysOfWeek" [value]="day">{{ day }}</option>
+          </select>
+
+          <label for="openAt">Heure :</label>
+          <input id="openAt" type="time" [(ngModel)]="filters.openAt" />
         </div>
       </div>
+
 
       <!-- 🎯 Actions -->
       <div class="filter-actions">

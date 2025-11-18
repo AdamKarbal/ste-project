@@ -1,4 +1,5 @@
 package Payment;
+import Api.Utils.Requester;
 import Order.Order;
 import Order.OrderState;
 
@@ -35,6 +36,7 @@ public final class PaymentService {
 
     private void addHistory(Order order,Payment payment){
         order.getClient().registerOrder(order.getId(),payment);
+        Requester.registerOrder(order.getClientId(), order.getId(), payment);
     }
 
 }

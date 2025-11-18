@@ -113,11 +113,11 @@
 /* --- FILTER PANEL --- */
 .filter-panel {
   position: absolute;
-  top: 190px;
+  top: 10vh;
   left: 50%;
   transform: translateX(-50%);
-  width: 75%;
-  max-width: 1000px;
+  width: 90%;
+  max-width: 90vw;
   background: white;
   border-radius: 20px;
   padding: 2rem;
@@ -125,6 +125,21 @@
   z-index: 1000;
   animation: slideDown 0.3s ease;
 }
+
+/* Quand la fenêtre devient trop basse (<800px de haut), on descend le panel */
+@media (max-height: 800px) {
+  .filter-panel {
+    top: 15vh; /* au lieu de 10 */
+  }
+}
+
+/* Et si c’est vraiment minuscule (genre mobile paysage) */
+@media (max-height: 500px) {
+  .filter-panel {
+    top: 50vh;
+  }
+}
+
 
 @keyframes slideDown {
   from {
@@ -328,3 +343,4 @@
   margin-top: 2rem;
   text-align: center;
 }
+

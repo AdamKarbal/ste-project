@@ -10,7 +10,12 @@
 
     <!-- 🔍 Barre de recherche -->
     <div class="search-bar">
-      <button class="filter-btn" (click)="toggleFilters()">⚙️</button>
+      <button class="filter-btn" (click)="toggleFilters()">
+        <svg xmlns="http://www.w3.org/2000/svg" height="22" width="22" viewBox="0 0 24 24" fill="#E53935">
+          <path d="M3 4h18v2l-7 8v5l-4 1v-6L3 6V4z"/>
+        </svg>
+      </button>
+
       <input
         type="text"
         placeholder="Rechercher un restaurant ou un plat..."

@@ -16,17 +16,7 @@ import java.util.List;
 
 public class RestaurantRepoServer {
     public static void main(String[] args) throws IOException {
-        int port = 8002;
-        String path = "/api/restaurantrepo/";// port dédié au Customer Service
-        HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
-        RestaurantRepo repo = new RestaurantRepo(new ArrayList<>());
-        repo.addRestaurant(setUpTest());
-        repo.addRestaurant(new Restaurant.Builder().name("Clément la grosse merde").establishmentType(establishmentType.RESTAURANT).restaurantSchedules(null).dishes(null).cuisineType(null).build());
-        server.createContext(path, new RestaurantRepoHandler(repo));
-        server.setExecutor(null);
-        server.start();
-
-        System.out.println("✅ RestaurantRepo en ligne sur http://localhost:" + port + path);
+        startServer();
     }
     public static Restaurant setUpTest(){
         Dish dishSansGlutenEtVegan = new Dish(0f, "Dish SG+V", null, null, null,
@@ -39,5 +29,19 @@ public class RestaurantRepoServer {
                 .dishes(List.of(dishSansGlutenEtVegan))
                 .cuisineType(null)
                 .build();
+    }
+    public static HttpServer startServer() throws IOException {
+        int port = 8002;
+        String path = "/api/restaurantrepo/";// port dédié au Customer Service
+        HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
+        RestaurantRepo repo = new RestaurantRepo(new ArrayList<>());
+        repo.addRestaurant(setUpTest());
+        repo.addRestaurant(new Restaurant.Builder().name("Clément la grosse merde").establishmentType(establishmentType.RESTAURANT).restaurantSchedules(null).dishes(null).cuisineType(null).build());
+        server.createContext(path, new RestaurantRepoHandler(repo));
+        server.setExecutor(null);
+        server.start();
+
+        System.out.println("✅ RestaurantRepo en ligne sur http://localhost:" + port + path);
+        return server;
     }
 }

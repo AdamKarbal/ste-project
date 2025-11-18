@@ -14,6 +14,7 @@ import java.io.OutputStream;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Matcher;
 
@@ -26,7 +27,7 @@ public class RestaurantRepoHandler implements HttpHandler {
         this.repo=repo;
         ApiRegistry.addRoute("GET", "/api/restaurantrepo/{restaurantName}/", this::getRestaurant);
         ApiRegistry.addRoute("GET","api/restaurantrepo/",this::getAllRestaurants);
-        //faudra ajouter le POST
+        ApiRegistry.addRoute("POST","/api/restaurantrepo/",this::createRestaurant);
     }
     public void getRestaurant(HttpExchange exchange,String... param1) throws IOException {
         String name = URLDecoder.decode(param1[0], StandardCharsets.UTF_8);
@@ -47,7 +48,6 @@ public class RestaurantRepoHandler implements HttpHandler {
             sendResponse(exchange,404,"Liste des restos vide");
             return;
         }
-        ObjectMapper mapper = new ObjectMapper();
         String responseJson = mapper.writeValueAsString(restaurants);
         sendResponse(exchange, 200, responseJson);}
         catch(Exception e){
@@ -56,6 +56,26 @@ public class RestaurantRepoHandler implements HttpHandler {
         }
 
     }
+    private void createRestaurant(HttpExchange exchange, String... params) throws IOException {
+        try {
+            String body = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
+            Map<String, Object> data = mapper.readValue(body, Map.class);
+            String name = (String) data.get("name");
+            System.out.println(name);
+            if (name == null || name.isBlank()) {
+                Sender.sendResponse(exchange, 400, "Field 'name' is required");
+                return;
+            }
+            Restaurant restaurant = repo.addRestaurant(new Restaurant.Builder().name(name).build());
+            String json = mapper.writeValueAsString(restaurant);
+            Sender.sendResponse(exchange, 201, json);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            Sender.sendResponse(exchange, 500, "Internal server error: " + e.getMessage());
+        }
+    }
+
 
 
     @Override

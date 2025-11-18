@@ -14,8 +14,9 @@ public class RestaurantRepo {
         return restaurants;
     }
 
-    public void addRestaurant(Restaurant resto){
+    public Restaurant addRestaurant(Restaurant resto){
         restaurants.add(resto);
+        return resto;
     }
 
     public boolean restaurantExist(Restaurant resto){

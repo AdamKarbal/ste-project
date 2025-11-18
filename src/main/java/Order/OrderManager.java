@@ -34,13 +34,13 @@ public class OrderManager {
 
 
 
-    public Order createOrder(AccountUser client, String restaurantId) { // api faite mais manque la ref au service du client
-        Order order = new Order(client, restaurantId);
+    public Order createOrder(int clientId, String restaurantId) { // api faite mais manque la ref au service du client
+        Order order = new Order(clientId, restaurantId);
         return Requester.createOrder(order);
     }
 
-    public Order createOrder(AccountUser client,String restaurantId,double price){
-        Order order = new Order(client,restaurantId,price);
+    public Order createOrder(int clientId,String restaurantId,double price){
+        Order order = new Order(clientId,restaurantId,price);
         return Requester.createOrder(order);
     }
 

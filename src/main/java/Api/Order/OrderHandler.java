@@ -50,9 +50,9 @@ public class OrderHandler implements HttpHandler{
         try {
             String body = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
             Map<String, Object> data = mapper.readValue(body, Map.class);
-            AccountUser iencli = new AccountUser("Iencli smr");
+            AccountUser iencli = new AccountUser("Iencli smr"); // à changer ça pour prendre le vrai id
             iencli.setCredit(900);
-            Order order=orderManager.createOrder(iencli,(String)data.get("restaurantId"));
+            Order order=orderManager.createOrder(iencli.getId(), (String)data.get("restaurantId"));
             Sender.sendResponse(exchange,200,order.getId()+"");
         } catch (Exception e) {
             e.printStackTrace();

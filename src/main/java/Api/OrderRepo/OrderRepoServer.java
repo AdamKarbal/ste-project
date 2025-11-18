@@ -13,6 +13,9 @@ import java.util.ArrayList;
 
 public class OrderRepoServer {
     public static void main(String[] args) throws IOException {
+        startServer();
+    }
+    public static HttpServer startServer() throws IOException {
         int port = 8003;
         String path = "/api/orderRepo/";// port dédié au Customer Service
         HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
@@ -22,5 +25,6 @@ public class OrderRepoServer {
         server.start();
 
         System.out.println("✅ RestaurantRepo en ligne sur http://localhost:" + port + path);
+        return  server;
     }
 }

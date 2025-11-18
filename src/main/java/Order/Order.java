@@ -7,6 +7,7 @@ import Restaurant.Restaurant;
 import Restaurant.RestaurantSchedule;
 import Restaurant.RestaurantScheduleManager;
 import Dish.Dish;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -30,27 +31,28 @@ public class Order {
     private Map<Integer, Integer> dishes;
     @JsonProperty("restaurant")
     private String restaurantId;
-    private AccountUser client;
+    private int clientId;
     private OrderDeliveryPoint deliveryPoint;
     private LocalDateTime deliveryTime;
     private String idSchedule;
-    private final ObjectMapper mapper = new ObjectMapper();
-    public Order(AccountUser client,String restaurantId){
+    public Order(int clientId,String restaurantId){
         compteur++;
         id=compteur;
         price=0;
         state=OrderState.CREATED;
         this.dishes=new HashMap<>();
         this.restaurantId= restaurantId;
-        this.client=client;
+        this.clientId=clientId;
     }
-    public Order(AccountUser client,String restaurantId,double price){
-        this(client,restaurantId);
+    public Order(int clientId,String restaurantId,double price){ // utilisé pour les tests
+        this(clientId,restaurantId);
         this.price=price;
     }
     public Order(){}
 
-
+    public int getClientId(){
+        return clientId;
+    }
 
     public String getRestaurant() {
 
@@ -60,8 +62,9 @@ public class Order {
     public OrderState getState(){
         return state;
     }
+    @JsonIgnore
     public AccountUser getClient(){
-        return client;
+        return Requester.getClientById(clientId);
     }
     public int getId(){
         return id;

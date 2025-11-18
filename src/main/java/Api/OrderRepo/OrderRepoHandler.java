@@ -49,7 +49,6 @@ public class OrderRepoHandler implements HttpHandler {
     private void createOrder(HttpExchange exchange, String... param) throws IOException {
         try {
             String body = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
-            System.out.println(body);
             Order order = mapper.readValue(body, Order.class); // c là l'erreur
             repo.save(order);
             String json = mapper.writeValueAsString(order);

@@ -5,10 +5,13 @@ import Restaurant.Exception.RestaurantExist;
 import java.util.ArrayList;
 
 public class RestaurantFactory {
-    private final RestaurantService restaurantService;
+    private RestaurantService restaurantService;
 
     public RestaurantFactory(RestaurantService restaurantService) {
         this.restaurantService = restaurantService;
+    }
+
+    public RestaurantFactory(){
     }
 
     public Restaurant createRestaurant(String name) {

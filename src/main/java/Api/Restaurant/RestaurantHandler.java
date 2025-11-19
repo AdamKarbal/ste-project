@@ -55,6 +55,10 @@ public class RestaurantHandler implements HttpHandler {
 
     private void handlePost(HttpExchange exchange, String route) throws IOException {
         String[] parts = route.split("/");
+        if (route.equals("/") || route.isEmpty()) {
+            handleCreateRestaurant(exchange);
+            return;
+        }
         if (parts.length < 2) {
             sendErrorResponse(exchange, 400, "Nom du restaurant manquant");
             return;
@@ -201,5 +205,23 @@ public class RestaurantHandler implements HttpHandler {
         String cleanMessage = errorMessage.replace("\"", "'");
         String errorResponse = String.format("{\"error\": \"%s\"}", cleanMessage);
         sendResponse(exchange, statusCode, errorResponse);
+    }
+
+    private void handleCreateRestaurant(HttpExchange exchange) throws IOException {
+        try {
+            Map<String, String> body = objectMapper.readValue(readRequestBody(exchange), Map.class);
+            String name = body.get("name");
+            if (name == null || name.isEmpty()) {
+                sendErrorResponse(exchange, 400, "Bad Request: 'name' est requis.");
+                return;
+            }
+            RestaurantFactory localFactory = new RestaurantFactory();
+            Restaurant newRestaurant = localFactory.createRestaurant(name);
+            restaurantManager.saveRestaurant(newRestaurant);
+            sendResponse(exchange, 201, "{\"message\": \"Restaurant " + name + " created\"}");
+        } catch (Exception e) {
+            e.printStackTrace();
+            sendErrorResponse(exchange, 500, "Erreur lors de la création : " + e.getMessage());
+        }
     }
 }

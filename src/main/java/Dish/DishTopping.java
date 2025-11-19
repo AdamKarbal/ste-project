@@ -1,13 +1,15 @@
 package Dish;
 
 public class DishTopping {
-    private final String name;
-    private final float price;
+    private String name;
+    private float price;
 
     public DishTopping(String name, float price) {
         this.name = name;
         this.price = price;
     }
+
+    public DishTopping(){}
 
     public String getName() {
         return name;
@@ -33,5 +35,9 @@ public class DishTopping {
     @Override
     public int hashCode() {
         return name.toLowerCase().hashCode();
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }

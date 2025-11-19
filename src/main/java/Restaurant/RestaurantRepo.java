@@ -28,4 +28,14 @@ public class RestaurantRepo {
                 .findFirst()
                 .orElse(null);
     }
+
+    public boolean updateRestaurant(String name, Restaurant updatedRestaurant) {
+        Restaurant oldRestaurant = getRestaurantByName(name);
+        if (oldRestaurant != null) {
+            restaurants.remove(oldRestaurant);
+            restaurants.add(updatedRestaurant);
+            return true;
+        }
+        return false;
+    }
 }

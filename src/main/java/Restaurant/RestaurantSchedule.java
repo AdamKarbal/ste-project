@@ -5,24 +5,27 @@ import java.time.LocalTime;
 import java.util.UUID;
 
 public class RestaurantSchedule {
-    private final String id;
-    private final DayOfTheWeek day;
+    private  String id;
+    private  DayOfTheWeek day;
     private LocalTime start;
     private LocalTime end;
     private int capacity;
 
-    // Constructeur simplifié : on ne passe plus end
+    public RestaurantSchedule(String id, DayOfTheWeek day) {
+        this.id = id;
+        this.day = day;
+    }
+    public RestaurantSchedule() {
+    }
+
     public RestaurantSchedule(DayOfTheWeek day, LocalTime start, int capacity) {
         this.id = UUID.randomUUID().toString();
         this.day = day;
         this.start = normalizeStartTime(start);
-        this.end = this.start.plusMinutes(30); // toujours 30 min
+        this.end = this.start.plusMinutes(30);
         this.capacity = capacity;
     }
 
-    /**
-     * Arrondit l'heure à l'heure pile ou à la demi-heure la plus proche
-     */
     private LocalTime normalizeStartTime(LocalTime time) {
         int minute = time.getMinute();
         if (minute < 15) minute = 0;
@@ -45,7 +48,10 @@ public class RestaurantSchedule {
     public void addCapacity(int capacity){
         this.capacity+=capacity;
     }
-
+    public void setId(String id) { this.id = id; }
+    public void setDay(DayOfTheWeek day) { this.day = day; }
+    public void setStart(LocalTime start) { this.start = start; }
+    public void setEnd(LocalTime end) { this.end = end; }
     @Override
     public String toString() {
         return "[" + id + "] " + day + " | " +

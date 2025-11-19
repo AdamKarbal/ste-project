@@ -1,0 +1,84 @@
+<section class="cart">
+  <header class="cart-header">
+    <h2 class="cart-title">Votre commande</h2>
+    <p class="cart-subtitle" *ngIf="!items.length">
+      Ajoutez des plats pour démarrer votre commande.
+    </p>
+  </header>
+
+  <!-- Créneau sélectionné -->
+  <div class="cart-schedule" *ngIf="selectedScheduleLabel">
+    <div class="cart-schedule-label">
+      Créneau choisi :
+    </div>
+    <div class="cart-schedule-value">
+      {{ selectedScheduleLabel }}
+    </div>
+  </div>
+
+  <!-- Liste des items -->
+  <div class="cart-items" *ngIf="items.length > 0; else emptyCart">
+    <div
+      class="cart-item"
+      *ngFor="let item of items; trackBy: trackByDishName"
+    >
+      <div class="cart-item-main">
+        <div>
+          <div class="cart-item-name">{{ item.dish.name }}</div>
+          <div class="cart-item-price-unit">
+            {{ formatPrice(item.dish.price) }} / unité
+          </div>
+        </div>
+
+        <div class="cart-item-total">
+          {{ formatPrice(item.dish.price * item.quantity) }}
+        </div>
+      </div>
+
+      <div class="cart-item-actions">
+        <div class="cart-quantity">
+          <button type="button" (click)="onDecrease(item)">−</button>
+          <span class="cart-quantity-value">{{ item.quantity }}</span>
+          <button type="button" (click)="onIncrease(item)">+</button>
+        </div>
+
+        <button
+          type="button"
+          class="cart-remove-btn"
+          (click)="onRemove(item)"
+        >
+          Retirer
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <ng-template #emptyCart>
+    <div class="cart-empty">
+      Votre panier est vide.
+    </div>
+  </ng-template>
+
+  <!-- Résumé & bouton de confirmation -->
+  <footer class="cart-footer" *ngIf="items.length > 0">
+    <div class="cart-total">
+      <span>Total</span>
+      <span class="cart-total-value">
+        {{ formatPrice(totalPrice) }}
+      </span>
+    </div>
+
+    <button
+      type="button"
+      class="cart-confirm-btn"
+      [disabled]="!items.length || !selectedSchedule"
+      (click)="onConfirmClick()"
+    >
+      Confirmer la commande
+    </button>
+
+    <p class="cart-hint" *ngIf="items.length && !selectedSchedule">
+      Choisissez d'abord un créneau de livraison.
+    </p>
+  </footer>
+</section>

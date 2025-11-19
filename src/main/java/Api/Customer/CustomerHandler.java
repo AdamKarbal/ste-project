@@ -175,7 +175,7 @@ public class CustomerHandler implements HttpHandler {
 
                             timeStr = timeStr.replace("%3A", ":").replace("%20", "");
 
-                            // ✅ Correction : correspondance FR → EN
+                            //  Correction : correspondance FR → EN
                             switch (dayStr) {
                                 case "LUNDI": dayStr = "MONDAY"; break;
                                 case "MARDI": dayStr = "TUESDAY"; break;

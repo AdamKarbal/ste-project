@@ -3,6 +3,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import Api.Utils.ApiRegistry;
 import Api.Utils.RouteInfo;
+import Api.Utils.Sender;
 import Restaurant.RestaurantRepo;
 import Restaurant.Restaurant;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -14,6 +15,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Matcher;
 
@@ -24,13 +27,12 @@ public class RestaurantRepoHandler implements HttpHandler {
     private final ObjectMapper mapper = new ObjectMapper().registerModule(new JavaTimeModule());
     public RestaurantRepoHandler(RestaurantRepo repo){
         this.repo=repo;
-        String pathRegex = "/api/restaurantrepo/([^/]+)";
-        ApiRegistry.addRoute("GET", pathRegex, this::getRestaurant);
-        ApiRegistry.addRoute("PUT", pathRegex, this::updateRestaurant);
+        ApiRegistry.addRoute("GET", "/api/restaurantrepo/{restaurantName}/", this::getRestaurant);
+        ApiRegistry.addRoute("GET","api/restaurantrepo/",this::getAllRestaurants);
+        ApiRegistry.addRoute("POST","/api/restaurantrepo/",this::createRestaurant);
     }
-    public void getRestaurant(HttpExchange exchange,String param1) throws IOException {
-        System.out.println("Get reçu");
-        String name = URLDecoder.decode(param1, StandardCharsets.UTF_8);
+    public void getRestaurant(HttpExchange exchange,String... param1) throws IOException {
+        String name = URLDecoder.decode(param1[0], StandardCharsets.UTF_8);
         Restaurant restaurantOpt = repo.getRestaurantByName(name);
 
         if (restaurantOpt==null) {
@@ -41,6 +43,9 @@ public class RestaurantRepoHandler implements HttpHandler {
 
         sendResponse(exchange, 200, response);
     }
+
+   
+
 
     public void updateRestaurant(HttpExchange exchange, String restaurantName) throws IOException {
         System.out.println("PUT reçu pour: " + restaurantName);
@@ -62,6 +67,39 @@ public class RestaurantRepoHandler implements HttpHandler {
             sendResponse(exchange, 400, "{\"error\":\"Invalid request body: " + e.getMessage() + "\"}");
         }
     }
+ public void getAllRestaurants(HttpExchange exchange,String... param) throws IOException{
+        try{List<Restaurant> restaurants = repo.getRestaurants();
+        if(restaurants==null){
+            sendResponse(exchange,404,"Liste des restos vide");
+            return;
+        }
+        String responseJson = mapper.writeValueAsString(restaurants);
+        sendResponse(exchange, 200, responseJson);}
+        catch(Exception e){
+            e.printStackTrace();
+            sendResponse(exchange, 500, "Erreur interne du serveur : " + e.getMessage());
+        }
+
+    }
+    private void createRestaurant(HttpExchange exchange, String... params) throws IOException {
+        try {
+            String body = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
+            Map<String, Object> data = mapper.readValue(body, Map.class);
+            String name = (String) data.get("name");
+            System.out.println(name);
+            if (name == null || name.isBlank()) {
+                Sender.sendResponse(exchange, 400, "Field 'name' is required");
+                return;
+            }
+            Restaurant restaurant = repo.addRestaurant(new Restaurant.Builder().name(name).build());
+            String json = mapper.writeValueAsString(restaurant);
+            Sender.sendResponse(exchange, 201, json);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            Sender.sendResponse(exchange, 500, "Internal server error: " + e.getMessage());
+        }
+    }
     @Override
     public void handle(HttpExchange exchange) throws IOException {
         exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
@@ -70,6 +108,10 @@ public class RestaurantRepoHandler implements HttpHandler {
 
         String requestMethod = exchange.getRequestMethod();
         String requestPath = exchange.getRequestURI().getPath();
+        if ("OPTIONS".equalsIgnoreCase(exchange.getRequestMethod())) {
+            Sender.sendResponse(exchange, 204, "");
+            return;
+        }
         for (RouteInfo route : ApiRegistry.getRoutes()) {
             if (route.matches(requestMethod, requestPath)) {
                 Matcher matcher = route.getPathMatcher(requestPath);

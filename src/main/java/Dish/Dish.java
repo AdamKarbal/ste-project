@@ -11,6 +11,7 @@ import java.util.Locale;
 
 public class Dish {
     private double price;
+    private static int compteur=0;
     private String name;
     private String description;
     private DishCategory category;
@@ -18,10 +19,12 @@ public class Dish {
     private List<DishTag> dishTag;
     private List<DishTopping> availableToppings;
     private List<DishTopping> selectedToppings;
+    private int id;
 
     public Dish() {
     }
     public Dish(double price, String name, String description, DishCategory category, DishType type,List<DishTag> dishTag) {
+        this.id=++compteur;
         this.price = price;
         this.name = name;
         this.description = description;
@@ -32,7 +35,7 @@ public class Dish {
         this.availableToppings = new ArrayList<>();
         this.selectedToppings = new ArrayList<>();
     }
-
+    public Dish(){}
     public double getPrice() {
         return price;
     }
@@ -50,6 +53,9 @@ public class Dish {
     }
     public void setDescription(String description) {
         this.description = description;
+    }
+    public int getId(){
+        return id;
     }
 
     public DishCategory getCategory() {
@@ -140,6 +146,17 @@ public class Dish {
     public int hashCode() {
         String n = norm(this.name);
         return (n == null) ? 0 : n.hashCode();
+    }
+
+    public DishCreateDTO toCreateDTO() {
+        return new DishCreateDTO(
+                this.id,
+                this.price,
+                this.name,
+                this.description,
+                this.category,
+                this.type
+        );
     }
 
 

@@ -17,19 +17,7 @@ import java.util.List;
 public class RestaurantRepoServer {
 
     public static void main(String[] args) throws IOException {
-        startServer(8002);
-    }
-
-    public static HttpServer startServer(int port) throws IOException {
-        String path = "/api/restaurantrepo/";
-        HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
-        RestaurantRepo repo = new RestaurantRepo(new ArrayList<>());
-        repo.addRestaurant(setUpTest());
-        server.createContext(path, new RestaurantRepoHandler(repo));
-        server.setExecutor(null);
-        server.start();
-        System.out.println("✅ RestaurantRepo en ligne sur http://localhost:" + port + path);
-        return server;
+        startServer();
     }
 
     public static Restaurant setUpTest(){
@@ -45,8 +33,22 @@ public class RestaurantRepoServer {
                 .name("Tacos")
                 .establishmentType(establishmentType.RESTAURANT)
                 .restaurantSchedules(new ArrayList<>())     // always
-                .dishes(List.of(dishSansGluten, dishVegan,dishSansGlutenEtVegan))
-                .cuisineType(List.of(CuisineType.ITALIENNE))
+                .dishes(List.of(dishSansGlutenEtVegan))
+                .cuisineType(null)
                 .build();
+    }
+    public static HttpServer startServer() throws IOException {
+        int port = 8002;
+        String path = "/api/restaurantrepo/";// port dédié au Customer Service
+        HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
+        RestaurantRepo repo = new RestaurantRepo(new ArrayList<>());
+        repo.addRestaurant(setUpTest());
+        repo.addRestaurant(new Restaurant.Builder().name("Clément la grosse merde").establishmentType(establishmentType.RESTAURANT).restaurantSchedules(null).dishes(null).cuisineType(null).build());
+        server.createContext(path, new RestaurantRepoHandler(repo));
+        server.setExecutor(null);
+        server.start();
+
+        System.out.println("✅ RestaurantRepo en ligne sur http://localhost:" + port + path);
+        return server;
     }
 }

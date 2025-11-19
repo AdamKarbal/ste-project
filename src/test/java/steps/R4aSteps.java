@@ -7,6 +7,7 @@ import Restaurant.*;
 import Restaurant.Enum.CuisineType;
 import Restaurant.Enum.establishmentType;
 import Restaurant.RestaurantManager;
+import Restaurant.Exception.DishAlreadyInDishes;
 import Restaurant.Exception.DishInDishes;
 import Api.RestaurantRepo.RestaurantRepoServer;
 import com.sun.net.httpserver.HttpServer;
@@ -267,8 +268,8 @@ public class R4aSteps {
         }
 
         switch (typeName) {
-            case "DishInDishes" -> assertTrue(actual instanceof DishInDishes,
-                    "Erreur attendue DishInDishes, mais reçu: " + actual.getClass());
+            case "DishInDishes" -> assertTrue(caught instanceof DishAlreadyInDishes,
+                    "Erreur attendue DishInDishes, mais: " + caught.getClass());
             default -> fail("Type d'erreur non géré dans les steps: " + typeName);
         }
     }

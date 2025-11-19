@@ -113,7 +113,7 @@ public class RestaurantManager {
         return smartDishFactory.suggest(nameOrKeyword);
     }
 
-    public Dish createDish(DishInput input, String name) throws DishInDishes {
+    public Dish createDish(DishInput input) throws DishAlreadyInDishes {
         Dish dish = smartDishFactory.create(input);
         this.addDish(dish,name); // tes règles (doublon, etc.)
         return dish;

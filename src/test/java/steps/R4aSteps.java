@@ -4,39 +4,80 @@ import Account.AccountManager;
 import Dish.*;
 import Dish.suggest.Suggestion;
 import Restaurant.*;
+import Restaurant.Enum.CuisineType;
+import Restaurant.Enum.establishmentType;
 import Restaurant.RestaurantManager;
 import Restaurant.Exception.DishAlreadyInDishes;
+import Restaurant.Exception.DishInDishes;
+import Api.RestaurantRepo.RestaurantRepoServer;
+import com.sun.net.httpserver.HttpServer;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import io.cucumber.datatable.DataTable;
+import io.cucumber.java.After;
+import io.cucumber.java.Before;
 import io.cucumber.java.en.*;
 
+import java.io.IOException;
+import java.net.URI;
+import java.net.URLEncoder;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
+import java.time.LocalTime;
 import java.util.*;
 import java.util.stream.Collectors;
-
+import Restaurant.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class R4aSteps {
+
+    private static boolean isServerRunning = false;
+    private final int PORT = 8002;
+    private final HttpClient httpClient = HttpClient.newHttpClient();
+    private final ObjectMapper mapper = new ObjectMapper().registerModule(new JavaTimeModule());
 
     private RestaurantManager manager;
     private DishInput input;
     private Dish created;
     private Suggestion suggestion;
     private Exception caught;
-    private RestaurantService restaurantService;
-    private RestaurantFactory restaurantFactory;
-    private RestaurantRepo repo;
-    private AccountManager owner;
+    private String currentRestaurantName; // Nom du restaurant en cours de test
 
-    // ---------- Background ----------
+    // ---------- Infrastructure ----------
+
+    @Before
+    public void setup() throws IOException {
+        if (!isServerRunning) {
+            try {
+                RestaurantRepoServer.startServer(PORT);
+                isServerRunning = true;
+            } catch (java.net.BindException e) {
+                System.out.println(" Serveur déjà lancé ");
+                isServerRunning = true;
+            }
+        }
+        manager = new RestaurantManager();
+    }
+
+    @After
+    public void tearDown() {
+    }
+
 
     @Given("un RestaurantManager initialisé pour {string}")
-    public void unRestaurantManagerInitialisePour(String name) {
-        repo = new RestaurantRepo(new ArrayList<>());
-        restaurantService = new RestaurantService(repo);
-        restaurantFactory = new RestaurantFactory(restaurantService);
-        owner = new AccountManager("Olivier");
-        owner.createRestaurant(name,restaurantFactory);
-        Restaurant restaurant = owner.getRestaurantManager().getRestaurant();
-        manager = owner.getRestaurantManager();
+    public void unRestaurantManagerInitialisePour(String name) throws Exception {
+        currentRestaurantName = name;
+        Restaurant restaurant = new Restaurant.Builder()
+                .name(name)
+                .dishes(new ArrayList<>())
+                .restaurantSchedules(new ArrayList<>())
+                .cuisineType(new ArrayList<>())
+                .establishmentType(null)
+                .build();
+        forceUpdateRestaurantOnServer(restaurant);
     }
 
     @And("un référentiel de suggestions")
@@ -45,7 +86,6 @@ public class R4aSteps {
         assertFalse(rows.isEmpty(), "Le référentiel de suggestions ne doit pas être vide");
     }
 
-    // ---------- Preview Suggestion ----------
 
     @When("je prévisualise la suggestion pour {string}")
     public void jePrevisualiseLaSuggestionPour(String name) {
@@ -86,19 +126,17 @@ public class R4aSteps {
         assertTrue(suggestion.tags.contains(expected), "Tag suggéré manquant: " + tagName);
     }
 
-    // ---------- Saisie / Création ----------
 
     @When("je saisis un plat avec")
     public void jeSaisisUnPlatAvec(io.cucumber.datatable.DataTable table) {
         input = new DishInput();
-        for (java.util.List<String> row : table.asLists()) {
+        for (List<String> row : table.asLists()) {
             if (row.isEmpty()) continue;
             String key = row.get(0).trim();
             String value = (row.size() > 1) ? row.get(1).trim() : "";
             applyField(input, key, value);
         }
     }
-
 
     private void applyField(DishInput in, String key, String value) {
         switch (key.toLowerCase(Locale.ROOT)) {
@@ -140,19 +178,18 @@ public class R4aSteps {
     @When("je crée le plat via le RestaurantManager")
     public void jeCreeLePlatViaLeRestaurantManager() throws Exception {
         caught = null;
-        created = manager.createDish(input);
+        created = manager.createDish(input, currentRestaurantName);
     }
 
     @When("je tente de créer le plat via le RestaurantManager")
     public void jeTenteDeCreerLePlatViaLeRestaurantManager() {
         try {
-            created = manager.createDish(input);
+            created = manager.createDish(input, currentRestaurantName);
         } catch (Exception ex) {
             caught = ex;
         }
     }
 
-    // ---------- Asserts création ----------
 
     @Then("le plat créé a pour type {string}")
     public void lePlatCreéAPourType(String type) {
@@ -204,26 +241,96 @@ public class R4aSteps {
     }
 
     @Then("le restaurant contient exactement {int} plat")
-    public void leRestaurantContientExactementPlat(int n) {
-        assertEquals(n, manager.getRestaurant().getDishes().size());
+    public void leRestaurantContientExactementPlat(int n) throws Exception {
+        Restaurant restaurant = fetchRestaurantState(currentRestaurantName);
+        assertNotNull(restaurant, "Le restaurant n'a pas été trouvé sur le serveur");
+        assertEquals(n, restaurant.getDishes().size());
     }
 
-    // ---------- Erreurs ----------
 
     @Then("une erreur {string} est levée")
     public void uneErreurMessageEstLevee(String messagePart) {
         assertNotNull(caught, "Aucune erreur levée");
-        assertTrue(caught.getMessage() != null && caught.getMessage().contains(messagePart),
-                "Message attendu à contenir: " + messagePart + " mais était: " + (caught.getMessage()));
+        String msg = caught.getMessage();
+        if (caught.getCause() != null) {
+            msg += " " + caught.getCause().getMessage();
+        }
+        assertTrue(msg != null && msg.contains(messagePart),
+                "Message attendu à contenir: " + messagePart + " mais était: " + msg);
     }
 
     @Then("une erreur de type {string} est levée")
     public void uneErreurDeTypeEstLevee(String typeName) {
         assertNotNull(caught, "Aucune erreur levée");
+        Throwable actual = caught;
+        if (caught instanceof RuntimeException && caught.getCause() != null) {
+            actual = caught.getCause();
+        }
+
         switch (typeName) {
             case "DishInDishes" -> assertTrue(caught instanceof DishAlreadyInDishes,
                     "Erreur attendue DishInDishes, mais: " + caught.getClass());
             default -> fail("Type d'erreur non géré dans les steps: " + typeName);
         }
+    }
+
+
+    private void forceUpdateRestaurantOnServer(Restaurant r) throws Exception {
+        String json = mapper.writeValueAsString(r);
+        String encodedName = URLEncoder.encode(r.getName(), StandardCharsets.UTF_8).replace("+", "%20");
+        String url = "http://localhost:" + PORT + "/api/restaurantrepo/" + encodedName;
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .PUT(HttpRequest.BodyPublishers.ofString(json))
+                .header("Content-Type", "application/json")
+                .build();
+
+        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        if (response.statusCode() != 200 && response.statusCode() != 201) {
+            throw new RuntimeException("Erreur lors du setup serveur: " + response.body());
+        }
+    }
+
+    private Restaurant fetchRestaurantState(String name) throws Exception {
+        String encodedName = URLEncoder.encode(name, StandardCharsets.UTF_8).replace("+", "%20");
+        String url = "http://localhost:" + PORT + "/api/restaurantrepo/" + encodedName;
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .GET()
+                .build();
+
+        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        if (response.statusCode() != 200) return null;
+
+        Map<String, Object> attributes = mapper.readValue(response.body(), Map.class);
+
+        ArrayList<Dish> dishes = mapper.convertValue(
+                attributes.get("dishes"), new TypeReference<ArrayList<Dish>>() {});
+        if (dishes == null) dishes = new ArrayList<>();
+
+        ArrayList<RestaurantSchedule> schedules = mapper.convertValue(
+                attributes.get("restaurantSchedules"), new TypeReference<ArrayList<RestaurantSchedule>>() {});
+        if (schedules == null) schedules = new ArrayList<>();
+
+        ArrayList<String> cuisineStrings = mapper.convertValue(
+                attributes.get("cuisineTypes"), new TypeReference<ArrayList<String>>() {});
+
+        ArrayList<CuisineType> cuisineTypes = new ArrayList<>();
+        if (cuisineStrings != null) {
+            for (String s : cuisineStrings) cuisineTypes.add(CuisineType.valueOf(s));
+        }
+
+        String typeStr = (String) attributes.get("establishmentType");
+        establishmentType type = (typeStr != null) ? establishmentType.valueOf(typeStr) : null;
+
+        return new Restaurant.Builder()
+                .name((String) attributes.get("name"))
+                .dishes(dishes)
+                .restaurantSchedules(schedules)
+                .cuisineType(cuisineTypes)
+                .establishmentType(type)
+                .build();
     }
 }

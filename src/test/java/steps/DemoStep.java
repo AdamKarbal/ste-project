@@ -28,22 +28,73 @@ import java.util.*;
 
 import Order.Order;
 import Order.OrderManager;
+
+import Account.AccountManager;
+import Account.AccountUser;
+import Api.RestaurantRepo.RestaurantRepoServer;
+import Dish.Dish;
+import Dish.DishTag;
+import Order.Order;
+import Order.OrderManager;
+import Order.OrderRepo;
+import Payment.PaymentMethod;
+import Payment.PaymentState;
+import Restaurant.Enum.CuisineType;
+import Restaurant.Enum.DayOfTheWeek;
+import Restaurant.Enum.establishmentType;
 import Restaurant.Restaurant;
+import Restaurant.RestaurantFactory;
+import Restaurant.RestaurantManager;
 import Restaurant.RestaurantRepo;
+import Restaurant.RestaurantSchedule;
+import Restaurant.RestaurantScheduleManager;
 import Restaurant.RestaurantService;
 import Restaurant.Enum.*;
 import Dish.*;
 import Api.Utils.Requester;  // <-- NEW : pour relire les orders via ton service REST
 import org.junit.jupiter.api.Assertions;
 
+
+import Utils.InvalidDate;
+import com.sun.net.httpserver.HttpServer;
+import io.cucumber.datatable.DataTable;
+import io.cucumber.java.After;
+import io.cucumber.java.Before;
+import io.cucumber.java.en.And;
+import io.cucumber.java.en.Given;
+import io.cucumber.java.en.Then;
+import io.cucumber.java.en.When;
+import org.junit.jupiter.api.Assertions;
+
+import java.io.IOException;
+import java.net.BindException;
+import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 public class DemoStep {
 
+    private static HttpServer server;
+    private final int PORT = 8002;
+    private static boolean isServerRunning = false;
     private RestaurantRepo repo;
     private RestaurantService service;
     private int currentOrderid;
+
+    private RestaurantManager manager;
+    private OrderRepo orderRepo;
+
+    private RestaurantRepo localDummyRepo;
+    private RestaurantService localDummyService;
+    private RestaurantFactory factory;
+    private String currentRestaurantName;
+    private Restaurant currentRestaurantState;
+    private int currentOrderid;
+    private OrderManager currentOrderManager;
     private Map<String, AccountManager> restaurateurs = new HashMap<>();
-    private RestaurantManager currentManager;
-    private Restaurant currentRestaurant;
     private AccountUser client;
     private List<Restaurant> restaurantsByType;
     private OrderManager currentOrderManager;
@@ -77,19 +128,39 @@ public class DemoStep {
         service = new RestaurantService(repo);
         restaurateurs = new HashMap<>();
         accountService = new AccountService();
+        if (!isServerRunning) {
+            try {
+                server = RestaurantRepoServer.startServer(PORT);
+                isServerRunning = true;
+            } catch (BindException e) {
+                System.out.println("Serveur déjà lancé sur le port " + PORT + "");
+                isServerRunning = true;
+            }
+        }
+        orderRepo = new OrderRepo();
+        manager = new RestaurantManager();
+        restaurateurs = new HashMap<>();
+        localDummyRepo = new RestaurantRepo(new ArrayList<>());
+        localDummyService = new RestaurantService(localDummyRepo);
+        factory = new RestaurantFactory(localDummyService);
     }
 
+
+
+    @After
+    public void tearDown() {} 
+
     @Given("un catalogue de restos")
-    public void un_catalogue_de_restos(DataTable table) {
-        for (Map<String,String> row : table.asMaps()) {
+    public void un_catalogue_de_restos(DataTable table) throws Exception {
+        for (Map<String, String> row : table.asMaps()) {
             String name = row.get("name");
             List<CuisineType> c = List.of(CuisineType.valueOf(row.get("cuisineType").toUpperCase()));
             establishmentType e = establishmentType.valueOf(row.get("establishmentType").toUpperCase());
 
             Dish d1 = Requester.createDish(new Dish(Double.parseDouble(row.get("price1")), row.get("dish1"), "", DishCategory.STARTER, DishType.PIZZA, null).toCreateDTO());
             Dish d2 = Requester.createDish(new Dish(Double.parseDouble(row.get("price2")), row.get("dish2"), "", DishCategory.STARTER, DishType.PIZZA, null).toCreateDTO());
-            d1.setDishTag(new ArrayList<>(parseTags(row.get("tags1"))));
-            d2.setDishTag(new ArrayList<>(parseTags(row.get("tags2"))));
+            d1.setDishTags(new ArrayList<>(parseTags(row.get("tags1"))));
+            d2.setDishTags(new ArrayList<>(parseTags(row.get("tags2"))));
 
             Restaurant r = new Restaurant.Builder()
                     .name(name)
@@ -98,14 +169,14 @@ public class DemoStep {
                     .cuisineType(c)
                     .establishmentType(e)
                     .build();
+
             List<DayOfTheWeek> days = DayOfTheWeek.getRealDays();
             for (DayOfTheWeek day : days) {
                 RestaurantScheduleManager.addSchedule(r, day, hhmm(row.get("start1")), hhmm(row.get("end1")), Integer.parseInt(row.get("capacity1")));
                 RestaurantScheduleManager.addSchedule(r, day, hhmm(row.get("start2")), hhmm(row.get("end2")), Integer.parseInt(row.get("capacity2")));
             }
-            try {
-                service.addRestaurant(r);
-            } catch (Exception ignored) {}
+
+            manager.saveRestaurant(r);
         }
     }
 
@@ -210,7 +281,6 @@ public class DemoStep {
         );
     }*/
 
-    // --- steps restaurateur : inchangés, ils ne dépendent pas de OrderManager ---
 
     @Given("le restaurateur {string} à été enregistré")
     public void le_restaurateur_à_été_enregistré(String nomRestaurateur) {
@@ -221,65 +291,72 @@ public class DemoStep {
     @When("{string} crée son restaurant {string}")
     public void crée_son_restaurant(String nomRestaurateur, String nomRestaurant) {
         AccountManager account = restaurateurs.get(nomRestaurateur);
-        Assertions.assertNotNull(account, "Le restaurateur doit être enregistré avant de créer un restaurant");
-        RestaurantFactory factory = new RestaurantFactory(service);
-        account.createRestaurant(nomRestaurant, factory);
-        currentManager = account.getRestaurantManager();
-        currentRestaurant = currentManager.getRestaurant();
-        repo.addRestaurant(currentRestaurant);
-        Assertions.assertNotNull(currentRestaurant, "Le restaurant n’a pas été créé correctement");
+        Assertions.assertNotNull(account);
+        account.createRestaurant(nomRestaurant, this.factory);
+
+        currentRestaurantName = nomRestaurant;
+        currentRestaurantState = manager.getRestaurantFromRepo(nomRestaurant);
     }
 
     @When("Il le configure : cuisineType {string}")
-    public void il_le_configure_cuisine_type(String type) throws CuisineTypeInList {
-        Assertions.assertNotNull(currentManager, "Aucun restaurant en cours de configuration");
-        currentManager.addCuisineType(CuisineType.valueOf(type.toUpperCase()));
+    public void il_le_configure_cuisine_type(String type) throws Exception {
+        manager.addCuisineType(CuisineType.valueOf(type.toUpperCase()), currentRestaurantName);
     }
 
     @When("Il le configure : establishmentType {string}")
-    public void il_le_configure_establishment_type(String type) throws EstablishmentTypeAlreadySet {
-        Assertions.assertNotNull(currentManager, "Aucun restaurant en cours de configuration");
-        currentManager.addEstablishmentType(establishmentType.valueOf(type.toUpperCase()));
+    public void il_le_configure_establishment_type(String type) throws Exception {
+        manager.addEstablishmentType(establishmentType.valueOf(type.toUpperCase()), currentRestaurantName);
     }
 
     @When("Il ajoute le plat {string} à {double}€")
-    public void il_ajoute_le_plat_à_€(String nomPlat, Double prix) throws DishAlreadyInDishes {
-        Assertions.assertNotNull(currentManager, "Aucun restaurant en cours de configuration");
+    public void il_ajoute_le_plat_à_€(String nomPlat, Double prix) throws Exception {
         Dish plat = new Dish(prix, nomPlat, null, null, null, null);
-        currentManager.addDish(plat);
+        manager.addDish(plat, currentRestaurantName);
     }
 
     @When("Il ajoute un creneau de {int}:{int} à {int}:{int} avec {int} capacités")
-    public void il_ajoute_un_creneau_de_à_avec_capacités(Integer h1, Integer m1, Integer h2, Integer m2, Integer capacite) {
-        Assertions.assertNotNull(currentManager, "Aucun restaurant en cours de configuration");
-        currentManager.updateSchedule(DayOfTheWeek.MONDAY,
+    public void il_ajoute_un_creneau(Integer h1, Integer m1, Integer h2, Integer m2, Integer cap) {
+        manager.updateSchedule(DayOfTheWeek.MONDAY,
                 LocalTime.of(h1, m1),
                 LocalTime.of(h2, m2),
-                capacite);
+                cap, currentRestaurantName);
     }
 
     @Then("Le restaurant doit être disponible sous le nom de {string}")
-    public void le_restaurant_doit_être_disponible_sous_le_nom_de(String nomRestaurant) {
-        boolean present = repo.getRestaurants().stream()
-                .anyMatch(r -> r.getName().equalsIgnoreCase(nomRestaurant));
-        Assertions.assertTrue(present, "Le restaurant " + nomRestaurant + " n’a pas été trouvé dans le repo");
+    public void le_restaurant_doit_être_disponible(String nomRestaurant) {
+        try {
+            Restaurant r = manager.getRestaurantFromRepo(nomRestaurant);
+            Assertions.assertNotNull(r);
+            Assertions.assertEquals(nomRestaurant, r.getName());
+        } catch (Exception e) {
+            Assertions.fail("Le restaurant n'a pas été trouvé sur le serveur");
+        }
     }
 
     @Then("{string} peut passer trouver le restaurant {string}")
     public void peut_passer_trouver_le_restaurant(String nomClient, String nomRestaurant) {
-        List<Restaurant> trouvés = service.findByName(nomRestaurant);
-        Assertions.assertFalse(trouvés.isEmpty(), "Le client " + nomClient + " ne trouve pas le restaurant " + nomRestaurant);
+        try {
+            Restaurant r = manager.getRestaurantFromRepo(nomRestaurant);
+            Assertions.assertNotNull(r, "Restaurant introuvable sur le serveur");
+            Assertions.assertEquals(nomRestaurant, r.getName());
+        } catch (Exception e) {
+            Assertions.fail("Le client " + nomClient + " n'a pas trouvé le restaurant " + nomRestaurant);
+        }
     }
 
     @Then("{string} peut trouver le plat {string}")
     public void peut_trouver_le_plat(String nomClient, String nomPlat) {
-        boolean platTrouvé = repo.getRestaurants().stream()
-                .flatMap(r -> r.getDishes().stream())
-                .anyMatch(d -> d.getName().equalsIgnoreCase(nomPlat));
-        Assertions.assertTrue(platTrouvé, "Le client " + nomClient + " ne trouve pas le plat " + nomPlat);
+        Assertions.assertNotNull(currentRestaurantName, "Aucun restaurant contextuel défini");
+        try {
+            Restaurant r = manager.getRestaurantFromRepo(currentRestaurantName);
+            boolean platTrouve = r.getDishes().stream()
+                    .anyMatch(d -> d.getName().equalsIgnoreCase(nomPlat));
+            Assertions.assertTrue(platTrouve, "Le client " + nomClient + " ne trouve pas le plat " + nomPlat);
+        } catch (Exception e) {
+            Assertions.fail("Erreur lors de la récupération du restaurant");
+        }
     }
 
-    // --- Helpers SCHEDULES & tags ---
 
     private static LocalTime hhmm(String s) {
         String[] p = s.split(":");

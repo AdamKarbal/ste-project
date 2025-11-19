@@ -11,16 +11,13 @@ public class RestaurantFactory {
         this.restaurantService = restaurantService;
     }
 
-    public RestaurantManager createRestaurant(String name) throws RestaurantExist {
-        Restaurant.Builder builder = new Restaurant.Builder()
+    public Restaurant createRestaurant(String name) {
+        return new Restaurant.Builder()
                 .name(name)
                 .dishes(new ArrayList<>())
                 .restaurantSchedules(new ArrayList<>())
                 .cuisineType(new ArrayList<>())
-                .establishmentType(null);
-
-        Restaurant newRestaurant = builder.build();
-        restaurantService.addRestaurant(newRestaurant);
-        return new RestaurantManager(newRestaurant);
+                .establishmentType(null)
+                .build();
     }
 }

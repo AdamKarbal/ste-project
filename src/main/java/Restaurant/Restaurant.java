@@ -19,6 +19,8 @@ public class Restaurant {
     private List<CuisineType> CuisineTypes;
     private establishmentType establishmentType;
     //Constructeur
+    public Restaurant() {
+    }
 
     public Restaurant(Builder builder){
         this.name = builder.name;
@@ -174,7 +176,7 @@ public class Restaurant {
     public boolean isOpenNow() {
         return RestaurantScheduleManager.isOpenNow(this);
     }
-
+    @JsonIgnore
     public boolean isOpenAt(LocalDateTime dateTime) {
         return RestaurantScheduleManager.isOpenAt(this, dateTime);
     }

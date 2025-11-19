@@ -21,6 +21,8 @@ public class Dish {
     private List<DishTopping> selectedToppings;
     private int id;
 
+    public Dish() {
+    }
     public Dish(double price, String name, String description, DishCategory category, DishType type,List<DishTag> dishTag) {
         this.id=++compteur;
         this.price = price;
@@ -72,8 +74,8 @@ public class Dish {
     public List<DishTag> getDishTag() {
         return dishTag;
     }
-    public void setDishTag(List<DishTag> dishTag) {
-        this.dishTag = dishTag;
+    public void setDishTags(List<DishTag> dishTags) {
+        this.dishTag = dishTags;
     }
     public boolean addDishTag(DishTag dishTag) {
         return this.dishTag.add(dishTag);

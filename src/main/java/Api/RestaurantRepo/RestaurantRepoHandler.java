@@ -1,4 +1,5 @@
 package Api.RestaurantRepo;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import Api.Utils.ApiRegistry;
 import Api.Utils.RouteInfo;
@@ -10,6 +11,7 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
@@ -22,7 +24,7 @@ import static Api.Utils.Sender.sendResponse;
 
 public class RestaurantRepoHandler implements HttpHandler {
     private RestaurantRepo repo;
-    private final ObjectMapper mapper = new ObjectMapper();
+    private final ObjectMapper mapper = new ObjectMapper().registerModule(new JavaTimeModule());
     public RestaurantRepoHandler(RestaurantRepo repo){
         this.repo=repo;
         ApiRegistry.addRoute("GET", "/api/restaurantrepo/{restaurantName}/", this::getRestaurant);
@@ -42,7 +44,30 @@ public class RestaurantRepoHandler implements HttpHandler {
         sendResponse(exchange, 200, response);
     }
 
-    public void getAllRestaurants(HttpExchange exchange,String... param) throws IOException{
+   
+
+
+    public void updateRestaurant(HttpExchange exchange, String restaurantName) throws IOException {
+        System.out.println("PUT reçu pour: " + restaurantName);
+        String name = URLDecoder.decode(restaurantName, StandardCharsets.UTF_8);
+
+        try (InputStream is = exchange.getRequestBody()) {
+            String jsonBody = new String(is.readAllBytes(), StandardCharsets.UTF_8);
+            Restaurant updatedRestaurant = mapper.readValue(jsonBody, Restaurant.class);
+            boolean exists = repo.updateRestaurant(name, updatedRestaurant);
+
+            if (exists) {
+                sendResponse(exchange, 200, "{\"message\":\"Restaurant " + name + " updated\"}");
+            } else {
+                repo.addRestaurant(updatedRestaurant);
+                sendResponse(exchange, 201, "{\"message\":\"Restaurant " + name + " created\"}");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            sendResponse(exchange, 400, "{\"error\":\"Invalid request body: " + e.getMessage() + "\"}");
+        }
+    }
+ public void getAllRestaurants(HttpExchange exchange,String... param) throws IOException{
         try{List<Restaurant> restaurants = repo.getRestaurants();
         if(restaurants==null){
             sendResponse(exchange,404,"Liste des restos vide");
@@ -75,13 +100,10 @@ public class RestaurantRepoHandler implements HttpHandler {
             Sender.sendResponse(exchange, 500, "Internal server error: " + e.getMessage());
         }
     }
-
-
-
     @Override
     public void handle(HttpExchange exchange) throws IOException {
-        exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*"); // Remplacez par votre origine cliente
-        exchange.getResponseHeaders().add("Access-Control-Allow-Methods", "GET");
+        exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
+        exchange.getResponseHeaders().add("Access-Control-Allow-Methods", "GET,PUT");
         exchange.getResponseHeaders().add("Access-Control-Allow-Headers", "Accept, X-Requested-With, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization");
 
         String requestMethod = exchange.getRequestMethod();
@@ -94,7 +116,7 @@ public class RestaurantRepoHandler implements HttpHandler {
             if (route.matches(requestMethod, requestPath)) {
                 Matcher matcher = route.getPathMatcher(requestPath);
                 String param = "";
-                if (matcher.find() && matcher.groupCount()>0) {
+                if (matcher.find() && matcher.groupCount() > 0) {
                     param = matcher.group(1);
                 }
 

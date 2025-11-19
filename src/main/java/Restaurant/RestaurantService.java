@@ -25,6 +25,9 @@ public class RestaurantService {
         repo.addRestaurant(restaurant);
     }
 
+    public List<Restaurant> getAllRestaurants() {
+        return repo.getRestaurants();
+    }
     public Restaurant getRestaurantByName(String name) {
         return repo.getRestaurantByName(name);
     }

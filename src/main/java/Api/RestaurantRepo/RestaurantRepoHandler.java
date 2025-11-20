@@ -30,6 +30,7 @@ public class RestaurantRepoHandler implements HttpHandler {
         ApiRegistry.addRoute("GET", "/api/restaurantrepo/{restaurantName}/", this::getRestaurant);
         ApiRegistry.addRoute("GET","api/restaurantrepo/",this::getAllRestaurants);
         ApiRegistry.addRoute("POST","/api/restaurantrepo/",this::createRestaurant);
+        ApiRegistry.addRoute("PUT","/api/restaurantrepo/{restaurantName}/",this::updateRestaurant);
     }
     public void getRestaurant(HttpExchange exchange,String... param1) throws IOException {
         String name = URLDecoder.decode(param1[0], StandardCharsets.UTF_8);
@@ -47,9 +48,9 @@ public class RestaurantRepoHandler implements HttpHandler {
    
 
 
-    public void updateRestaurant(HttpExchange exchange, String restaurantName) throws IOException {
-        System.out.println("PUT reçu pour: " + restaurantName);
-        String name = URLDecoder.decode(restaurantName, StandardCharsets.UTF_8);
+    public void updateRestaurant(HttpExchange exchange, String... params) throws IOException {
+        System.out.println("PUT reçu pour: " + params[0]);
+        String name = URLDecoder.decode(params[0], StandardCharsets.UTF_8);
 
         try (InputStream is = exchange.getRequestBody()) {
             String jsonBody = new String(is.readAllBytes(), StandardCharsets.UTF_8);
@@ -103,7 +104,7 @@ public class RestaurantRepoHandler implements HttpHandler {
     @Override
     public void handle(HttpExchange exchange) throws IOException {
         exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
-        exchange.getResponseHeaders().add("Access-Control-Allow-Methods", "GET,PUT");
+        exchange.getResponseHeaders().add("Access-Control-Allow-Methods", "GET,PUT,POST");
         exchange.getResponseHeaders().add("Access-Control-Allow-Headers", "Accept, X-Requested-With, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization");
 
         String requestMethod = exchange.getRequestMethod();

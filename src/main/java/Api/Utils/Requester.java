@@ -11,16 +11,19 @@ import Payment.Payment;
 import Restaurant.Restaurant;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import java.io.IOException;
 import java.net.URI;
+import java.net.URLEncoder;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 public class Requester {
-    private final static ObjectMapper mapper=new ObjectMapper();
+    private final static ObjectMapper mapper=new ObjectMapper().registerModule(new JavaTimeModule());
     public static Dish getDishById(int dishId) throws IOException, InterruptedException {
         try {
             HttpClient client = HttpClient.newHttpClient();
@@ -98,16 +101,16 @@ public class Requester {
     public static Restaurant getRestaurantByName(String restaurantName){
         try{
             HttpClient client = HttpClient.newHttpClient();
-
+            String encodedName = URLEncoder.encode(restaurantName, StandardCharsets.UTF_8).replace("+", "%20");
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create("http://localhost:8002/api/restaurantrepo/" + restaurantName+"/"))
+                    .uri(URI.create("http://localhost:8002/api/restaurantrepo/" + encodedName+"/"))
                     .GET()
                     .build();
 
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
             if (response.statusCode() == 404) {
-                throw new OrderNotFoundException("Restaurant " + restaurantName + " introuvable.");
+                throw new OrderNotFoundException("Restaurant " + encodedName + " introuvable.");
             }
             if (response.statusCode() != 200) {
                 throw new RuntimeException("Erreur GET : code " + response.statusCode());

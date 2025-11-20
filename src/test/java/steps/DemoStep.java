@@ -6,6 +6,7 @@ import Api.AccountRepo.AccountRepoServer;
 import Api.DishRepo.DishRepoServer;
 import Api.Order.OrderServer;
 import Api.OrderRepo.OrderRepoServer;
+import Api.Restaurant.RestaurantServer;
 import Api.RestaurantRepo.RestaurantRepoServer;
 import Payment.PaymentMethod;
 import Payment.PaymentState;
@@ -85,19 +86,17 @@ public class DemoStep {
     private int currentOrderid;
 
     private RestaurantManager manager;
-    private OrderRepo orderRepo;
-
+    private Restaurant currentRestaurantState;
     private RestaurantRepo localDummyRepo;
     private RestaurantService localDummyService;
     private RestaurantFactory factory;
-    private String currentRestaurantName;
-    private Restaurant currentRestaurantState;
-    private int currentOrderid;
+    private String currentRestaurantName;;
     private OrderManager currentOrderManager;
     private Map<String, AccountManager> restaurateurs = new HashMap<>();
     private AccountUser client;
     private List<Restaurant> restaurantsByType;
-    private OrderManager currentOrderManager;
+    private Restaurant currentRestaurant;
+    private RestaurantManager currentManager;
     private AccountService accountService;
     private int currentClientId;
     static HttpServer accountRepo;
@@ -105,6 +104,7 @@ public class DemoStep {
     static HttpServer orderRepo;
     static HttpServer orderHandler;
     static HttpServer restoRepo;
+    static HttpServer restoHandler;
 
     @Before(order = 0)
     public static void setUpServers() throws IOException {
@@ -113,6 +113,8 @@ public class DemoStep {
         orderRepo = OrderRepoServer.startServer();
         orderHandler = OrderServer.startServer();
         restoRepo = RestaurantRepoServer.startServer();
+        restoHandler = RestaurantServer.startServer();
+
     }
     @After(order = 0)
     public static void stopServers(){
@@ -121,37 +123,21 @@ public class DemoStep {
         orderRepo.stop(0);
         orderHandler.stop(0);
         restoRepo.stop(0);
+        restoHandler.stop(0);
     }
+
     @Before
     public void setup() {
         repo = new RestaurantRepo(new ArrayList<>());
         service = new RestaurantService(repo);
+        factory = new RestaurantFactory(service);
         restaurateurs = new HashMap<>();
         accountService = new AccountService();
-        if (!isServerRunning) {
-            try {
-                server = RestaurantRepoServer.startServer(PORT);
-                isServerRunning = true;
-            } catch (BindException e) {
-                System.out.println("Serveur déjà lancé sur le port " + PORT + "");
-                isServerRunning = true;
-            }
-        }
-        orderRepo = new OrderRepo();
-        manager = new RestaurantManager();
-        restaurateurs = new HashMap<>();
-        localDummyRepo = new RestaurantRepo(new ArrayList<>());
-        localDummyService = new RestaurantService(localDummyRepo);
-        factory = new RestaurantFactory(localDummyService);
     }
-
-
-
-    @After
-    public void tearDown() {} 
 
     @Given("un catalogue de restos")
     public void un_catalogue_de_restos(DataTable table) throws Exception {
+        manager=new RestaurantManager();
         for (Map<String, String> row : table.asMaps()) {
             String name = row.get("name");
             List<CuisineType> c = List.of(CuisineType.valueOf(row.get("cuisineType").toUpperCase()));
@@ -175,15 +161,15 @@ public class DemoStep {
                 RestaurantScheduleManager.addSchedule(r, day, hhmm(row.get("start1")), hhmm(row.get("end1")), Integer.parseInt(row.get("capacity1")));
                 RestaurantScheduleManager.addSchedule(r, day, hhmm(row.get("start2")), hhmm(row.get("end2")), Integer.parseInt(row.get("capacity2")));
             }
-
             manager.saveRestaurant(r);
+            service.addRestaurant(r);
         }
     }
 
     @Given("que le restaurant {string} propose le plat {string} à {double}€")
     public void que_le_restaurant_propose_le_plat_à_€(String restoName, String dishName, Double price) throws DishAlreadyInDishes {
         currentRestaurant = service.getRestaurantByName(restoName);
-        currentManager = new RestaurantManager(currentRestaurant);
+        currentManager = new RestaurantManager();
 
         Assertions.assertNotNull(currentRestaurant);
 

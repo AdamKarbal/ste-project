@@ -1,4 +1,5 @@
 package Restaurant;
+import Api.Utils.Requester;
 import Dish.*;
 import Dish.suggest.Suggestion;
 import Restaurant.Enum.DayOfTheWeek;
@@ -49,9 +50,9 @@ public class RestaurantManager {
         saveRestaurant(restaurant);
     }
 
-    public void addDish(Dish d, String name) throws DishInDishes {
+    public void addDish(Dish d, String name) throws DishAlreadyInDishes {
         Restaurant restaurant = getRestaurantFromRepo(name);
-        if(restaurant.alreadyDish(d)) throw new DishInDishes("Le plat "+ d+ " est déjà dans le restaurant." ) ;
+        if(restaurant.alreadyDish(d)) throw new DishAlreadyInDishes("Le plat "+ d+ " est déjà dans le restaurant." ) ;
         restaurant.addDish(d);
         saveRestaurant(restaurant);
     }
@@ -113,84 +114,14 @@ public class RestaurantManager {
         return smartDishFactory.suggest(nameOrKeyword);
     }
 
-    public Dish createDish(DishInput input) throws DishAlreadyInDishes {
+    public Dish createDish(DishInput input,String name) throws DishAlreadyInDishes {
         Dish dish = smartDishFactory.create(input);
-        this.addDish(dish,name); // tes règles (doublon, etc.)
+        this.addDish(dish, name); // tes règles (doublon, etc.)
         return dish;
     }
 
     public Restaurant getRestaurantFromRepo(String name) {
-        String encodedName = URLEncoder.encode(name, StandardCharsets.UTF_8).replace("+", "%20");
-
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("http://localhost:8002/api/restaurantrepo/" + encodedName))
-                .GET()
-                .build();
-
-        CompletableFuture<Restaurant> futureRestaurant = httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString())
-                .thenApply(response -> {
-                    // AJOUTE CECI : Vérification du code HTTP
-                    if (response.statusCode() == 404) {
-                        throw new RuntimeException("Restaurant non trouvé sur le serveur : " + name);
-                    }
-                    if (response.statusCode() != 200) {
-                        throw new RuntimeException("Erreur serveur (" + response.statusCode() + ") : " + response.body());
-                    }
-                    return response.body(); // On passe le corps seulement si c'est OK
-                })
-                .thenApply(corps -> {
-                    System.out.println("JSON reçu: " + corps);
-                    try {
-                        Map<String, Object> attributes = mapper.readValue(corps, Map.class);
-                        String restaurantName = (String) attributes.get("name");
-
-                        // 1. Gestion NULL establishmentType
-                        String typeStr = (String) attributes.get("establishmentType");
-                        establishmentType type = (typeStr != null) ? establishmentType.valueOf(typeStr) : null;
-
-                        // 2. Parsing robuste des listes avec TypeReference
-                        ArrayList<Dish> dishes = mapper.convertValue(
-                                attributes.get("dishes"),
-                                new TypeReference<ArrayList<Dish>>() {}
-                        );
-
-                        ArrayList<RestaurantSchedule> schedules = mapper.convertValue(
-                                attributes.get("restaurantSchedules"),
-                                new TypeReference<ArrayList<RestaurantSchedule>>() {}
-                        );
-
-                        // 3. Parsing robuste des CuisineType
-                        // On convertit d'abord en List<String> pour être sûr
-                        ArrayList<String> cuisineStrings = mapper.convertValue(
-                                attributes.get("cuisineTypes"),
-                                new TypeReference<ArrayList<String>>() {}
-                        );
-
-                        ArrayList<CuisineType> cuisineTypes = new ArrayList<>();
-                        if (cuisineStrings != null) {
-                            for (String s : cuisineStrings) {
-                                cuisineTypes.add(CuisineType.valueOf(s));
-                            }
-                        }
-
-                        return new Restaurant.Builder()
-                                .name(restaurantName)
-                                .dishes(dishes)
-                                .restaurantSchedules(schedules)
-                                .cuisineType(cuisineTypes)
-                                .establishmentType(type)
-                                .build();
-
-                    } catch (Exception e) {
-                        throw new RuntimeException("Échec du parsing JSON du restaurant: " + e.getMessage(), e);
-                    }
-                });
-
-        try {
-            return futureRestaurant.join();
-        } catch (Exception e) {
-            throw new RuntimeException("Impossible de récupérer le restaurant: " + name, e);
-        }
+        return Requester.getRestaurantByName(name);
     }
 
     public void saveRestaurant(Restaurant restaurant) {
@@ -200,7 +131,7 @@ public class RestaurantManager {
             String encodedName = URLEncoder.encode(name, StandardCharsets.UTF_8).replace("+", "%20");
 
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create("http://localhost:8002/api/restaurantrepo/" + encodedName))
+                    .uri(URI.create("http://localhost:8002/api/restaurantrepo/" + encodedName+"/"))
                     .PUT(HttpRequest.BodyPublishers.ofString(restaurantJson))
                     .header("Content-Type", "application/json")
                     .build();

@@ -41,7 +41,7 @@ public class RestaurantManagerTest {
     @BeforeAll
     static void startInfrastructure() throws IOException {
         try {
-            server = RestaurantRepoServer.startServer(8002);
+            server = RestaurantRepoServer.startServer();
             serverStartedByThisClass = true;
         } catch (java.net.BindException e) {
             System.out.println("Serveur déjà en cours ");

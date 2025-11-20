@@ -35,7 +35,6 @@ public class Dish {
         this.availableToppings = new ArrayList<>();
         this.selectedToppings = new ArrayList<>();
     }
-    public Dish(){}
     public double getPrice() {
         return price;
     }

@@ -41,7 +41,7 @@ public class RestaurantManagerTest {
     public static void setup() throws IOException {
         if (!isServerRunning) {
             try {
-                RestaurantRepoServer.startServer();
+                server=RestaurantRepoServer.startServer();
                 isServerRunning = true;
             } catch (java.net.BindException e) {
                 System.out.println(" Serveur déjà lancé ");

@@ -8,7 +8,6 @@ import Restaurant.Enum.CuisineType;
 import Restaurant.Enum.establishmentType;
 import Restaurant.RestaurantManager;
 import Restaurant.Exception.DishAlreadyInDishes;
-import Restaurant.Exception.DishInDishes;
 import Api.RestaurantRepo.RestaurantRepoServer;
 import com.sun.net.httpserver.HttpServer;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -52,7 +51,7 @@ public class R4aSteps {
     public void setup() throws IOException {
         if (!isServerRunning) {
             try {
-                RestaurantRepoServer.startServer(PORT);
+                RestaurantRepoServer.startServer();
                 isServerRunning = true;
             } catch (java.net.BindException e) {
                 System.out.println(" Serveur déjà lancé ");
@@ -77,7 +76,7 @@ public class R4aSteps {
                 .cuisineType(new ArrayList<>())
                 .establishmentType(null)
                 .build();
-        forceUpdateRestaurantOnServer(restaurant);
+        manager.saveRestaurant(restaurant);
     }
 
     @And("un référentiel de suggestions")
@@ -178,13 +177,13 @@ public class R4aSteps {
     @When("je crée le plat via le RestaurantManager")
     public void jeCreeLePlatViaLeRestaurantManager() throws Exception {
         caught = null;
-        created = manager.createDish(input, currentRestaurantName);
+        created = manager.createDish(input,currentRestaurantName);
     }
 
     @When("je tente de créer le plat via le RestaurantManager")
     public void jeTenteDeCreerLePlatViaLeRestaurantManager() {
         try {
-            created = manager.createDish(input, currentRestaurantName);
+            created = manager.createDish(input,currentRestaurantName);
         } catch (Exception ex) {
             caught = ex;
         }
@@ -242,7 +241,7 @@ public class R4aSteps {
 
     @Then("le restaurant contient exactement {int} plat")
     public void leRestaurantContientExactementPlat(int n) throws Exception {
-        Restaurant restaurant = fetchRestaurantState(currentRestaurantName);
+        Restaurant restaurant = manager.getRestaurantFromRepo(currentRestaurantName);
         assertNotNull(restaurant, "Le restaurant n'a pas été trouvé sur le serveur");
         assertEquals(n, restaurant.getDishes().size());
     }
@@ -278,7 +277,7 @@ public class R4aSteps {
     private void forceUpdateRestaurantOnServer(Restaurant r) throws Exception {
         String json = mapper.writeValueAsString(r);
         String encodedName = URLEncoder.encode(r.getName(), StandardCharsets.UTF_8).replace("+", "%20");
-        String url = "http://localhost:" + PORT + "/api/restaurantrepo/" + encodedName;
+        String url = "http://localhost:" + PORT + "/api/restaurantrepo/" + encodedName+"/";
 
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(url))
@@ -292,45 +291,4 @@ public class R4aSteps {
         }
     }
 
-    private Restaurant fetchRestaurantState(String name) throws Exception {
-        String encodedName = URLEncoder.encode(name, StandardCharsets.UTF_8).replace("+", "%20");
-        String url = "http://localhost:" + PORT + "/api/restaurantrepo/" + encodedName;
-
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(url))
-                .GET()
-                .build();
-
-        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-        if (response.statusCode() != 200) return null;
-
-        Map<String, Object> attributes = mapper.readValue(response.body(), Map.class);
-
-        ArrayList<Dish> dishes = mapper.convertValue(
-                attributes.get("dishes"), new TypeReference<ArrayList<Dish>>() {});
-        if (dishes == null) dishes = new ArrayList<>();
-
-        ArrayList<RestaurantSchedule> schedules = mapper.convertValue(
-                attributes.get("restaurantSchedules"), new TypeReference<ArrayList<RestaurantSchedule>>() {});
-        if (schedules == null) schedules = new ArrayList<>();
-
-        ArrayList<String> cuisineStrings = mapper.convertValue(
-                attributes.get("cuisineTypes"), new TypeReference<ArrayList<String>>() {});
-
-        ArrayList<CuisineType> cuisineTypes = new ArrayList<>();
-        if (cuisineStrings != null) {
-            for (String s : cuisineStrings) cuisineTypes.add(CuisineType.valueOf(s));
-        }
-
-        String typeStr = (String) attributes.get("establishmentType");
-        establishmentType type = (typeStr != null) ? establishmentType.valueOf(typeStr) : null;
-
-        return new Restaurant.Builder()
-                .name((String) attributes.get("name"))
-                .dishes(dishes)
-                .restaurantSchedules(schedules)
-                .cuisineType(cuisineTypes)
-                .establishmentType(type)
-                .build();
-    }
 }

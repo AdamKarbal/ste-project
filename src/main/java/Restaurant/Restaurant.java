@@ -29,7 +29,6 @@ public class Restaurant {
         this.CuisineTypes = builder.CuisineTypes;
         this.establishmentType = builder.establishmentType;
     }
-    public Restaurant(){}
     // Getter & setter
 
 

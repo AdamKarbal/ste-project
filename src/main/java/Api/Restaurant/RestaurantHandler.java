@@ -69,7 +69,7 @@ public class RestaurantHandler implements HttpHandler {
                 Dish dish = objectMapper.readValue(readRequestBody(exchange), Dish.class);
                 restaurantManager.addDish(dish, restaurantName);
                 sendResponse(exchange, 201, "{\"message\": \"Plat ajouté\"}");
-            } catch (DishInDishes e) {
+            } catch (DishAlreadyInDishes e) {
                 sendErrorResponse(exchange, 409, e.getMessage());
             }
         }

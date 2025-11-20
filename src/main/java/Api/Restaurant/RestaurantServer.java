@@ -9,6 +9,10 @@ import java.util.concurrent.Executors;
 
 public class RestaurantServer {
     public static void main(String[] args) throws IOException {
+        startServer();
+    }
+
+    public static  HttpServer startServer() throws IOException {
         int port = 8001;
         String path = "/api/restaurant";
         RestaurantManager restaurantManager = new RestaurantManager();
@@ -17,5 +21,6 @@ public class RestaurantServer {
         server.setExecutor(Executors.newCachedThreadPool());
         server.start();
         System.out.println("✅ RestaurantService (Business) en ligne sur http://localhost:" + port + path);
+        return server;
     }
 }

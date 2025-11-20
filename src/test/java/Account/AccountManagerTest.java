@@ -17,8 +17,6 @@ public class AccountManagerTest {
 
     private static HttpServer server;
     private static boolean serverStartedByThisClass = false;
-
-    // Objets "Dummy" (Bouchons) pour satisfaire le constructeur de la Factory
     private RestaurantRepo dummyRepo;
     private RestaurantService dummyService;
     private RestaurantFactory restaurantFactory;

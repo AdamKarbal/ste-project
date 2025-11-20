@@ -31,15 +31,16 @@ class OrderTest {
 
     private AccountUser client;
     private Restaurant restaurant;
-    private RestaurantSchedule schedule;
     private Order order;
     private Dish pizza, burger;
 
-    static HttpServer accountRepo;
-    static HttpServer dishRepo;
-    static HttpServer orderRepo;
-    static HttpServer orderHandler;
-    static HttpServer restoRepo;
+    private static HttpServer accountRepo;
+    private static HttpServer dishRepo;
+    private static HttpServer orderRepo;
+    private static HttpServer orderHandler;
+    private static HttpServer restoRepo;
+
+    private static List<HttpServer> servers;
 
     @BeforeAll
     public static void setUpServers() throws IOException {
@@ -48,16 +49,21 @@ class OrderTest {
         orderRepo = OrderRepoServer.startServer();
         orderHandler = OrderServer.startServer();
         restoRepo = RestaurantRepoServer.startServer();
+
+        servers = List.of(accountRepo, dishRepo, orderRepo, orderHandler, restoRepo);
     }
 
     @AfterAll
     public static void stopServers() {
-        accountRepo.stop(0);
-        dishRepo.stop(0);
-        orderRepo.stop(0);
-        orderHandler.stop(0);
-        restoRepo.stop(0);
+        if (servers != null) {
+            for (HttpServer server : servers) {
+                if (server != null) {
+                    server.stop(0);
+                }
+            }
+        }
     }
+
 
     @BeforeEach
     void setup() {
@@ -75,7 +81,7 @@ class OrderTest {
 
         RestaurantScheduleManager.addSchedule(restaurant, today, start, end, 10);
 
-        schedule = restaurant.getRestaurantSchedules().get(0);
+
 
         order = new Order(client.getId(), restaurant.getName());
 

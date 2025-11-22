@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import {Component, EventEmitter, Input, Output} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import {RestaurantService} from '../../services/restaurantService';
@@ -12,7 +12,6 @@ import {RestaurantService} from '../../services/restaurantService';
 })
 export class RestaurantCardComponent {
   @Input() restaurant: any;
-
   constructor(private router: Router,private restaurantService : RestaurantService ) {}
 
   goToMenu() {
@@ -28,7 +27,7 @@ export class RestaurantCardComponent {
   createOrder() {
     const orderBody = {
       clientId: 42,
-      restaurant: this.restaurant.name
+      restaurantId: this.restaurant.name
     };
 
     this.restaurantService

@@ -18,6 +18,7 @@ export interface CartItem {
 export class OrderCartComponent {
 
   /** Contenu du panier */
+  @Input() orderTotal?: number;
   @Input() items: CartItem[] = [];
 
   /** Créneau choisi pour la livraison */
@@ -30,9 +31,7 @@ export class OrderCartComponent {
 
   /** Total calculé à partir des items */
   get totalPrice(): number {
-    return (this.items ?? []).reduce((sum, item) =>
-      sum + (item.dish.price || 0) * (item.quantity || 0), 0
-    );
+    return this.orderTotal??0;
   }
 
   /** Formatage du prix */

@@ -388,7 +388,19 @@ export class RestaurantMenuPage implements OnInit {
   }
 
   onDishRemoved(dish: Dish): void {
-    this.cartItems = this.cartItems.filter(i => i.dish.name !== dish.name);
+    const dishId = (dish as any).id;
+
+    if (!dishId) {
+      console.error('Dish sans id, impossible de l’ajouter à la commande');
+      return;
+    }
+
+    this.orderService.removeItem(dishId).subscribe({
+      next: (state) => {
+        console.log('Commande mise à jour (enlevé)', state);
+      },
+      error: (err) => console.error('Erreur removeItem :', err),
+    });
   }
 
   onConfirmOrder(): void {

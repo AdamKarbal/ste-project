@@ -18,6 +18,7 @@ import com.sun.net.httpserver.HttpHandler;
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Matcher;
@@ -50,6 +51,22 @@ public class DishRepoHandler implements HttpHandler {
             System.out.println(e);
             Sender.sendResponse(exchange,500,"Erreur interne");
         }
+    }
+
+    private void getAllDishes(HttpExchange exchange,String... params) throws IOException{
+        try{
+                List<Dish> dishes = repo.getAllDishes();
+                if(dishes==null){
+                    sendResponse(exchange,404,"Liste des restos vide");
+                    return;
+                }
+                String responseJson = mapper.writeValueAsString(dishes);
+                sendResponse(exchange, 200, responseJson);}
+        catch(Exception e){
+                e.printStackTrace();
+                sendResponse(exchange, 500, "Erreur interne du serveur : " + e.getMessage());
+        }
+
     }
 
     private void createDish(HttpExchange exchange,String... id) throws IOException {

@@ -31,4 +31,12 @@ export class orderService{
     );
   }
 
+  removeItem(dishId:number):Observable<orderStateModel>{
+    return this.httpClient.delete<orderStateModel>(`${this.orderUrl}${this.getCurrentOrderId()}/dish/${dishId}/`).pipe(
+      tap((state) => {
+        this.orderStateSubject.next(state);
+      })
+    );
+  }
+
 }

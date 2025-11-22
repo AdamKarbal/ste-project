@@ -106,7 +106,11 @@ public class OrderHandler implements HttpHandler{
             int orderId=Integer.parseInt(param[0]);
             int dishId=Integer.parseInt(param[1]);
             boolean completed = orderManager.removeItem(orderId,dishId);
-            if(completed) Sender.sendResponse(exchange,200, Requester.getOrderById(orderId) +"");
+            if(completed) {
+                Order currentOrder = Requester.getOrderById(orderId);
+                DishAddedDTO orderState = new DishAddedDTO(currentOrder.getId(),currentOrder.getDishes(),currentOrder.getPrice());
+                Sender.sendResponse(exchange,200, mapper.writeValueAsString(orderState));
+            }
             else{
                 Sender.sendResponse(exchange,400,"Dish not existing");
             }

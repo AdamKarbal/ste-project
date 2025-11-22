@@ -1,11 +1,15 @@
 import { Injectable } from '@angular/core';
+import {Observable} from 'rxjs';
+import { HttpClient } from '@angular/common/http';
 
 @Injectable({
   providedIn: 'root'
 })
 export class RestaurantService {
   baseUrl = 'http://localhost:8001';
-
+  orderServiceUrl = 'http://localhost:8000/api/';
+  constructor(private client : HttpClient) {
+  }
   /** Obtenir tous les restaurants */
   async getAllRestaurants() {
     console.log('[Service] 📡 Chargement de tous les restaurants...');
@@ -110,5 +114,12 @@ export class RestaurantService {
     ]);
     console.log('[Service] ✅ Filtres combinés chargés');
     return { cuisines, establishments };
+  }
+
+  createOrder(body: any): Observable<any> {
+    return this.client.post(
+      `${this.orderServiceUrl}order/`,
+      body
+    );
   }
 }

@@ -4,9 +4,9 @@
     <span class="logo-text">Sophia</span>
   </div>
 
-
-
   <div class="right">
-    <button (click)="goToOwner()">Mon compte</button>
+    <button (click)="toggleLogin()">
+      {{ isLoggedIn ? 'Se déconnecter' : 'Se connecter' }}
+    </button>
   </div>
 </nav>

@@ -8,9 +8,9 @@
     <h3>{{ restaurant.name }}</h3>
     <p class="type">{{ restaurant.establishmentType }}</p>
     <p class="cuisine">{{ restaurant.cuisineTypes.join(', ') }}</p>
-    <div class="restaurant-card">
+
+    <div class="restaurant-card" *ngIf="isLoggedIn">
       <button class="order-btn" (click)="goToMenu()">Commander</button>
     </div>
-
   </div>
 </div>

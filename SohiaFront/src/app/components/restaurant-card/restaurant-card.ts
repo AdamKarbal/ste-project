@@ -1,6 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import { AuthService } from '../../services/authService';
 
 @Component({
   selector: 'app-restaurant-card',
@@ -11,19 +12,16 @@ import { Router } from '@angular/router';
 })
 export class RestaurantCardComponent {
   @Input() restaurant: any;
+  isLoggedIn = false;
 
-  constructor(private router: Router) {}
-
-  goToMenu() {
-    if (!this.restaurant?.name) {
-      console.warn('Restaurant sans nom, impossible de naviguer.');
-      return;
-    }
-
-    console.log('Navigation vers le menu du restaurant :', this.restaurant.name);
-
-    // ⚠️ Ne pas encoder manuellement, Angular le fait déjà
-    this.router.navigate(['/restaurant-menu', this.restaurant.name]);
+  constructor(private router: Router, private auth: AuthService) {
+    this.auth.isLoggedIn$.subscribe((status: boolean) => {
+      this.isLoggedIn = status;
+    });
   }
 
+  goToMenu(): void {
+    if (!this.restaurant?.name) return;
+    this.router.navigate(['/restaurant-menu', this.restaurant.name]);
+  }
 }

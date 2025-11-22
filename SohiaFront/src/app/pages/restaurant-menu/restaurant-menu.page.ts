@@ -180,12 +180,17 @@ import { OrderCartComponent } from '../../components/order-card/order-cart.compo
 import { Dish } from '../../models/dish.models';
 import { RestaurantSchedule } from '../../models/restaurant-schedule.model';
 
-import { Observable, of } from 'rxjs';
+import {Observable, of, tap} from 'rxjs';
+import {HttpClient} from '@angular/common/http';
+import {DishModel} from '../../models/DishModel';
+import {DishCreateResponse} from '../../models/dishCreateResponse';
+import {orderService} from '../../services/orderService';
+import {orderStateModel} from '../../models/orderStateModel';
 
 interface Restaurant {
   id: number | string;
   name: string;
-  dishes: Dish[];
+  dishes: DishModel[];
   restaurantSchedules: RestaurantSchedule[];
 }
 
@@ -201,30 +206,36 @@ export class RestaurantService {
     id: '1',
     name: 'SophiaEat - Restaurant de test',
     dishes: [
-      {
+      new DishModel({
         name: 'Pizza Margherita',
         description: 'Tomate, mozzarella, basilic frais',
         price: 11.9,
-        category: 'Pizza',
-        type: 'MAIN',
-        dishTag: ['Végétarien']
-      },
-      {
+        category: 'Main_Course',
+        type: 'Pizza',
+        dishTag: ['Végétarien'],
+        availableToppings: [],
+        selectedToppings: []
+      }),
+      new DishModel({
         name: 'Burger Classique',
         description: 'Bœuf, cheddar, salade, tomate, sauce maison',
         price: 13.5,
-        category: 'Burger',
-        type: 'MAIN',
-        dishTag: ['Best-seller']
-      },
-      {
+        category: 'Starter',
+        type: 'Meat',
+        dishTag: ['Best-seller'],
+        availableToppings: [],
+        selectedToppings: []
+      }),
+      new DishModel({
         name: 'Tiramisu',
         description: 'Dessert italien au café',
         price: 6.0,
         category: 'Dessert',
-        type: 'DESSERT',
-        dishTag: []
-      }
+        type: 'Cake',
+        dishTag: [],
+        availableToppings: [],
+        selectedToppings: []
+      }),
     ],
     restaurantSchedules: [
       { id: 'slot1', day: 'MONDAY',    start: '11:30', end: '12:00', capacity: 10 },
@@ -258,23 +269,29 @@ export class RestaurantService {
   styleUrls: ['./restaurant-menu.page.css']
 })
 export class RestaurantMenuPage implements OnInit {
-
+  dishRepoUrl = 'http://localhost:8004/api/dishRepo/'
   restaurant: Restaurant | null = null;
   isLoading = true;
   errorMessage: string | null = null;
 
   cartItems: CartItem[] = [];
   selectedSchedule: RestaurantSchedule | undefined;
+  orderState: orderStateModel | null = null;
 
   constructor(
     private route: ActivatedRoute,
-    private router: Router,
-    private restaurantService: RestaurantService
+    private restaurantService: RestaurantService,
+    private httpClient : HttpClient,
+    private orderService : orderService
   ) {}
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id') || '1';
     this.loadRestaurant(id);
+    this.orderService.orderState$.subscribe((state) => {
+      this.orderState = state;
+      this.rebuildCartFromOrderState();
+    });
   }
 
   private loadRestaurant(id: string): void {
@@ -284,6 +301,19 @@ export class RestaurantMenuPage implements OnInit {
     this.restaurantService.getRestaurantById(id).subscribe({
       next: (restaurant) => {
         this.restaurant = restaurant;
+        restaurant.dishes.forEach((dish) => {
+          this.httpClient.post<DishCreateResponse>(this.dishRepoUrl, dish.toCreateJson())
+            .subscribe({
+              next: (response) => {
+                console.log('Plat bien ajouté :', dish.name, response);
+                dish.setId(response.id);
+                console.log('Nouvel id :',dish.id);
+              },
+              error: (err) => {
+                console.error('Erreur de création pour', dish.name, err);
+              }
+            });
+        });
         this.isLoading = false;
       },
       error: (err) => {
@@ -294,14 +324,28 @@ export class RestaurantMenuPage implements OnInit {
     });
   }
 
-  // --------- Total de la commande ---------
+  private rebuildCartFromOrderState(): void {
+    if (!this.orderState || !this.restaurant) {
+      this.cartItems = [];
+      return;
+    }
 
-  get totalPrice(): number {
-    return this.cartItems.reduce(
-      (sum, item) => sum + item.dish.price * item.quantity,
-      0
-    );
+    const dishesMap = this.orderState.dishes; // { [dishId]: quantity }
+    const items: CartItem[] = [];
+
+    Object.entries(dishesMap).forEach(([dishIdStr, quantity]) => {
+      const dishId = Number(dishIdStr);
+      const dish = this.restaurant!.dishes.find(d => (d as any).id === dishId);
+      if (!dish) {
+        console.warn('Dish id', dishId, 'introuvable dans restaurant.dishes');
+        return;
+      }
+      items.push({ dish, quantity });
+    });
+
+    this.cartItems = items;
   }
+
 
   // --------- Gestion des créneaux ---------
 
@@ -312,14 +356,24 @@ export class RestaurantMenuPage implements OnInit {
   // --------- Gestion du panier ---------
 
   onAddDish(event: { dish: Dish; quantity: number }): void {
-    const { dish, quantity } = event;
+    const { dish } = event;
+    const dishId = (dish as any).id;
 
-    const existing = this.cartItems.find(i => i.dish.name === dish.name);
-    if (existing) {
-      existing.quantity += quantity;
-    } else {
-      this.cartItems.push({ dish, quantity });
+    if (!dishId) {
+      console.error('Dish sans id, impossible de l’ajouter à la commande');
+      return;
     }
+
+    const body = {
+      quantity : event.quantity
+    };
+
+    this.orderService.addItem(dishId,body).subscribe({
+      next: (state) => {
+        console.log('Commande mise à jour :', state);
+      },
+      error: (err) => console.error('Erreur addItem :', err),
+    });
   }
 
   onQuantityChanged(event: { dish: Dish; quantity: number }): void {
@@ -338,19 +392,11 @@ export class RestaurantMenuPage implements OnInit {
   }
 
   onConfirmOrder(): void {
-    if (!this.restaurant || !this.selectedSchedule || this.cartItems.length === 0) {
-      console.warn('Commande incomplète');
-      return;
-    }
-
-    const fakeOrderId = 123; // plus tard : id renvoyé par ton backend
-
-    console.log('Total envoyé à la page paiement :', this.totalPrice);
-
-    this.router.navigate(['/payment', fakeOrderId], {
-      state: {
-        totalAmount: this.totalPrice
-      }
+    // Ici tu pourras appeler ton OrderService / API Java pour créer l'Order
+    console.log('Commande confirmée :', {
+      restaurant: this.restaurant,
+      schedule: this.selectedSchedule,
+      items: this.cartItems
     });
   }
 }

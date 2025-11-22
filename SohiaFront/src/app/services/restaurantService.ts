@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core';
-import {Observable} from 'rxjs';
+import {Observable, Subject, tap} from 'rxjs';
 import { HttpClient } from '@angular/common/http';
+import {orderCreateResponse} from '../models/orderCreateResponse';
+import {ConsoleLogger} from '@angular/compiler-cli';
 
 @Injectable({
   providedIn: 'root'
@@ -8,6 +10,8 @@ import { HttpClient } from '@angular/common/http';
 export class RestaurantService {
   baseUrl = 'http://localhost:8001';
   orderServiceUrl = 'http://localhost:8000/api/';
+  private orderCreatedIdSubject = new Subject<number>();
+  orderCreatedId$ = this.orderCreatedIdSubject.asObservable();
   constructor(private client : HttpClient) {
   }
   /** Obtenir tous les restaurants */

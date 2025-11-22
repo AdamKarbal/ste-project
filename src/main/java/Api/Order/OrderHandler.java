@@ -9,6 +9,7 @@ import Order.Order;
 import Order.OrderManager;
 import Order.OrderState;
 import Dish.DishNotFound;
+import Dish.DishAddedDTO;
 import Payment.PaymentMethod;
 import Restaurant.Restaurant;
 import Restaurant.Enum.establishmentType;
@@ -81,7 +82,11 @@ public class OrderHandler implements HttpHandler{
             int dishId=Integer.parseInt(param[1]);
             String body = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
             boolean completed = orderManager.addItem(orderId,dishId,(Integer)mapper.readValue(body,Map.class).get("quantity"));
-            if(completed) Sender.sendResponse(exchange,200, Requester.getOrderById(orderId) +"");
+            if(completed){
+                Order currentOrder = Requester.getOrderById(orderId);
+                DishAddedDTO orderState = new DishAddedDTO(currentOrder.getId(),currentOrder.getDishes(),currentOrder.getPrice());
+                Sender.sendResponse(exchange,200, mapper.writeValueAsString(orderState));
+            }
             else{
                 Sender.sendResponse(exchange,400,"Dish not existing");
             }

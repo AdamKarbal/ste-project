@@ -68,7 +68,7 @@ public class RestaurantRepoHandler implements HttpHandler {
             sendResponse(exchange, 400, "{\"error\":\"Invalid request body: " + e.getMessage() + "\"}");
         }
     }
- public void getAllRestaurants(HttpExchange exchange,String... param) throws IOException{
+    public void getAllRestaurants(HttpExchange exchange,String... param) throws IOException{
         try{List<Restaurant> restaurants = repo.getRestaurants();
         if(restaurants==null){
             sendResponse(exchange,404,"Liste des restos vide");
@@ -80,7 +80,6 @@ public class RestaurantRepoHandler implements HttpHandler {
             e.printStackTrace();
             sendResponse(exchange, 500, "Erreur interne du serveur : " + e.getMessage());
         }
-
     }
     private void createRestaurant(HttpExchange exchange, String... params) throws IOException {
         try {

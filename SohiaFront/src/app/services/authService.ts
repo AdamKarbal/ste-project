@@ -1,22 +1,24 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
+import { Router } from '@angular/router';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 export class AuthService {
-  private loggedIn = new BehaviorSubject<boolean>(false);
-  isLoggedIn$ = this.loggedIn.asObservable();
+  private isLoggedInSubject = new BehaviorSubject<boolean>(false);
+  isLoggedIn$ = this.isLoggedInSubject.asObservable();
 
-  get isLoggedIn(): boolean {
-    return this.loggedIn.value;
-  }
+  constructor(private router: Router) {}
 
+  /** Connexion instantanée */
   login(): void {
-    this.loggedIn.next(true);
+    this.isLoggedInSubject.next(true);
+    alert('👋 Team O — Vous êtes maintenant connecté !');
   }
 
+  /** Déconnexion avec redirection */
   logout(): void {
-    this.loggedIn.next(false);
+    this.isLoggedInSubject.next(false);
+    alert('👋 Vous êtes maintenant déconnecté !');
+    this.router.navigate(['/home']);
   }
 }

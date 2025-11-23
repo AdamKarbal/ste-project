@@ -24,4 +24,9 @@ export class RestaurantCardComponent {
     if (!this.restaurant?.name) return;
     this.router.navigate(['/restaurant-menu', this.restaurant.name]);
   }
+
+  goToDetails(): void {
+    if (!this.restaurant?.name) return;
+    this.router.navigate(['/restaurant-detail', this.restaurant.name]);
+  }
 }

@@ -43,6 +43,7 @@ export class NavbarComponent {
   }
 
   goHome() {
+    this.auth.logout();
     this.router.navigate(['/landing']);
   }
 

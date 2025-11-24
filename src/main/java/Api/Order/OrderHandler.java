@@ -10,6 +10,7 @@ import Order.OrderManager;
 import Order.OrderState;
 import Dish.DishNotFound;
 import Dish.DishAddedDTO;
+import Payment.PaymentDoneDTO;
 import Payment.PaymentMethod;
 import Restaurant.Restaurant;
 import Restaurant.Enum.establishmentType;
@@ -126,11 +127,12 @@ public class OrderHandler implements HttpHandler{
             int orderId=Integer.parseInt(param[0]);
             PaymentMethod paymentMethod = PaymentMethod.valueOf((String) param[1].toUpperCase());
             OrderState state = orderManager.finishOrder(orderId,paymentMethod);
+            PaymentDoneDTO paymentDoneDTO = new PaymentDoneDTO(orderId,state);
             if(state==OrderState.PAID){
-                Sender.sendResponse(exchange,200,"commande payée");
+                Sender.sendResponse(exchange,200,mapper.writeValueAsString(paymentDoneDTO));
             }
             else{
-                Sender.sendResponse(exchange,401,"Erreur");
+                Sender.sendResponse(exchange,401,mapper.writeValueAsString(paymentDoneDTO));
             }
         } catch (IOException e) {
             System.out.println(e);

@@ -13,7 +13,10 @@ export class AccountService {
   constructor(private httpClient: HttpClient) {}
 
   createUser(nom: string): Observable<AccountUser> {
-    const body = { name: nom };
+    const body = {
+      name: nom,
+      credit: 30.0
+    };
 
     return this.httpClient.post<AccountUser>(`${this.accountUrl}/user/`, body);
   }

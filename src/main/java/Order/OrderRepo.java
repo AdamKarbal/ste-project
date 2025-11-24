@@ -2,6 +2,7 @@ package Order;
 
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -24,5 +25,19 @@ public class OrderRepo {
             return true;
         }
         return false;
+    }
+    public boolean updateOrder(int id, Order updatedOrder) {
+        Order oldOrder = findById(id).orElseThrow(
+                () -> new OrderNotFoundException("Commande " + id + " introuvable."));
+        if (oldOrder!=null) {
+            orders.remove(id);
+            orders.put(id,updatedOrder);
+            return true;
+        }
+        return false;
+    }
+
+    public List<Order> getAllOrders(){
+        return orders.values().stream().toList();
     }
 }

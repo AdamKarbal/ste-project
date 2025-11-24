@@ -4,6 +4,7 @@ import Restaurant.Enum.CuisineType;
 import Restaurant.Enum.establishmentType;
 import Restaurant.Exception.dishNoInDishes;
 import Restaurant.Enum.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -18,6 +19,8 @@ public class Restaurant {
     private List<CuisineType> CuisineTypes;
     private establishmentType establishmentType;
     //Constructeur
+    public Restaurant() {
+    }
 
     public Restaurant(Builder builder){
         this.name = builder.name;

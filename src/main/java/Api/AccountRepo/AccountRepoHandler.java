@@ -59,16 +59,26 @@ public class AccountRepoHandler implements HttpHandler {
                 Sender.sendResponse(exchange,400,"Nom manquant");
             }
             AccountUser user;
-            if(attributes.containsKey("credit")){
-                user=repo.save(new AccountUser(name,(double)attributes.get("credit")));
-            }
-            else{
-                user=repo.save(new AccountUser(name));
+            if (attributes.containsKey("credit")) {
+                Object creditObj = attributes.get("credit");
+
+                double credit = 0;
+                if (creditObj instanceof Number) {
+                    credit = ((Number) creditObj).doubleValue();
+                } else {
+                    Sender.sendResponse(exchange, 400, "Format du crédit invalide");
+                    return;
+                }
+
+                user = repo.save(new AccountUser(name, credit));
+            } else {
+                user = repo.save(new AccountUser(name));
             }
             AccountUserCreateDTO toSend = new AccountUserCreateDTO(user.getName(), user.getId());
             Sender.sendResponse(exchange,200,mapper.writeValueAsString(toSend));
 
-        } catch (IOException e) {
+        } catch (Exception e) {
+            System.out.println(e);
             throw new RuntimeException(e);
         }
     }

@@ -8,6 +8,8 @@ import {PaymentPage} from './pages/payment/payment.page';
 export const routes: Routes = [
   { path: '', component: LandingPageComponent },
   { path: 'home', component: HomeComponent },
+
+  // Page menu d’un restaurant (nom utilisé comme identifiant)
   { path: 'restaurant-menu/:name', component: RestaurantMenuPage },
   {
     path: 'payment/:orderId',

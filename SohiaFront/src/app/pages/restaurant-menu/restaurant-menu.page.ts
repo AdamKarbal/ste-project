@@ -282,7 +282,8 @@ export class RestaurantMenuPage implements OnInit {
     private route: ActivatedRoute,
     private restaurantService: RestaurantService,
     private httpClient : HttpClient,
-    private orderService : orderService
+    private orderService : orderService,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -404,11 +405,19 @@ export class RestaurantMenuPage implements OnInit {
   }
 
   onConfirmOrder(): void {
-    // Ici tu pourras appeler ton OrderService / API Java pour créer l'Order
-    console.log('Commande confirmée :', {
-      restaurant: this.restaurant,
-      schedule: this.selectedSchedule,
-      items: this.cartItems
-    });
+    if (!this.restaurant || !this.selectedSchedule || this.cartItems.length === 0) {
+      console.warn('Commande incomplète');
+      return;
+    }
+
+    const fakeOrderId = 123; // plus tard : id renvoyé par ton backend
+
+    /*console.log('Total envoyé à la page paiement :', this.totalPrice);
+
+    this.router.navigate(['/payment', fakeOrderId], {
+      state: {
+        totalAmount: this.totalPrice
+      }
+    });*/
   }
 }

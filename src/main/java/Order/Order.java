@@ -1,12 +1,21 @@
 package Order;
 
 import Account.AccountUser;
+import Api.Utils.Requester;
 import Restaurant.Exception.ScheduleNoExist;
 import Restaurant.Restaurant;
 import Restaurant.RestaurantSchedule;
 import Restaurant.RestaurantScheduleManager;
 import Dish.Dish;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
+import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -19,40 +28,55 @@ public class Order {
     private int id;
     private double price;
     private OrderState state;
-    private final Map<Dish, Integer> dishes;
-    private Restaurant restaurant;
-    private AccountUser client;
+    private Map<Integer, Integer> dishes;
+    @JsonProperty("restaurant")
+    private String restaurantId;
+    private int clientId;
     private OrderDeliveryPoint deliveryPoint;
     private LocalDateTime deliveryTime;
     private String idSchedule;
-
-    public Order(AccountUser client,Restaurant restaurant){
+    public Order(int clientId,String restaurantId){
         compteur++;
         id=compteur;
         price=0;
         state=OrderState.CREATED;
-        this.dishes = new HashMap<>();
-        this.restaurant= restaurant;
-        this.client=client;
+        this.dishes=new HashMap<>();
+        this.restaurantId= restaurantId;
+        this.clientId=clientId;
+    }
+    public Order(int clientId,String restaurantId,double price){ // utilisé pour les tests
+        this(clientId,restaurantId);
+        this.price=price;
+    }
+    public Order(){}
+
+    public int getClientId(){
+        return clientId;
     }
 
+    public String getRestaurant() {
 
-    public Restaurant getRestaurant() {
-
-        return restaurant;
+        return restaurantId;
     }
 
     public OrderState getState(){
         return state;
     }
+    @JsonIgnore
     public AccountUser getClient(){
-        return client;
+        return Requester.getClientById(clientId);
     }
     public int getId(){
         return id;
     }
 
-    public void setPrice(float price) { this.price = price; }
+    public void setId(int id){
+        this.id=id;
+    }
+
+    public void setPrice(double price) {
+        this.price = price;
+    }
 
     public double getPrice() { return price; }
 
@@ -80,7 +104,7 @@ public class Order {
 
     public RestaurantSchedule chooseSchedule(LocalTime time) {
         RestaurantSchedule schedule = RestaurantScheduleManager
-                .getAvailableScheduleFor(getRestaurant(), time)
+                .getAvailableScheduleFor(Requester.getRestaurantByName(getRestaurant()), time)
                 .orElseThrow(() -> new ScheduleNoExist("Aucun créneau disponible à cette heure : " + time));
 
         setIdSchedule(schedule.getId());
@@ -96,7 +120,7 @@ public class Order {
         }*/
         if(this.state!=newState){
             this.state = newState;
-            System.out.println("L'état de la commande a bien changé pour : " + newState);
+            //System.out.println("L'état de la commande a bien changé pour : " + newState);
         }
     }
 
@@ -121,48 +145,55 @@ public class Order {
     }
 
 
-    public Map<Dish, Integer> getDishes() {
+    public Map<Integer, Integer> getDishes() {
         return dishes;
     }
 
-    public boolean addDish(Dish dish, int quantity) throws DifferentRestaurantException {
+
+    public boolean addDish(int dishId, int quantity) {
         /*if (dish == null || quantity <= 0) return false;
 
         if (!restaurant.containsDish(dish)) {
             throw new DifferentRestaurantException("Impossible d'ajouter le plat '" + dish.getName() + "' : il provient d'un autre restaurant ");
         }*/
-
-        dishes.put(dish, dishes.getOrDefault(dish, 0) + quantity);
+        dishes.put(dishId, dishes.getOrDefault(dishId, 0) + quantity);
         updatePrice();
         setState(OrderState.IN_PREPARATION);
         return true;
     }
 
-    public void removeDish(Dish dish) {
-        if (dishes.containsKey(dish)) {
-            dishes.remove(dish);
+    public void removeDish(int dishId) {
+        if (dishes.containsKey(dishId)) {
+            dishes.remove(dishId);
             updatePrice();
+
             if (dishes.isEmpty()) {
                 setState(OrderState.CREATED);
             }
         }
     }
 
-    public void updateDishQuantity(Dish dish, int newQuantity) {
-        if (dishes.containsKey(dish)) {
-            if (newQuantity <= 0) {
-                removeDish(dish);
-            } else {
-                dishes.put(dish, newQuantity);
-                updatePrice();
-            }
+    public void updateDishQuantity(int dishId, int newQuantity) {
+        if (newQuantity <= 0) {
+            removeDish(dishId);
+        } else if (dishes.containsKey(dishId)) {
+            dishes.put(dishId, newQuantity);
         }
+        updatePrice();
     }
 
     public void updatePrice() {
-        price = 0f;
-        for (Map.Entry<Dish, Integer> entry : dishes.entrySet()) {
-            price += entry.getKey().getPrice() * entry.getValue();
+        price = 0;
+        for (Map.Entry<Integer, Integer> entry : dishes.entrySet()) {
+            int dishId = entry.getKey();
+            int quantity = entry.getValue();
+
+            try {
+                Dish dish = Requester.getDishById(dishId);
+                price += dish.getPrice() * quantity;
+            } catch (Exception e) {
+                System.err.println("Impossible de récupérer le plat " + dishId);
+            }
         }
     }
 

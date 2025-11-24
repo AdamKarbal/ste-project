@@ -14,8 +14,9 @@ public class RestaurantRepo {
         return restaurants;
     }
 
-    public void addRestaurant(Restaurant resto){
+    public Restaurant addRestaurant(Restaurant resto){
         restaurants.add(resto);
+        return resto;
     }
 
     public boolean restaurantExist(Restaurant resto){
@@ -27,5 +28,15 @@ public class RestaurantRepo {
                 .filter(r -> r.getName().equals(name))
                 .findFirst()
                 .orElse(null);
+    }
+
+    public boolean updateRestaurant(String name, Restaurant updatedRestaurant) {
+        Restaurant oldRestaurant = getRestaurantByName(name);
+        if (oldRestaurant != null) {
+            restaurants.remove(oldRestaurant);
+            restaurants.add(updatedRestaurant);
+            return true;
+        }
+        return false;
     }
 }

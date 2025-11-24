@@ -1,0 +1,44 @@
+<aside class="schedule-sidebar">
+  <div class="sidebar-header">
+    <h2 class="sidebar-title">
+      {{ restaurantName || 'Horaires de livraison' }}
+    </h2>
+    <p class="sidebar-subtitle">
+      Choisis un créneau pour ta livraison.
+    </p>
+  </div>
+
+  <div class="schedule-list" *ngIf="groupedSchedulesByDay.length > 0; else noSchedule">
+    <div
+      class="day-group"
+      *ngFor="let group of groupedSchedulesByDay"
+    >
+      <div class="day-header">
+        {{ group.label }}
+      </div>
+
+      <div class="slot-list">
+        <button
+          type="button"
+          class="slot-chip"
+          *ngFor="let slot of group.slots; trackBy: trackByScheduleId"
+          [class.slot-chip--selected]="slot.id === selectedScheduleId"
+          (click)="onSelectSchedule(slot)"
+        >
+          <div class="slot-time">
+            {{ formatTime(slot.start) }} - {{ formatTime(slot.end) }}
+          </div>
+          <div class="slot-capacity">
+            Capacité : {{ slot.capacity }}
+          </div>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <ng-template #noSchedule>
+    <div class="empty-state">
+      Aucun créneau disponible pour ce restaurant.
+    </div>
+  </ng-template>
+</aside>

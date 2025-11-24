@@ -1,0 +1,7 @@
+<h3>Méthode de paiement</h3>
+
+<div class="method"
+     *ngFor="let method of methods"
+     (click)="select(method)">
+  {{ method }}
+</div>

@@ -34,22 +34,6 @@ public class RestaurantManager {
     }
 
 
-    //Méthodes
-    // Pourquoi on fait comme ca ? parceque c'est au manager de demandé au restaurant l'état est en fonction il choisit quoi faire
-    // c'est pas au restaurant de le faire même si il verifie.
-    public void updateSchedule(DayOfTheWeek day, LocalTime start, LocalTime end, int capacity,String name) {
-        Restaurant restaurant = getRestaurantFromRepo(name);
-        RestaurantScheduleManager.updateSchedule(restaurant, day, start, end, capacity);
-        saveRestaurant(restaurant);
-    }
-
-
-    public void updateCapacity(DayOfTheWeek day, LocalTime start, LocalTime end, int capacity, String name) throws ScheduleNoExist {
-        Restaurant restaurant = getRestaurantFromRepo(name);
-        RestaurantScheduleManager.updateCapacity(restaurant, day, start, end, capacity);
-        saveRestaurant(restaurant);
-    }
-
     public void addDish(Dish d, String name) throws DishAlreadyInDishes {
         Restaurant restaurant = getRestaurantFromRepo(name);
         if(restaurant.alreadyDish(d)) throw new DishAlreadyInDishes("Le plat "+ d+ " est déjà dans le restaurant." ) ;

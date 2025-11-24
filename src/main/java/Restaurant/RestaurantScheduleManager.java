@@ -2,25 +2,32 @@ package Restaurant;
 
 import Restaurant.Enum.DayOfTheWeek;
 import Restaurant.Exception.ScheduleNoExist;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class RestaurantScheduleManager {
-    public static List<RestaurantSchedule> getSchedules(Restaurant restaurant) {
+    public RestaurantScheduleManager(){};
+
+    public List<RestaurantSchedule> getSchedules(String restaurantName) {
+        Restaurant restaurant = getRestaurant(restaurantName);
         if (restaurant == null || restaurant.getRestaurantSchedules() == null)
             return List.of();
 
         return restaurant.getRestaurantSchedules();
     }
 
-    public static List<RestaurantSchedule> getTodaySchedules(Restaurant restaurant) {
+    public List<RestaurantSchedule> getTodaySchedules(String restaurantName) {
+        Restaurant restaurant = getRestaurant(restaurantName);
         if (restaurant == null || restaurant.getRestaurantSchedules() == null)
             return List.of();
 
@@ -34,7 +41,8 @@ public class RestaurantScheduleManager {
                 .collect(Collectors.toList());
     }
 
-    public static Optional<RestaurantSchedule> getAvailableScheduleFor(Restaurant restaurant, LocalTime requestedTime) {
+    public Optional<RestaurantSchedule> getAvailableScheduleFor(String restaurantName, LocalTime requestedTime) {
+        Restaurant restaurant = getRestaurant(restaurantName);
         if (restaurant == null || restaurant.getRestaurantSchedules() == null || requestedTime == null)
             return Optional.empty();
 
@@ -48,7 +56,8 @@ public class RestaurantScheduleManager {
                 .findFirst();
     }
 
-    public static boolean addSchedule(Restaurant restaurant, DayOfTheWeek day, LocalTime start, LocalTime end, int capacity) {
+    public boolean addSchedule(String restaurantName, DayOfTheWeek day, LocalTime start, LocalTime end, int capacity) {
+        Restaurant restaurant = getRestaurant(restaurantName);
         if (restaurant == null || restaurant.getRestaurantSchedules() == null || start == null || end == null || day == null)
             return false;
 
@@ -63,7 +72,7 @@ public class RestaurantScheduleManager {
     }
 
 
-    private static void createIntervals(Restaurant restaurant, DayOfTheWeek day, LocalTime start, LocalTime end, int capacity) {
+    private void createIntervals(Restaurant restaurant, DayOfTheWeek day, LocalTime start, LocalTime end, int capacity) {
         LocalTime current = start;
         do {
             if (!restaurant.alreadyScheduled(current, current.plusMinutes(30), day)) {
@@ -74,7 +83,8 @@ public class RestaurantScheduleManager {
     }
 
 
-    public static void updateSchedule(Restaurant restaurant, DayOfTheWeek day, LocalTime start, LocalTime end, int capacity) {
+    public void updateSchedule(String restaurantName, DayOfTheWeek day, LocalTime start, LocalTime end, int capacity) {
+        Restaurant restaurant = getRestaurant(restaurantName);
         Objects.requireNonNull(day);
         Objects.requireNonNull(start);
         Objects.requireNonNull(end);
@@ -84,11 +94,12 @@ public class RestaurantScheduleManager {
             schedules.removeIf(s -> schedulesOverlap(day, start, end, s));
         }
 
-        RestaurantScheduleManager.addSchedule(restaurant, day, start, end, capacity);
+        addSchedule(restaurantName, day, start, end, capacity);
     }
 
            
-    public static void updateCapacity(Restaurant restaurant, DayOfTheWeek day, LocalTime start, LocalTime end, int capacity) throws ScheduleNoExist {
+    public void updateCapacity(String restaurantName, DayOfTheWeek day, LocalTime start, LocalTime end, int capacity) throws ScheduleNoExist {
+        Restaurant restaurant = getRestaurant(restaurantName);
         Objects.requireNonNull(day);
         Objects.requireNonNull(start);
         Objects.requireNonNull(end);
@@ -105,7 +116,7 @@ public class RestaurantScheduleManager {
         }
     }
 
-    private static boolean schedulesOverlap(DayOfTheWeek targetDay, LocalTime start, LocalTime end, RestaurantSchedule s) {
+    private boolean schedulesOverlap(DayOfTheWeek targetDay, LocalTime start, LocalTime end, RestaurantSchedule s) {
         DayOfTheWeek sDay = s.getDay();
         LocalTime sStart = s.getStart();
         LocalTime sEnd = sStart.plusMinutes(30);
@@ -116,7 +127,7 @@ public class RestaurantScheduleManager {
         return false;
     }
 
-    private static boolean scheduleInRange(DayOfTheWeek targetDay, LocalTime start, LocalTime end, RestaurantSchedule s) {
+    private boolean scheduleInRange(DayOfTheWeek targetDay, LocalTime start, LocalTime end, RestaurantSchedule s) {
         DayOfTheWeek sDay = s.getDay();
         LocalTime sStart = s.getStart();
         LocalTime sEnd = sStart.plusMinutes(30);
@@ -127,33 +138,35 @@ public class RestaurantScheduleManager {
             return intervalOverlap(start, end, sStart, sEnd);
         } else {
             if (sDay == targetDay && !sStart.isBefore(start)) return true;
-            return sDay == RestaurantScheduleManager.nextDay(targetDay) && sStart.isBefore(end);
+            return sDay == nextDay(targetDay) && sStart.isBefore(end);
         }
     }
 
-    private static boolean intervalOverlap(LocalTime aStart, LocalTime aEnd, LocalTime bStart, LocalTime bEnd) {
+    private boolean intervalOverlap(LocalTime aStart, LocalTime aEnd, LocalTime bStart, LocalTime bEnd) {
         return !aEnd.isBefore(bStart) && !bEnd.isBefore(aStart);
     }
 
-
-    public static boolean removeScheduleById(Restaurant restaurant, String id) {
+    public boolean removeScheduleById(String restaurantName, String id) {
+        Restaurant restaurant = getRestaurant(restaurantName);
         if (restaurant == null || restaurant.getRestaurantSchedules() == null) return false;
         return restaurant.getRestaurantSchedules().removeIf(s -> s.getId().equals(id));
     }
 
-    public static int getCapacityById(Restaurant restaurant, String id) {
-        if (restaurant == null || restaurant.getRestaurantSchedules() == null) throw new RuntimeException("t'es une merde le s");
+    public int getCapacityById(String restaurantName, String id) {
+        Restaurant restaurant = getRestaurant(restaurantName);
+        if (restaurant == null || restaurant.getRestaurantSchedules() == null) throw new RuntimeException("Erreur");
         for (RestaurantSchedule s : restaurant.getRestaurantSchedules()) {
             if (s.getId().equals(id)) return s.getCapacity();
         }
         throw new ScheduleNoExist("ce schedule n'existe pas");
     }
 
-    public static boolean checkCapacity(Restaurant restaurant,String id){
-        return getCapacityById(restaurant,id)>0;
+    public boolean checkCapacity(String restaurantName,String id){
+        return getCapacityById(restaurantName, id)>0;
     }
 
-    public static boolean updateCapacityById(Restaurant restaurant, String id, int capacity) {
+    public boolean updateCapacityById(String restaurantName, String id, int capacity) {
+        Restaurant restaurant = getRestaurant(restaurantName);
         if (restaurant == null || restaurant.getRestaurantSchedules() == null) return false;
         for (RestaurantSchedule s : restaurant.getRestaurantSchedules()) {
             if (s.getId().equals(id)) {
@@ -164,7 +177,8 @@ public class RestaurantScheduleManager {
         return false;
     }
 
-    public static boolean incrementCapacityById(Restaurant restaurant, String id, int capacity) {
+    public boolean incrementCapacityById(String restaurantName, String id, int capacity) {
+        Restaurant restaurant = getRestaurant(restaurantName);
         if (restaurant == null || restaurant.getRestaurantSchedules() == null) return false;
         for (RestaurantSchedule s : restaurant.getRestaurantSchedules()) {
             if (s.getId().equals(id)) {
@@ -175,11 +189,12 @@ public class RestaurantScheduleManager {
         return false;
     }
 
-    public static boolean isOpenNow(Restaurant restaurant) {
-        return isOpenAt(restaurant, LocalDateTime.now());
+    public boolean isOpenNow(String restaurantName) {
+        return isOpenAt(restaurantName, LocalDateTime.now());
     }
 
-    public static boolean isOpenAt(Restaurant restaurant, LocalDateTime dateTime) {
+    public boolean isOpenAt(String restaurantName, LocalDateTime dateTime) {
+        Restaurant restaurant = getRestaurant(restaurantName);
         if (restaurant == null || restaurant.getRestaurantSchedules() == null) return false;
 
         LocalTime time = dateTime.toLocalTime();
@@ -192,7 +207,7 @@ public class RestaurantScheduleManager {
         );
     }
 
-    public static DayOfTheWeek convertDayOfWeek(DayOfWeek dow) {
+    public DayOfTheWeek convertDayOfWeek(DayOfWeek dow) {
         return switch (dow) {
             case MONDAY -> DayOfTheWeek.MONDAY;
             case TUESDAY -> DayOfTheWeek.TUESDAY;
@@ -204,7 +219,7 @@ public class RestaurantScheduleManager {
         };
     }
 
-    public static DayOfTheWeek nextDay(DayOfTheWeek day){
+    private DayOfTheWeek nextDay(DayOfTheWeek day){
         return switch (day) {
             case MONDAY -> DayOfTheWeek.TUESDAY;
             case TUESDAY -> DayOfTheWeek.WEDNESDAY;
@@ -216,4 +231,30 @@ public class RestaurantScheduleManager {
             default -> throw new IllegalArgumentException("Jour de la semaine invalide");
         };
     }
+
+    private Restaurant getRestaurant(String restaurantName) {
+        try {
+            HttpClient client = HttpClient.newHttpClient();
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create("http://localhost:8002/api/restaurantrepo/" + restaurantName))
+                    .GET()
+                    .build();
+
+            HttpResponse<String> response =
+                    client.send(request, HttpResponse.BodyHandlers.ofString());
+
+            if (response.statusCode() != 200) {
+                System.out.println("Restaurant not found : " + response.statusCode());
+                return null;
+            }
+
+            ObjectMapper mapper = new ObjectMapper();
+            return mapper.readValue(response.body(), Restaurant.class);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
 }

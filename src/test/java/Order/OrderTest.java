@@ -33,6 +33,7 @@ class OrderTest {
     private Restaurant restaurant;
     private Order order;
     private Dish pizza, burger;
+    private RestaurantScheduleManager scheduleManager;
 
     private static HttpServer accountRepo;
     private static HttpServer dishRepo;
@@ -78,12 +79,15 @@ class OrderTest {
                 .build();
 
         Requester.createRestaurant(restaurant);
+      
+        scheduleManager = new RestaurantScheduleManager();
 
-        var today = RestaurantScheduleManager.convertDayOfWeek(LocalDate.now().getDayOfWeek());
+        var today = scheduleManager.convertDayOfWeek(LocalDate.now().getDayOfWeek());
+      
         LocalTime start = LocalTime.now().minusMinutes(15);
         LocalTime end = LocalTime.now().plusMinutes(30);
 
-        RestaurantScheduleManager.addSchedule(restaurant, today, start, end, 10);
+        scheduleManager.addSchedule(restaurant.getName(), today, start, end, 10);
 
 
 

@@ -147,9 +147,6 @@ public class Restaurant {
                 .orElse(null);
     }
 
-
-
-
     /*@Override
     public String toString(){
         return name + " " + establishmentType + "\n.";
@@ -171,18 +168,8 @@ public class Restaurant {
     public String toString(){
         return "Nom : "+name+"plats :"+dishes+"schedules : "+restaurantSchedules+"typeCuisine"+getCuisineTypes();
     }
-    @JsonIgnore
-    public boolean isOpenNow() {
-        return RestaurantScheduleManager.isOpenNow(this);
-    }
-    @JsonIgnore
-    public boolean isOpenAt(LocalDateTime dateTime) {
-        return RestaurantScheduleManager.isOpenAt(this, dateTime);
-    }
-
 
     // InnerClass builder pour éviter d'avoir à faire plusieurs constructeurs en fonction du nombre de paramètre qu'on entre
-
     public static class Builder {
         private String name;
         private List<Dish> dishes;

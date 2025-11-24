@@ -15,85 +15,87 @@ import static org.junit.jupiter.api.Assertions.*;
 public class RestaurantTest {
 
     private Restaurant restaurant;
+    private RestaurantScheduleManager scheduleManager;
 
-    private static Restaurant restaurantWithSingleSlot(DayOfTheWeek dayOfTheWeek, LocalTime start, LocalTime end) {
+    private static Restaurant restaurantWithSingleSlot(DayOfTheWeek dayOfTheWeek, LocalTime start, LocalTime end, RestaurantScheduleManager scheduleManager) {
         Restaurant restaurant = new Restaurant.Builder()
                 .name("R")
                 .restaurantSchedules(new ArrayList<>())
                 .build();
-        RestaurantScheduleManager.addSchedule(restaurant, dayOfTheWeek, start, end, 10);
+        scheduleManager.addSchedule("R", dayOfTheWeek, start, end, 10);
         return restaurant;
     }
 
     @BeforeEach
     void setUp() {
+        scheduleManager = new RestaurantScheduleManager();
         restaurant = new Restaurant.Builder()
                 .name("Testaurant")
                 .restaurantSchedules(new ArrayList<>())
                 .build();
 
-        RestaurantScheduleManager.addSchedule(restaurant, DayOfTheWeek.SUNDAY, LocalTime.of(10, 0), LocalTime.of(14, 0), 30);
-        RestaurantScheduleManager.addSchedule(restaurant, DayOfTheWeek.SUNDAY, LocalTime.of(18, 0), LocalTime.of(23, 0), 50);
-        RestaurantScheduleManager.addSchedule(restaurant, DayOfTheWeek.SUNDAY, LocalTime.of(22, 0), LocalTime.of(2, 0), 20);
+        scheduleManager.addSchedule(restaurant.getName(), DayOfTheWeek.SUNDAY, LocalTime.of(10, 0), LocalTime.of(14, 0), 30);
+        scheduleManager.addSchedule(restaurant.getName(), DayOfTheWeek.SUNDAY, LocalTime.of(18, 0), LocalTime.of(23, 0), 50);
+        scheduleManager.addSchedule(restaurant.getName(), DayOfTheWeek.SUNDAY, LocalTime.of(22, 0), LocalTime.of(2, 0), 20);
     }
 
 
     @Test
     void testIsWithin_NormalRangeInside() {
-        Restaurant r = restaurantWithSingleSlot(DayOfTheWeek.SUNDAY, LocalTime.of(10, 0), LocalTime.of(14, 0));
+        Restaurant r = restaurantWithSingleSlot(DayOfTheWeek.SUNDAY, LocalTime.of(10, 0), LocalTime.of(14, 0), scheduleManager);
 
         LocalDateTime dt = LocalDateTime.of(2025, 10, 5, 12, 0); // 12h dans 10–14
-        assertTrue(r.isOpenAt(dt));
+        assertTrue(scheduleManager.isOpenAt(r.getName(), dt));
     }
 
     @Test
     void testIsWithin_NormalRangeOutside() {
-        Restaurant r = restaurantWithSingleSlot(DayOfTheWeek.SUNDAY, LocalTime.of(10, 0), LocalTime.of(14, 0));
+        Restaurant r = restaurantWithSingleSlot(DayOfTheWeek.SUNDAY, LocalTime.of(10, 0), LocalTime.of(14, 0), scheduleManager);
 
         LocalDateTime dt = LocalDateTime.of(2025, 10, 5, 15, 0); // hors 10–14
-        assertFalse(r.isOpenAt(dt));
+        assertFalse(scheduleManager.isOpenAt(r.getName(), dt));
     }
 
     @Test
     void testIsWithin_OvernightInsideBeforeMidnight() {
-        Restaurant r = restaurantWithSingleSlot(DayOfTheWeek.SUNDAY, LocalTime.of(22, 0), LocalTime.of(2, 0));
+        Restaurant r = restaurantWithSingleSlot(DayOfTheWeek.SUNDAY, LocalTime.of(22, 0), LocalTime.of(2, 0), scheduleManager);
 
         LocalDateTime dt = LocalDateTime.of(2025, 10, 5, 23, 0); // 23h dans 22–02
-        assertTrue(r.isOpenAt(dt));
+        assertTrue(scheduleManager.isOpenAt(r.getName(), dt));
     }
 
     @Test
     void testIsWithin_OvernightInsideAfterMidnight() {
-        Restaurant r = restaurantWithSingleSlot(DayOfTheWeek.SUNDAY, LocalTime.of(22, 0), LocalTime.of(2, 0));
+        Restaurant r = restaurantWithSingleSlot(DayOfTheWeek.SUNDAY, LocalTime.of(22, 0), LocalTime.of(2, 0), scheduleManager);
 
         LocalDateTime dt = LocalDateTime.of(2025, 10, 6, 1, 0); // 1h du matin  toujours ouvert
-        assertTrue(r.isOpenAt(dt));
+        assertTrue(scheduleManager.isOpenAt(r.getName(), dt));
     }
 
     @Test
     void testIsWithin_OvernightOutside() {
-        Restaurant r = restaurantWithSingleSlot(DayOfTheWeek.SUNDAY, LocalTime.of(22, 0), LocalTime.of(2, 0));
+        Restaurant r = restaurantWithSingleSlot(DayOfTheWeek.SUNDAY, LocalTime.of(22, 0), LocalTime.of(2, 0), scheduleManager);
 
         LocalDateTime dt = LocalDateTime.of(2025, 10, 5, 18, 0); // 18h  avant ouverture
-        assertFalse(r.isOpenAt(dt));
+        assertFalse(scheduleManager.isOpenAt(r.getName(), dt));
     }
 
     @Test
     void testIsOpenAt_Open() {
         LocalDateTime current = LocalDateTime.of(2025, 10, 5, 19, 0); // dans 18–23
-        assertTrue(restaurant.isOpenAt(current));
+        assertTrue(scheduleManager.isOpenAt(restaurant.getName(), current));
     }
 
     @Test
     void testIsOpenAt_Closed() {
         LocalDateTime current = LocalDateTime.of(2025, 10, 5, 15, 0); // entre 14 et 18 fermé
-        assertFalse(restaurant.isOpenAt(current));
+        assertFalse(scheduleManager.isOpenAt(restaurant.getName(), current));
     }
 
     @Test
     void testIsOpenAt_OvernightOpenAfterMidnight() {
         LocalDateTime current = LocalDateTime.of(2025, 10, 6, 1, 0); // 1h  dans 22–02
-        assertTrue(restaurant.isOpenAt(current));
+        assertTrue(scheduleManager.isOpenAt(restaurant.getName(), current));
     }
 
     @Test
@@ -127,7 +129,7 @@ public class RestaurantTest {
                 .restaurantSchedules(new ArrayList<>())
                 .build();
 
-        RestaurantScheduleManager.addSchedule(r, day, start, end, 20);
+        scheduleManager.addSchedule(r.getName(), day, start, end, 20);
 
         LocalTime current = start;
         while (!current.equals(end)) {
@@ -148,7 +150,7 @@ public class RestaurantTest {
                 .restaurantSchedules(new ArrayList<>())
                 .build();
 
-        RestaurantScheduleManager.addSchedule(r, day, start, end, 20);
+        scheduleManager.addSchedule(r.getName(), day, start, end, 20);
 
         LocalTime otherStart = LocalTime.of(15, 0);
         LocalTime otherEnd = LocalTime.of(18, 0);
@@ -191,7 +193,7 @@ public class RestaurantTest {
                 .restaurantSchedules(new ArrayList<>())
                 .build();
 
-        RestaurantScheduleManager.addSchedule(r, day, start, end, 20);
+        scheduleManager.addSchedule(r.getName(), day, start, end, 20);
 
         r.setNewCapacity(start, end, day, 50);
 
@@ -222,7 +224,7 @@ public class RestaurantTest {
                 .restaurantSchedules(new ArrayList<>())
                 .build();
 
-        RestaurantScheduleManager.addSchedule(r, day, start1, end1, 20);
+        scheduleManager.addSchedule(r.getName(), day, start1, end1, 20);
 
         r.setNewCapacity(start2, end2, day, 99);
 

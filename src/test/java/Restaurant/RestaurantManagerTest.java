@@ -35,6 +35,7 @@ public class RestaurantManagerTest {
     private static HttpServer server;
     private static boolean isServerRunning = false;
     private RestaurantManager manager;
+    private RestaurantScheduleManager scheduleManager;
     private final String TEST_RESTO_NAME = "Chez akhi ali";
 
     @BeforeAll
@@ -48,6 +49,7 @@ public class RestaurantManagerTest {
                 isServerRunning = true;
             }
         }
+        scheduleManager = new RestaurantScheduleManager();
     }
 
     @AfterAll
@@ -74,8 +76,8 @@ public class RestaurantManagerTest {
     void testUpdateSchedule_AddNewScheduleIfNotExists() throws Exception {
         LocalTime start = LocalTime.of(12, 0);
         LocalTime end = LocalTime.of(15, 0);
-        manager.updateSchedule(DayOfTheWeek.MONDAY, start, end, 40, TEST_RESTO_NAME);
         Restaurant updatedResto = Requester.getRestaurantByName(TEST_RESTO_NAME);
+        scheduleManager.updateSchedule(TEST_RESTO_NAME, DayOfTheWeek.MONDAY, start, end, 40);
         assertEquals(6, updatedResto.getRestaurantSchedules().size());
         assertEquals(40, updatedResto.getRestaurantSchedules().get(0).getCapacity());
     }
@@ -87,7 +89,6 @@ public class RestaurantManagerTest {
         DayOfTheWeek day = DayOfTheWeek.WEDNESDAY;
         manager.updateSchedule(day, start, end, 20, TEST_RESTO_NAME);
         manager.updateCapacity(day, start, end, 50, TEST_RESTO_NAME);
-
         Restaurant updatedResto = Requester.getRestaurantByName(TEST_RESTO_NAME);
         assertEquals(50, updatedResto.getRestaurantSchedules().get(0).getCapacity());
     }

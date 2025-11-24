@@ -3,16 +3,14 @@ import {Observable, Subject, tap} from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import {orderCreateResponse} from '../models/orderCreateResponse';
 import {ConsoleLogger} from '@angular/compiler-cli';
+import {orderService} from './orderService';
 
 @Injectable({
   providedIn: 'root'
 })
 export class RestaurantService {
   baseUrl = 'http://localhost:8001';
-  orderServiceUrl = 'http://localhost:8000/api/';
-  private orderCreatedIdSubject = new Subject<number>();
-  orderCreatedId$ = this.orderCreatedIdSubject.asObservable();
-  constructor(private client : HttpClient) {
+  constructor(private OrderService:orderService) {
   }
   /** Obtenir tous les restaurants */
   async getAllRestaurants() {
@@ -121,17 +119,6 @@ export class RestaurantService {
   }
 
   createOrder(body: any): Observable<number> {
-    return this.client
-      .post<number>(`${this.orderServiceUrl}order/`, body)
-      .pipe(
-        tap((order) => {
-          if (order) {
-            console.log(order);
-            this.orderCreatedIdSubject.next(order);
-          } else {
-            console.warn('Réponse de création de commande sans id :', order);
-          }
-        })
-      );
+    return this.OrderService.createOrder(body);
   }
 }

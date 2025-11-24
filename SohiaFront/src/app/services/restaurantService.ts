@@ -3,16 +3,14 @@ import {Observable, Subject, tap} from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import {orderCreateResponse} from '../models/orderCreateResponse';
 import {ConsoleLogger} from '@angular/compiler-cli';
+import {orderService} from './orderService';
 
 @Injectable({
   providedIn: 'root'
 })
 export class RestaurantService {
   baseUrl = 'http://localhost:8001';
-  orderServiceUrl = 'http://localhost:8000/api/';
-  private orderCreatedIdSubject = new Subject<number>();
-  orderCreatedId$ = this.orderCreatedIdSubject.asObservable();
-  constructor(private client : HttpClient) {
+  constructor(private OrderService:orderService) {
   }
   /** Obtenir tous les restaurants */
   async getAllRestaurants() {
@@ -120,6 +118,10 @@ export class RestaurantService {
     return { cuisines, establishments };
   }
 
+  createOrder(body: any): Observable<number> {
+    return this.OrderService.createOrder(body);
+  }
+
   async getRestaurantDetails(name: string) {
     const url = `${this.baseUrl}/restaurants/filter?name=${encodeURIComponent(name)}`;
     console.log(`[Service] 📡 Détails restaurant : "${name}" →`, url);
@@ -135,12 +137,5 @@ export class RestaurantService {
     console.log('[Service] 🍽️ Restaurant complet reçu :', restaurant);
 
     return restaurant;
-  }
-
-  createOrder(body: any): Observable<any> {
-    return this.client.post(
-      `${this.orderServiceUrl}order/`,
-      body
-    );
   }
 }

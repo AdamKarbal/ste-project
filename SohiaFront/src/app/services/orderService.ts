@@ -13,11 +13,7 @@ export class orderService{
   orderState$ = this.orderStateSubject.asObservable();
   private currentOrderIdSubject = new BehaviorSubject<number | null>(null);
   currentOrderId$ = this.currentOrderIdSubject.asObservable();
-  constructor(private restaurantService : RestaurantService,private httpClient : HttpClient) {
-    this.restaurantService.orderCreatedId$.subscribe((id)=>{
-      console.log("Commande créée sous l'id : ",id);
-      this.currentOrderIdSubject.next(id);}
-    );
+  constructor(private httpClient : HttpClient) {
   }
   getCurrentOrderId():number|null{
     return this.currentOrderIdSubject.value;
@@ -37,6 +33,20 @@ export class orderService{
         this.orderStateSubject.next(state);
       })
     );
+  }
+  createOrder(body: any): Observable<number> {
+    return this.httpClient
+      .post<number>(`${this.orderUrl}`, body)
+      .pipe(
+        tap((order) => {
+          if (order) {
+            console.log(order);
+            this.currentOrderIdSubject.next(order);
+          } else {
+            console.warn('Réponse de création de commande sans id :', order);
+          }
+        })
+      );
   }
 
 }

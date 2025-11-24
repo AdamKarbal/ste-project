@@ -1,11 +1,9 @@
 package Payment;
 
 import Order.Order;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
-public class Payment {
+public abstract class Payment {
     private static int compteur=0;
-    @JsonIgnore
     private Order order;
     private int id;
     private PaymentState status;
@@ -17,11 +15,9 @@ public class Payment {
         status=PaymentState.PENDING;
         this.paymentMethod=paymentMethod;
     }
-    public Payment(){}
     public int getId(){
         return this.id;
     }
-    @JsonIgnore
     public Order getOrder(){
         return order;
     }
@@ -34,8 +30,5 @@ public class Payment {
     public PaymentMethod getPaymentMethod(){
         return paymentMethod;
     }
-
-    public PaymentState processPayment() {
-        return null;
-    }
+    public abstract PaymentState processPayment();
 }

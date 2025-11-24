@@ -1,9 +1,7 @@
 package Order;
 
 import Account.AccountUser;
-import Api.Utils.Requester;
 import Dish.Dish;
-import Dish.DishNotFound;
 import Payment.Payment;
 import Payment.PaymentMethod;
 import Payment.PaymentService;
@@ -14,129 +12,102 @@ import Restaurant.Restaurant;
 import Restaurant.RestaurantSchedule;
 import Restaurant.RestaurantScheduleManager;
 import Dish.DishTopping;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
-import java.io.IOException;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.time.LocalTime;
 import java.util.Optional;
 
 
 public class OrderManager {
-    private ObjectMapper mapper = new ObjectMapper();
+    private OrderRepo repo;
 
-    public OrderManager() {
+    public OrderManager(OrderRepo repo) {
+        this.repo=repo;
+    }
+
+    private Order require(int orderId) {
+        return repo.findById(orderId).orElseThrow(
+                () -> new OrderNotFoundException("Commande " + orderId + " introuvable.")
+        );
     }
 
 
-
-
-    public Order createOrder(int clientId, String restaurantId) { // api faite mais manque la ref au service du client
-        Order order = new Order(clientId, restaurantId);
-        return Requester.createOrder(order);
+    public Order createOrder(AccountUser client, Restaurant restaurant) { // api faite
+        Order order = new Order(client, restaurant);
+        return repo.save(order);
     }
 
-    public Order createOrder(int clientId,String restaurantId,double price){
-        Order order = new Order(clientId,restaurantId,price);
-        return Requester.createOrder(order);
+    public void cancelOrder(int orderId) {
+        Order order = require(orderId);
+        order.setState(OrderState.CANCELED);
     }
 
-    public Order cancelOrder(int orderId) { // api faite
-        Order order = Requester.getOrderById(orderId);
-        if (order!=null){
-            order.setState(OrderState.CANCELED);
-            Requester.deleteOrder(orderId);
-        }
-        return order;
-    }
-
-    public OrderState proceedPayement(Order order,PaymentMethod paymentMethod){
+    public OrderState proceedPayement(int orderId,PaymentMethod paymentMethod){
+        Order order = require(orderId);
         order.setState(OrderState.COMPLETED);
         OrderState newState = PaymentService.getInstance().handleCompletedOrder(order, paymentMethod);
         order.setState(newState);
-        Requester.updateOrder(order.getId(),order);
         return newState;
     }
 
     public void chooseSchedule(int orderId,LocalTime time){
-        Requester.getOrderById(orderId).chooseSchedule(time);
+        require(orderId).chooseSchedule(time);
     }
 
-    public OrderState finishOrder(int orderId,PaymentMethod paymentMethod){ // faudra appeler le service restaurant schedule
-        Order order = Requester.getOrderById(orderId);
-        OrderState status = proceedPayement(order,paymentMethod);
-        /*Restaurant restaurant = Requester.getRestaurantByName(order.getRestaurant());
-        if(RestaurantScheduleManager.checkCapacity(restaurant,order.getIdSchedule())){
-            RestaurantScheduleManager.incrementCapacityById(restaurant, order.getIdSchedule(), -1);
+    public OrderState finishOrder(int orderId,PaymentMethod paymentMethod){
+        Order order = require(orderId);
+        OrderState status = proceedPayement(orderId,paymentMethod);
+        if(RestaurantScheduleManager.checkCapacity(order.getRestaurant(),order.getIdSchedule())){
+            RestaurantScheduleManager.incrementCapacityById(order.getRestaurant(), order.getIdSchedule(), -1);
             return status;
-        }*/
+        }
         return status;
     }
 
-    public boolean addItem(int orderId,int dishId, int quantity)
-            throws IOException, InterruptedException, DishNotFound {
-
+    public void addItem(int orderId,Dish dish, int quantity) {
         if (quantity <= 0) throw new IllegalArgumentException("Quantité invalide.");
-        Dish requestedDish = Requester.getDishById(dishId);
-        if(requestedDish==null){
-            throw new DishNotFound("Le plat demandé n'existe pas");
-        }
-        Order order = Requester.getOrderById(orderId);
-        boolean completed = order.addDish(dishId, quantity);
-        if(completed){
-            Requester.updateOrder(orderId, order);
-            return true;
-        }
-        return false;
+        Order order = require(orderId);
+        order.addDish(dish, quantity);
     }
 
-
-    public boolean removeItem(int orderId,int dishId) {
-        Order order = Requester.getOrderById(orderId);
-        if(order==null) return false;
-        order.removeDish(dishId);
+    public void removeItem(int orderId,Dish dish) {
+        Order order = require(orderId);
+        order.removeDish(dish);
         if (order.getDishes().isEmpty()) {
             order.setState(OrderState.CANCELED);
         }
-        Requester.updateOrder(orderId,order);
-        return true;
     }
 
-    public void updateItem(int orderId,int dishId, int newQuantity) {
+    public void updateItem(int orderId,Dish dish, int newQuantity) {
         if (newQuantity < 0) throw new IllegalArgumentException("Quantité négative interdite.");
-        Order order = Requester.getOrderById(orderId);
-        order.updateDishQuantity(dishId, newQuantity);
+        Order order = require(orderId);
+        order.updateDishQuantity(dish, newQuantity);
 
         if (newQuantity == 0) {
-            order.removeDish(dishId);
+            order.removeDish(dish);
         } else {
-            order.updateDishQuantity(dishId, newQuantity);
+            order.updateDishQuantity(dish, newQuantity);
         }
         if (order.getDishes().isEmpty()) {
             order.setState(OrderState.CANCELED);
         }
-        Requester.updateOrder(orderId,order);
     }
 
 
     public OrderState followOrder(int orderId) {
-        return Requester.getOrderById(orderId).getState();
+        return require(orderId).getState();
     }
 
-    /*public void addToppingToDish(int orderId,int dishId, DishTopping topping) {
+    public void addToppingToDish(int orderId,Dish dish, DishTopping topping) {
         Order order = require(orderId);
-        if (!order.getDishes().containsKey(dishId)) {
+        if (!order.getDishes().containsKey(dish)) {
             throw new IllegalArgumentException("Le plat n'existe pas dans cette commande.");
         }
-        if (!dishId.getAvailableToppings().contains(topping)) {
+        if (!dish.getAvailableToppings().contains(topping)) {
             throw new IllegalArgumentException("Topping non disponible pour ce plat.");
         }
         dish.addSelectedTopping(topping);
         order.updatePrice();
-        updateOrder(orderId,order);
-    }*/
+
+    }
 }
 

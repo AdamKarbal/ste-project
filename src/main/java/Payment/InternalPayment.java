@@ -1,7 +1,6 @@
 package Payment;
 
 import Account.AccountUser;
-import Api.Utils.Requester;
 import Order.Order;
 
 public class InternalPayment extends Payment{
@@ -17,11 +16,14 @@ public class InternalPayment extends Payment{
             setStatus(paymentCorrect(currentClient));
             return getStatus();
         }
-        setStatus(PaymentState.FAILED);
-        return PaymentState.FAILED;
+        else
+        {
+            setStatus(PaymentState.FAILED);
+            throw new NotEnoughMoney("Vous n'avez pas assez de crédits");
+        }
     }
     private PaymentState paymentCorrect(AccountUser client){
-        Requester.updateCredit(client.getId(),client.getCredit()-getOrder().getPrice());
+        client.setCredit(-getOrder().getPrice());
         return PaymentState.PAID;
     }
 }

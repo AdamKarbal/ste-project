@@ -6,5 +6,5 @@ import java.io.IOException;
 
 @FunctionalInterface
 public interface RouteHandler {
-    void handle(HttpExchange exchange, String... param) throws IOException;
+    void handle(HttpExchange exchange, String param) throws IOException;
 }

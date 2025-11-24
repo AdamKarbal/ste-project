@@ -118,24 +118,17 @@ public class RestaurantFilter {
             acc = intersectOrdered(acc, byName);
         }
 
-        // --- Types de cuisine multiples ---
-        if (c.getCuisines() != null && !c.getCuisines().isEmpty()) {
-            List<Restaurant> byCuisine = new ArrayList<>();
-            for (CuisineType ct : c.getCuisines()) {
-                byCuisine.addAll(this.filterByCuisineType(ct));
-            }
+        // 2) Cuisine
+        if (c.getCuisine() != null) {
+            List<Restaurant> byCuisine = this.filterByCuisineType(c.getCuisine());
             acc = intersectOrdered(acc, byCuisine);
         }
 
-// --- Types d’établissement multiples ---
-        if (c.getEstablishments() != null && !c.getEstablishments().isEmpty()) {
-            List<Restaurant> byType = new ArrayList<>();
-            for (establishmentType et : c.getEstablishments()) {
-                byType.addAll(this.filterByType(et));
-            }
+        // 3) Type d’établissement
+        if (c.getEstablishment() != null) {
+            List<Restaurant> byType = this.filterByType(c.getEstablishment());
             acc = intersectOrdered(acc, byType);
         }
-
 
         // 4) Disponibilité
         if (c.getOpenAt() != null) {

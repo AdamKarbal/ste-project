@@ -1,22 +1,21 @@
 package Api.Restaurant;
 
-import Restaurant.RestaurantManager;
+import Api.Customer.CustomerHandler;
 import com.sun.net.httpserver.HttpServer;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.util.concurrent.Executors;
 
 public class RestaurantServer {
     public static void main(String[] args) throws IOException {
-        int port = 8001;
-        String path = "/api/restaurant";
-        RestaurantManager restaurantManager = new RestaurantManager();
+        int port = 8003;
+        String path = "/api/restaurant/";// port dédié au Restaurant
         HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
-        server.createContext(path, new RestaurantHandler(restaurantManager));
-        server.setExecutor(Executors.newCachedThreadPool());
+
+        server.createContext(path, new CustomerHandler());
+        server.setExecutor(null);
         server.start();
-        System.out.println("✅ RestaurantService (Business) en ligne sur http://localhost:" + port + path);
-        return server;
+
+        System.out.println("✅ RestaurantService en ligne sur http://localhost:" + port + path);
     }
 }

@@ -2,7 +2,6 @@ package Dish;
 
 
 import Restaurant.Restaurant;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.text.Normalizer;
 import java.util.ArrayList;
@@ -11,7 +10,6 @@ import java.util.Locale;
 
 public class Dish {
     private double price;
-    private static int compteur=0;
     private String name;
     private String description;
     private DishCategory category;
@@ -19,12 +17,8 @@ public class Dish {
     private List<DishTag> dishTag;
     private List<DishTopping> availableToppings;
     private List<DishTopping> selectedToppings;
-    private int id;
 
-    public Dish() {
-    }
     public Dish(double price, String name, String description, DishCategory category, DishType type,List<DishTag> dishTag) {
-        this.id=++compteur;
         this.price = price;
         this.name = name;
         this.description = description;
@@ -35,6 +29,7 @@ public class Dish {
         this.availableToppings = new ArrayList<>();
         this.selectedToppings = new ArrayList<>();
     }
+
     public double getPrice() {
         return price;
     }
@@ -53,9 +48,6 @@ public class Dish {
     public void setDescription(String description) {
         this.description = description;
     }
-    public int getId(){
-        return id;
-    }
 
     public DishCategory getCategory() {
         return category;
@@ -73,8 +65,8 @@ public class Dish {
     public List<DishTag> getDishTag() {
         return dishTag;
     }
-    public void setDishTags(List<DishTag> dishTags) {
-        this.dishTag = dishTags;
+    public void setDishTag(List<DishTag> dishTag) {
+        this.dishTag = dishTag;
     }
     public boolean addDishTag(DishTag dishTag) {
         return this.dishTag.add(dishTag);
@@ -110,7 +102,7 @@ public class Dish {
     public void removeSelectedTopping(DishTopping topping) {
         selectedToppings.remove(topping);
     }
-    @JsonIgnore
+
     public double getToppingTotalPrice() {
         double total = price;
         for (DishTopping t : selectedToppings) {
@@ -145,17 +137,6 @@ public class Dish {
     public int hashCode() {
         String n = norm(this.name);
         return (n == null) ? 0 : n.hashCode();
-    }
-
-    public DishCreateDTO toCreateDTO() {
-        return new DishCreateDTO(
-                this.id,
-                this.price,
-                this.name,
-                this.description,
-                this.category,
-                this.type
-        );
     }
 
 

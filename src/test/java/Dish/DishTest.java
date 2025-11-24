@@ -71,7 +71,7 @@ public class DishTest {
 
     @Test
     void testSetDishTagOverridesList() {
-        dish.setDishTags(List.of(DishTag.VEGAN, DishTag.GLUTEN_FREE));
+        dish.setDishTag(List.of(DishTag.VEGAN, DishTag.GLUTEN_FREE));
         assertEquals(2, dish.getDishTag().size());
         assertTrue(dish.getDishTag().contains(DishTag.VEGAN));
         assertFalse(dish.getDishTag().contains(DishTag.HALAL));

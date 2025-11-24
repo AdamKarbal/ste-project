@@ -1,0 +1,59 @@
+.payment-page-container {
+  min-height: calc(97.9vh - 120px);
+  display: flex;
+  flex-direction: column;
+  padding: 1rem 1.5rem 2rem;
+  background-color: #f3f4f6; /* même fond que la page commande */
+}
+
+.payment-page-content {
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+/* Header */
+
+.payment-header {
+  margin-bottom: 1rem;
+}
+
+.payment-title {
+  margin: 0;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+.payment-subtitle {
+  margin: 0.25rem 0 0;
+  font-size: 0.9rem;
+  color: #6b7280;
+}
+
+/* Layout 3 colonnes */
+
+.payment-layout {
+  display: grid;
+  grid-template-columns: 260px minmax(0, 1fr) 280px;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+/* Colonnes = cartes */
+
+.payment-col {
+  background-color: #ffffff;
+  border-radius: 16px;
+  border: 1px solid #e5e7eb;
+  padding: 1rem;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08); /* comme le panier / sidebar */
+}
+
+/* Responsive */
+
+@media (max-width: 1024px) {
+  .payment-layout {
+    grid-template-columns: 1fr;
+  }
+}

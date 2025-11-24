@@ -169,7 +169,7 @@ export class RestaurantMenuPage implements OnInit {
 
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, Injectable } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 
 import { NavbarComponent } from '../../components/navbar/navbar';
 import { FooterComponent } from '../../components/footer/footer';
@@ -187,10 +187,6 @@ import {DishCreateResponse} from '../../models/dishCreateResponse';
 import {orderService} from '../../services/orderService';
 import {orderStateModel} from '../../models/orderStateModel';
 
-/**
- * Tu pourras déplacer cette interface dans src/app/models/restaurant.model.ts
- * si tu préfères, mais pour l'instant on la garde ici.
- */
 interface Restaurant {
   id: number | string;
   name: string;
@@ -198,9 +194,6 @@ interface Restaurant {
   restaurantSchedules: RestaurantSchedule[];
 }
 
-/**
- * Modèle local du panier (doit correspondre à ce qu'attend OrderCartComponent)
- */
 interface CartItem {
   dish: Dish;
   quantity: number;
@@ -291,7 +284,8 @@ export class RestaurantMenuPage implements OnInit {
     private route: ActivatedRoute,
     private restaurantService: RestaurantService,
     private httpClient : HttpClient,
-    private orderService : orderService
+    private orderService : orderService,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -415,11 +409,19 @@ export class RestaurantMenuPage implements OnInit {
   }
 
   onConfirmOrder(): void {
-    // Ici tu pourras appeler ton OrderService / API Java pour créer l'Order
-    console.log('Commande confirmée :', {
-      restaurant: this.restaurant,
-      schedule: this.selectedSchedule,
-      items: this.cartItems
-    });
+    if (!this.restaurant || !this.selectedSchedule || this.cartItems.length === 0) {
+      console.warn('Commande incomplète');
+      return;
+    }
+
+    const fakeOrderId = 123; // plus tard : id renvoyé par ton backend
+
+    /*console.log('Total envoyé à la page paiement :', this.totalPrice);
+
+    this.router.navigate(['/payment', fakeOrderId], {
+      state: {
+        totalAmount: this.totalPrice
+      }
+    });*/
   }
 }

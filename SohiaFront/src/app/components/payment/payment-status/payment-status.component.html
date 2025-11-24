@@ -1,0 +1,29 @@
+<h3 class="status-title">Statut du paiement</h3>
+
+<div *ngIf="isPaying" class="status-box status-box--info">
+  Paiement en cours...
+</div>
+
+<div *ngIf="payment && !isPaying" class="status-box"
+     [ngClass]="{
+       'status-box--success': payment.status === PaymentState.PAID,
+       'status-box--error': payment.status === PaymentState.FAILED
+     }">
+  <div class="status-row">
+    <span class="status-label">ID paiement :</span>
+    <span class="status-value">{{ payment.id }}</span>
+  </div>
+  <div class="status-row">
+    <span class="status-label">Statut :</span>
+    <span class="status-badge" [ngClass]="{
+        'status-badge--success': payment.status === PaymentState.PAID,
+        'status-badge--error': payment.status === PaymentState.FAILED
+      }">
+      {{ payment.status }}
+    </span>
+  </div>
+</div>
+
+<p *ngIf="!payment && !isPaying" class="status-empty">
+  Aucun paiement effectué pour le moment.
+</p>

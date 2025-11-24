@@ -3,6 +3,6 @@ import { PaymentState } from './payment-state.enum';
 
 export interface Payment {
   id: number;
-  status: PaymentState;
+  status?: PaymentState;
   paymentMethod: PaymentMethod;
 }

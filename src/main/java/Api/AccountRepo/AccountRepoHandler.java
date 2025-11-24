@@ -3,6 +3,7 @@ package Api.AccountRepo;
 import Account.AccountRepo;
 import Account.Account;
 import Account.AccountUser;
+import Account.AccountUserCreateDTO;
 import Api.Utils.ApiRegistry;
 import Api.Utils.RouteInfo;
 import Api.Utils.Sender;
@@ -64,8 +65,8 @@ public class AccountRepoHandler implements HttpHandler {
             else{
                 user=repo.save(new AccountUser(name));
             }
-
-            Sender.sendResponse(exchange,200,mapper.writeValueAsString(user));
+            AccountUserCreateDTO toSend = new AccountUserCreateDTO(user.getName(), user.getId());
+            Sender.sendResponse(exchange,200,mapper.writeValueAsString(toSend));
 
         } catch (IOException e) {
             throw new RuntimeException(e);

@@ -169,7 +169,7 @@ export class RestaurantMenuPage implements OnInit {
 
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, Injectable } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 
 import { NavbarComponent } from '../../components/navbar/navbar';
 import { FooterComponent } from '../../components/footer/footer';
@@ -182,10 +182,6 @@ import { RestaurantSchedule } from '../../models/restaurant-schedule.model';
 
 import { Observable, of } from 'rxjs';
 
-/**
- * Tu pourras déplacer cette interface dans src/app/models/restaurant.model.ts
- * si tu préfères, mais pour l'instant on la garde ici.
- */
 interface Restaurant {
   id: number | string;
   name: string;
@@ -193,9 +189,6 @@ interface Restaurant {
   restaurantSchedules: RestaurantSchedule[];
 }
 
-/**
- * Modèle local du panier (doit correspondre à ce qu'attend OrderCartComponent)
- */
 interface CartItem {
   dish: Dish;
   quantity: number;
@@ -204,7 +197,6 @@ interface CartItem {
 @Injectable({ providedIn: 'root' })
 export class RestaurantService {
 
-  // 🔹 Restaurant MOCK pour tester le front sans backend
   private readonly MOCK_RESTAURANT: Restaurant = {
     id: '1',
     name: 'SophiaEat - Restaurant de test',
@@ -245,7 +237,6 @@ export class RestaurantService {
 
   constructor() {}
 
-  // Pour l’instant on ignore l’id et on renvoie toujours le mock
   getRestaurantById(_id: string): Observable<Restaurant> {
     console.log('[MOCK] RestaurantService.getRestaurantById(', _id, ')');
     return of(this.MOCK_RESTAURANT);
@@ -277,12 +268,11 @@ export class RestaurantMenuPage implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
+    private router: Router,
     private restaurantService: RestaurantService
   ) {}
 
   ngOnInit(): void {
-    // On récupère l'id dans l'URL: /restaurant/:id/menu
-    // Si pas d'id -> on prend '1' par défaut pour tester
     const id = this.route.snapshot.paramMap.get('id') || '1';
     this.loadRestaurant(id);
   }
@@ -302,6 +292,15 @@ export class RestaurantMenuPage implements OnInit {
         this.isLoading = false;
       }
     });
+  }
+
+  // --------- Total de la commande ---------
+
+  get totalPrice(): number {
+    return this.cartItems.reduce(
+      (sum, item) => sum + item.dish.price * item.quantity,
+      0
+    );
   }
 
   // --------- Gestion des créneaux ---------
@@ -339,11 +338,19 @@ export class RestaurantMenuPage implements OnInit {
   }
 
   onConfirmOrder(): void {
-    // Ici tu pourras appeler ton OrderService / API Java pour créer l'Order
-    console.log('Commande confirmée :', {
-      restaurant: this.restaurant,
-      schedule: this.selectedSchedule,
-      items: this.cartItems
+    if (!this.restaurant || !this.selectedSchedule || this.cartItems.length === 0) {
+      console.warn('Commande incomplète');
+      return;
+    }
+
+    const fakeOrderId = 123; // plus tard : id renvoyé par ton backend
+
+    console.log('Total envoyé à la page paiement :', this.totalPrice);
+
+    this.router.navigate(['/payment', fakeOrderId], {
+      state: {
+        totalAmount: this.totalPrice
+      }
     });
   }
 }

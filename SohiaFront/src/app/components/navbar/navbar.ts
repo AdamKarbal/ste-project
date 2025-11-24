@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { AuthService } from '../../services/authService'; // Assure-toi que ce service existe
 
 @Component({
   selector: 'app-navbar',
@@ -12,23 +13,38 @@ import { Router } from '@angular/router';
 })
 export class NavbarComponent {
   searchTerm: string = '';
+  isLoggedIn: boolean = false;
 
-  constructor(private router: Router) {}
+  constructor(private router: Router, private auth: AuthService) {
+    // Surveille l’état de connexion
+    this.auth.isLoggedIn$.subscribe(status => {
+      this.isLoggedIn = status;
+    });
+  }
 
-  /**
-   * Quand l'utilisateur appuie sur "Entrée" dans la barre de recherche
-   */
+  /** Recherche dans la barre de recherche */
   onSearch() {
     if (!this.searchTerm.trim()) return;
-
-    // Redirige vers la page home avec le paramètre de recherche
     this.router.navigate(['/home'], { queryParams: { name: this.searchTerm } });
   }
 
-  /**
-   * Quand on clique sur "Mon Restaurant"
-   */
+  /** Navigation vers l’espace restaurateur */
   goToOwner() {
     this.router.navigate(['/owner']);
   }
+
+  /** Connexion / déconnexion */
+  toggleLogin() {
+    if (this.isLoggedIn) {
+      this.auth.logout(); //  Déconnexion + redirection vers /home
+    } else {
+      this.auth.login(); //  Connexion instantanée
+    }
+  }
+
+  goHome() {
+    this.auth.logout();
+    this.router.navigate(['/landing']);
+  }
+
 }

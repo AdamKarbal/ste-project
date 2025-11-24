@@ -32,6 +32,7 @@ public class RestaurantRepoHandler implements HttpHandler {
         ApiRegistry.addRoute("POST","/api/restaurantrepo/",this::createRestaurant);
         ApiRegistry.addRoute("PUT","/api/restaurantrepo/{restaurantName}/",this::updateRestaurant);
     }
+  
     public void getRestaurant(HttpExchange exchange,String... param1) throws IOException {
         String name = URLDecoder.decode(param1[0], StandardCharsets.UTF_8);
         Restaurant restaurantOpt = repo.getRestaurantByName(name);
@@ -44,9 +45,6 @@ public class RestaurantRepoHandler implements HttpHandler {
 
         sendResponse(exchange, 200, response);
     }
-
-   
-
 
     public void updateRestaurant(HttpExchange exchange, String... params) throws IOException {
         System.out.println("PUT reçu pour: " + params[0]);

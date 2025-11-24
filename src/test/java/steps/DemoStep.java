@@ -93,6 +93,9 @@ public class DemoStep {
     private String currentRestaurantName;;
     private OrderManager currentOrderManager;
     private Map<String, AccountManager> restaurateurs = new HashMap<>();
+    private RestaurantScheduleManager scheduleManager;
+    private RestaurantManager currentManager;
+    private Restaurant currentRestaurant;
     private AccountUser client;
     private List<Restaurant> restaurantsByType;
     private Restaurant currentRestaurant;
@@ -133,6 +136,7 @@ public class DemoStep {
         factory = new RestaurantFactory(service);
         restaurateurs = new HashMap<>();
         accountService = new AccountService();
+        scheduleManager = new RestaurantScheduleManager();
     }
 
     @Given("un catalogue de restos")
@@ -158,8 +162,8 @@ public class DemoStep {
 
             List<DayOfTheWeek> days = DayOfTheWeek.getRealDays();
             for (DayOfTheWeek day : days) {
-                RestaurantScheduleManager.addSchedule(r, day, hhmm(row.get("start1")), hhmm(row.get("end1")), Integer.parseInt(row.get("capacity1")));
-                RestaurantScheduleManager.addSchedule(r, day, hhmm(row.get("start2")), hhmm(row.get("end2")), Integer.parseInt(row.get("capacity2")));
+                scheduleManager.addSchedule(name, day, hhmm(row.get("start1")), hhmm(row.get("end1")), Integer.parseInt(row.get("capacity1")));
+                scheduleManager.addSchedule(name, day, hhmm(row.get("start2")), hhmm(row.get("end2")), Integer.parseInt(row.get("capacity2")));
             }
             manager.saveRestaurant(r);
             service.addRestaurant(r);
@@ -180,7 +184,7 @@ public class DemoStep {
 
     @And("que {string} a un créneau de {int}:{int} à {int}:{int} avec une capacité de {int} repas")
     public void que_a_un_créneau_de_à_avec_une_capacité_de_repas(String restoName, Integer h1, Integer m1, Integer h2, Integer m2, Integer capacity) {
-        List<RestaurantSchedule> schedules = RestaurantScheduleManager.getSchedules(currentRestaurant);
+        List<RestaurantSchedule> schedules = scheduleManager.getSchedules(currentRestaurant.getName());
         Assertions.assertTrue(
                 schedules.contains(new RestaurantSchedule(DayOfTheWeek.MONDAY, LocalTime.of(h1, m1), capacity))
         );
@@ -211,6 +215,7 @@ public class DemoStep {
         Order order = currentOrderManager.createOrder(currentClientId, currentRestaurant.getName());
         currentOrderid = order.getId();
     }
+  
     @And("il ajoute {int} {string} à son panier")
     public void ilAjouteÀ€ÀSonPanier(int quantity, String dishName) throws Exception {
         // On récupère le vrai plat du restaurant par son nom
@@ -255,17 +260,17 @@ public class DemoStep {
         Assertions.assertEquals(expectedCount.intValue(), order.getClient().getOrderHistory().size());
     }
 
-    /*@Then("la capacité du créneau de {int}:{int} à {int}:{int} de {string} doit être maintenant de {int} repas")
+    @Then("la capacité du créneau de {int}:{int} à {int}:{int} de {string} doit être maintenant de {int} repas")
     public void la_capacité_du_créneau_de_à_de_doit_être_maintenant_de_repas(Integer h1, Integer m1, Integer h2, Integer m2, String restoName, Integer expectedCapacity) {
         Order order = Requester.getOrderById(currentOrderid);
         Assertions.assertNotNull(order, "Order not found");
 
         // ⚠️ Ce check ne sera vrai que si tu remets la logique de décrément dans ton code métier.
         Assertions.assertEquals(
-                RestaurantScheduleManager.getCapacityById(currentRestaurant, order.getIdSchedule()),
+                scheduleManager.getCapacityById(currentRestaurant.getName(), order.getIdSchedule()),
                 expectedCapacity
         );
-    }*/
+    }
 
 
     @Given("le restaurateur {string} à été enregistré")
@@ -302,7 +307,7 @@ public class DemoStep {
 
     @When("Il ajoute un creneau de {int}:{int} à {int}:{int} avec {int} capacités")
     public void il_ajoute_un_creneau(Integer h1, Integer m1, Integer h2, Integer m2, Integer cap) {
-        manager.updateSchedule(DayOfTheWeek.MONDAY,
+        scheduleManager.updateSchedule(DayOfTheWeek.MONDAY,
                 LocalTime.of(h1, m1),
                 LocalTime.of(h2, m2),
                 cap, currentRestaurantName);

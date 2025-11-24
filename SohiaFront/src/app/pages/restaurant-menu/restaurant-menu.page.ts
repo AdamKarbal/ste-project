@@ -202,7 +202,6 @@ interface CartItem {
 @Injectable({ providedIn: 'root' })
 export class RestaurantService {
 
-  // 🔹 Restaurant MOCK pour tester le front sans backend
   private readonly MOCK_RESTAURANT: Restaurant = {
     id: '1',
     name: 'SophiaEat - Restaurant de test',
@@ -249,7 +248,6 @@ export class RestaurantService {
 
   constructor() {}
 
-  // Pour l’instant on ignore l’id et on renvoie toujours le mock
   getRestaurantById(_id: string): Observable<Restaurant> {
     console.log('[MOCK] RestaurantService.getRestaurantById(', _id, ')');
     return of(this.MOCK_RESTAURANT);

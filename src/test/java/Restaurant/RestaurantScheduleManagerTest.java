@@ -12,11 +12,12 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class RestaurantScheduleManagerTest {
-
     private Restaurant restaurant;
+    private RestaurantScheduleManager scheduleManager;
 
     @BeforeEach
     void setUp() {
+        scheduleManager = new RestaurantScheduleManager();
         restaurant = new Restaurant.Builder()
                 .name("Testaurant")
                 .dishes(new ArrayList<>())
@@ -24,9 +25,9 @@ public class RestaurantScheduleManagerTest {
                 .cuisineType(new ArrayList<>())
                 .build();
 
-        RestaurantScheduleManager.addSchedule(restaurant, DayOfTheWeek.MONDAY, LocalTime.of(8, 0), LocalTime.of(12, 0), 10);
-        RestaurantScheduleManager.addSchedule(restaurant, DayOfTheWeek.MONDAY, LocalTime.of(18, 0), LocalTime.of(23, 0), 20);
-        RestaurantScheduleManager.addSchedule(restaurant, DayOfTheWeek.FRIDAY, LocalTime.of(22, 0), LocalTime.of(2, 0), 15); // overnight
+        scheduleManager.addSchedule(restaurant.getName(), DayOfTheWeek.MONDAY, LocalTime.of(8, 0), LocalTime.of(12, 0), 10);
+        scheduleManager.addSchedule(restaurant.getName(), DayOfTheWeek.MONDAY, LocalTime.of(18, 0), LocalTime.of(23, 0), 20);
+        scheduleManager.addSchedule(restaurant.getName(), DayOfTheWeek.FRIDAY, LocalTime.of(22, 0), LocalTime.of(2, 0), 15); // overnight
     }
 
     @Test
@@ -36,7 +37,7 @@ public class RestaurantScheduleManagerTest {
                 .restaurantSchedules(new ArrayList<>())
                 .build();
 
-        boolean added = RestaurantScheduleManager.addSchedule(r, DayOfTheWeek.TUESDAY, LocalTime.of(12, 0), LocalTime.of(14, 0), 10);
+        boolean added = scheduleManager.addSchedule(r.getName(), DayOfTheWeek.TUESDAY, LocalTime.of(12, 0), LocalTime.of(14, 0), 10);
 
         assertTrue(added, "La plage devrait être ajoutée avec succès");
 
@@ -57,9 +58,9 @@ public class RestaurantScheduleManagerTest {
                 .restaurantSchedules(new ArrayList<>())
                 .build();
 
-        RestaurantScheduleManager.addSchedule(r, DayOfTheWeek.MONDAY, LocalTime.of(10, 0), LocalTime.of(12, 0), 20);
+        scheduleManager.addSchedule(r.getName(), DayOfTheWeek.MONDAY, LocalTime.of(10, 0), LocalTime.of(12, 0), 20);
 
-        RestaurantScheduleManager.addSchedule(r, DayOfTheWeek.MONDAY, LocalTime.of(11, 0), LocalTime.of(13, 0), 5);
+        scheduleManager.addSchedule(r.getName(), DayOfTheWeek.MONDAY, LocalTime.of(11, 0), LocalTime.of(13, 0), 5);
 
         LocalTime t = LocalTime.of(11, 0);
         while (t.isBefore(LocalTime.of(12, 0))) {
@@ -102,7 +103,7 @@ public class RestaurantScheduleManagerTest {
         RestaurantSchedule mondayMorning = new RestaurantSchedule(DayOfTheWeek.MONDAY, LocalTime.of(8, 0), 10);
         restaurant.addSchedule(mondayMorning);
 
-        boolean removed = RestaurantScheduleManager.removeScheduleById(restaurant, mondayMorning.getId());
+        boolean removed = scheduleManager.removeScheduleById(restaurant.getName(), mondayMorning.getId());
 
         assertTrue(removed, "Le schedule doit être supprimé");
         assertFalse(restaurant.getRestaurantSchedules().contains(mondayMorning),
@@ -119,7 +120,7 @@ public class RestaurantScheduleManagerTest {
         RestaurantSchedule mondayEvening = new RestaurantSchedule(DayOfTheWeek.MONDAY, LocalTime.of(18, 0), 20);
         restaurant.addSchedule(mondayEvening);
 
-        boolean updated = RestaurantScheduleManager.updateCapacityById(restaurant, mondayEvening.getId(), 99);
+        boolean updated = scheduleManager.updateCapacityById(restaurant.getName(), mondayEvening.getId(), 99);
 
         assertTrue(updated, "La mise à jour doit réussir");
         assertEquals(99, mondayEvening.getCapacity(), "La capacité doit être mise à jour à 99");
@@ -127,8 +128,8 @@ public class RestaurantScheduleManagerTest {
 
     @Test
     void testIsOpenAt() {
-        boolean open = RestaurantScheduleManager.isOpenAt(
-                restaurant,
+        boolean open = scheduleManager.isOpenAt(
+                restaurant.getName(),
                 java.time.LocalDateTime.of(2025, 10, 13, 10, 0) // Monday
         );
         assertTrue(open);
@@ -136,8 +137,8 @@ public class RestaurantScheduleManagerTest {
 
     @Test
     void testIsClosedAt() {
-        boolean open = RestaurantScheduleManager.isOpenAt(
-                restaurant,
+        boolean open = scheduleManager.isOpenAt(
+                restaurant.getName(),
                 java.time.LocalDateTime.of(2025, 10, 13, 3, 0)
         );
         assertFalse(open);
@@ -145,8 +146,8 @@ public class RestaurantScheduleManagerTest {
 
     @Test
     void testOvernightScheduleClosedAfterEnd() {
-        boolean open = RestaurantScheduleManager.isOpenAt(
-                restaurant,
+        boolean open = scheduleManager.isOpenAt(
+                restaurant.getName(),
                 java.time.LocalDateTime.of(2025, 10, 18, 3, 0)
         );
         assertFalse(open);

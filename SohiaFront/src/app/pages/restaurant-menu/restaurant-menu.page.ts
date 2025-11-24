@@ -269,11 +269,11 @@ export class RestaurantService {
   styleUrls: ['./restaurant-menu.page.css']
 })
 export class RestaurantMenuPage implements OnInit {
-  dishRepoUrl = 'http://localhost:8004/api/dishRepo/'
+  dishRepoUrl = 'http://localhost:8004/api/dishRepo/';
   restaurant: Restaurant | null = null;
   isLoading = true;
   errorMessage: string | null = null;
-
+  currentOrderId : number | null = null;
   cartItems: CartItem[] = [];
   selectedSchedule: RestaurantSchedule | undefined;
   orderState: orderStateModel | null = null;
@@ -293,6 +293,9 @@ export class RestaurantMenuPage implements OnInit {
       this.orderState = state;
       this.rebuildCartFromOrderState();
     });
+    this.orderService.currentOrderId$.subscribe((id)=>{
+      this.currentOrderId=id;
+    })
   }
 
   private loadRestaurant(id: string): void {
@@ -410,14 +413,13 @@ export class RestaurantMenuPage implements OnInit {
       return;
     }
 
-    const fakeOrderId = 123; // plus tard : id renvoyé par ton backend
+    console.log('Total envoyé à la page paiement :', this.orderState!.price);
 
-    /*console.log('Total envoyé à la page paiement :', this.totalPrice);
-
-    this.router.navigate(['/payment', fakeOrderId], {
+    this.router.navigate(['/payment', this.currentOrderId], {
       state: {
-        totalAmount: this.totalPrice
+        totalAmount: this.orderState!.price
       }
-    });*/
+    });
   }
+
 }

@@ -1,28 +1,29 @@
 import { Injectable } from '@angular/core';
-import { Observable, of, delay } from 'rxjs';
+import {Observable, of, delay, tap, BehaviorSubject} from 'rxjs';
 import { PaymentMethod } from '../models/payment-method.enum';
-import { PaymentState } from '../models/payment-state.enum';
-import { Payment } from '../models/payment.model';
+import {HttpClient} from '@angular/common/http';
+import {orderStateModel} from '../models/orderStateModel';
+import {PaymentDone} from '../models/paymentDone';
 
 @Injectable({ providedIn: 'root' })
 export class PaymentService {
+  private orderUrl = 'http://localhost:8000/api/order/';
+  private paymentStateSubject = new BehaviorSubject<PaymentDone | null>(null);
+  paymentState$ = this.paymentStateSubject.asObservable();
 
-  processPayment(orderId: number, method: PaymentMethod): Observable<Payment> {
+  constructor(private client: HttpClient) {}
 
-    const fakePayment: Payment = {
-      id: Math.floor(Math.random() * 10000),
-      paymentMethod: method,
-      status: PaymentState.PROCESSING
-    };
-
-    const finalState =
-      method === PaymentMethod.CASH
-        ? PaymentState.PAID
-        : PaymentState.PAID;
-
-    return of({
-      ...fakePayment,
-      status: finalState
-    }).pipe(delay(1200));
+  processPayment(orderId: number, method: PaymentMethod): Observable<PaymentDone> {
+    console.log(`${this.orderUrl}${orderId}/pay/${method.toString()}/`);
+    return this.client
+      .post<PaymentDone>(
+        `${this.orderUrl}${orderId}/pay/${method.toString()}/`,
+        null
+      )
+      .pipe(
+        tap(state => {
+          this.paymentStateSubject.next(state);
+        })
+      );
   }
 }

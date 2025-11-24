@@ -1,0 +1,60 @@
+<app-navbar></app-navbar>
+
+<main class="menu-page-container">
+
+  <!-- État de chargement / erreur -->
+  <div class="status" *ngIf="isLoading || errorMessage">
+    <div *ngIf="isLoading" class="status-message">
+      Chargement du restaurant...
+    </div>
+    <div *ngIf="errorMessage" class="status-message status-message--error">
+      {{ errorMessage }}
+    </div>
+  </div>
+
+  <section
+    class="menu-page-content"
+    *ngIf="!isLoading && !errorMessage && restaurant"
+  >
+    <header class="menu-header">
+      <h1 class="menu-title">{{ restaurant.name }}</h1>
+      <p class="menu-subtitle">
+        Choisis ton créneau, sélectionne tes plats et passe ta commande avec SophiaEat.
+      </p>
+    </header>
+
+    <div class="menu-layout">
+      <!-- Colonne gauche : créneaux -->
+      <se-restaurant-schedule-sidebar
+        class="menu-col menu-col--left"
+        [restaurantName]="restaurant.name"
+        [schedules]="restaurant.restaurantSchedules || []"
+        [selectedScheduleId]="selectedSchedule?.id"
+        (scheduleSelected)="onScheduleSelected($event)"
+      >
+      </se-restaurant-schedule-sidebar>
+
+      <!-- Colonne centre : plats -->
+      <section class="menu-col menu-col--center">
+        <se-restaurant-dish-list
+          [dishes]="restaurant.dishes || []"
+          (addDish)="onAddDish($event)"
+        >
+        </se-restaurant-dish-list>
+      </section>
+
+      <!-- Colonne droite : panier -->
+      <se-order-cart
+        class="menu-col menu-col--right"
+        [items]="cartItems"
+        [selectedSchedule]="selectedSchedule"
+        (quantityChanged)="onQuantityChanged($event)"
+        (dishRemoved)="onDishRemoved($event)"
+        (confirmOrder)="onConfirmOrder()"
+      >
+      </se-order-cart>
+    </div>
+  </section>
+</main>
+
+<app-footer></app-footer>

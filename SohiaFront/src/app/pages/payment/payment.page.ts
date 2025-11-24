@@ -8,9 +8,10 @@ import { PaymentStatusComponent } from '../../components/payment/payment-status/
 
 import { PaymentService } from '../../services/payment.service';
 import { PaymentMethod } from '../../models/payment-method.enum';
-import { Payment } from '../../models/payment.model';
-import {NavbarComponent} from '../../components/navbar/navbar';
-import {FooterComponent} from '../../components/footer/footer';
+import { NavbarComponent } from '../../components/navbar/navbar';
+import { FooterComponent } from '../../components/footer/footer';
+import {finalize, Observable} from 'rxjs';
+import {PaymentDone} from '../../models/paymentDone';
 
 @Component({
   selector: 'se-payment-page',
@@ -32,8 +33,8 @@ export class PaymentPage implements OnInit {
   totalAmount = 0;
 
   selectedMethod?: PaymentMethod;
-  payment?: Payment;
   isPaying = false;
+  paymentState$! : Observable<PaymentDone|null>;
 
   constructor(
     private route: ActivatedRoute,
@@ -43,12 +44,9 @@ export class PaymentPage implements OnInit {
 
   ngOnInit(): void {
     this.orderId = Number(this.route.snapshot.paramMap.get('orderId'));
-
-    // 1) cas normal : navigation via router.navigate(...)
+    this.paymentState$ = this.paymentService.paymentState$;
     const nav = this.router.getCurrentNavigation();
     const stateFromNav = nav?.extras.state as { totalAmount?: number } | undefined;
-
-    // 2) fallback : si jamais nav est null (par ex. F5 ou accès direct à l’URL)
     const stateFromHistory = history.state as { totalAmount?: number };
 
     this.totalAmount = stateFromNav?.totalAmount
@@ -64,13 +62,17 @@ export class PaymentPage implements OnInit {
 
   onPay() {
     if (!this.selectedMethod) return;
-
     this.isPaying = true;
-
     this.paymentService.processPayment(this.orderId, this.selectedMethod)
-      .subscribe(result => {
-        this.payment = result;
-        this.isPaying = false;
+      .pipe(
+        finalize(() => {
+          this.isPaying = false;
+        })
+      )
+      .subscribe({
+        error: err => {
+          console.error('Erreur lors du paiement :', err);
+        }
       });
   }
 }

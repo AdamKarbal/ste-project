@@ -2,6 +2,8 @@ import {Component, EventEmitter, Input, Output} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import {RestaurantService} from '../../services/restaurantService';
+import {AccountService} from '../../services/accountService';
+import {switchMap} from 'rxjs';
 
 @Component({
   selector: 'app-restaurant-card',
@@ -12,7 +14,7 @@ import {RestaurantService} from '../../services/restaurantService';
 })
 export class RestaurantCardComponent {
   @Input() restaurant: any;
-  constructor(private router: Router,private restaurantService : RestaurantService ) {}
+  constructor(private router: Router,private restaurantService : RestaurantService,private accountService:AccountService) {}
 
   goToMenu() {
     if (!this.restaurant?.name) {
@@ -24,18 +26,19 @@ export class RestaurantCardComponent {
     this.createOrder();
     this.router.navigate(['/restaurant-menu', this.restaurant.name]);
   }
-  createOrder() {
-    const orderBody = {
-      clientId: 42,
-      restaurantId: this.restaurant.name
-    };
-
-    this.restaurantService
-      .createOrder(orderBody)
+  createOrder() { // absolument changer la création du client synchronisée avec la création de l'Order (à faire plus tard qd y aura un vrai système d'auth)
+    this.accountService.createUser("ClientTest")
+      .pipe(
+        switchMap(client =>
+          this.restaurantService.createOrder({
+            clientId: client.id,
+            restaurantId: this.restaurant.name
+          })
+        )
+      )
       .subscribe({
         next: res => console.log("Commande créée :", res),
         error: err => console.error("Erreur API :", err)
       });
   }
-
 }

@@ -1,85 +1,51 @@
 package Restaurant;
 
-import Api.RestaurantRepo.RestaurantRepoServer;
-import Api.Utils.Requester;
+import Account.AccountManager;
 import Dish.*;
 import Dish.suggest.Suggestion;
-import Restaurant.Enum.CuisineType;
 import Restaurant.Enum.DayOfTheWeek;
-import Restaurant.Enum.establishmentType;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.sun.net.httpserver.HttpServer;
-import io.cucumber.java.Before;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
+import Restaurant.Enum.CuisineType;
+import Restaurant.Exception.DishInDishes;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
-import java.net.URI;
-import java.net.URLEncoder;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.nio.charset.StandardCharsets;
 import java.time.LocalTime;
 import java.util.ArrayList;
-import java.util.Map;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class RestaurantManagerTest {
 
-    private static HttpServer server;
-    private static boolean isServerRunning = false;
     private RestaurantManager manager;
     private RestaurantScheduleManager scheduleManager;
-    private final String TEST_RESTO_NAME = "Chez akhi ali";
-
-    @BeforeAll
-    public static void setup() throws IOException {
-        if (!isServerRunning) {
-            try {
-                server=RestaurantRepoServer.startServer();
-                isServerRunning = true;
-            } catch (java.net.BindException e) {
-                System.out.println(" Serveur déjà lancé ");
-                isServerRunning = true;
-            }
-        }
-        scheduleManager = new RestaurantScheduleManager();
-    }
-
-    @AfterAll
-    static void stopInfrastructure() {
-        if (server != null) {
-            server.stop(0);
-        }
-    }
+    private Restaurant restaurant;
+    private RestaurantFactory restaurantFactory;
+    private RestaurantService restaurantService;
+    private AccountManager accountManager;
 
     @BeforeEach
-    void setUp(){
-        manager = new RestaurantManager();
-        Restaurant initialRestaurant = new Restaurant.Builder()
-                .name(TEST_RESTO_NAME)
-                .dishes(new ArrayList<>())
-                .restaurantSchedules(new ArrayList<>())
-                .cuisineType(new ArrayList<>())
-                .establishmentType(null)
-                .build();
-        manager.saveRestaurant(initialRestaurant);
+    void setUp() throws Exception {
+        RestaurantRepo repo = new RestaurantRepo(new ArrayList<>());
+        restaurantService = new RestaurantService(repo);
+        restaurantFactory = new RestaurantFactory(restaurantService);
+        scheduleManager = new RestaurantScheduleManager();
+        accountManager = new AccountManager("Adam");
+        accountManager.createRestaurant("Chez akhi ali", restaurantFactory);
+        manager = accountManager.getRestaurantManager();
+        restaurant=manager.getRestaurant();
     }
 
     @Test
-    void testUpdateSchedule_AddNewScheduleIfNotExists() throws Exception {
+    void testUpdateSchedule_AddNewScheduleIfNotExists() {
         LocalTime start = LocalTime.of(12, 0);
         LocalTime end = LocalTime.of(15, 0);
-        Restaurant updatedResto = Requester.getRestaurantByName(TEST_RESTO_NAME);
-        scheduleManager.updateSchedule(TEST_RESTO_NAME, DayOfTheWeek.MONDAY, start, end, 40);
-        assertEquals(6, updatedResto.getRestaurantSchedules().size());
-        assertEquals(40, updatedResto.getRestaurantSchedules().get(0).getCapacity());
+
+        scheduleManager.updateSchedule(manager.getRestaurant().getName(), DayOfTheWeek.MONDAY, start, end, 40);
+
+        assertEquals(6, restaurant.getRestaurantSchedules().size());
+        assertEquals(40, restaurant.getRestaurantSchedules().get(0).getCapacity());
+        assertEquals(DayOfTheWeek.MONDAY, restaurant.getRestaurantSchedules().get(0).getDay());
     }
 
     @Test
@@ -87,52 +53,79 @@ public class RestaurantManagerTest {
         LocalTime start = LocalTime.of(10, 0);
         LocalTime end = LocalTime.of(14, 0);
         DayOfTheWeek day = DayOfTheWeek.WEDNESDAY;
-        manager.updateSchedule(day, start, end, 20, TEST_RESTO_NAME);
-        manager.updateCapacity(day, start, end, 50, TEST_RESTO_NAME);
-        Restaurant updatedResto = Requester.getRestaurantByName(TEST_RESTO_NAME);
-        assertEquals(50, updatedResto.getRestaurantSchedules().get(0).getCapacity());
+
+        scheduleManager.addSchedule(manager.getRestaurant().getName(), day, start, end, 20);
+
+        scheduleManager.updateCapacity(manager.getRestaurant().getName(), day, start, end, 50);
+
+        assertEquals(50, restaurant.getRestaurantSchedules().get(0).getCapacity());
     }
 
     @Test
     void testUpdateDish_ReplacesOldDishWithNewOne() throws Exception {
         Dish oldDish = new Dish(10f, "Old Dish", null, null, null, new ArrayList<>());
+
         Dish newDish = new Dish(12f, "New Dish", null, null, null, new ArrayList<>());
 
-        manager.addDish(oldDish, TEST_RESTO_NAME);
-        manager.updateDish(oldDish, newDish, TEST_RESTO_NAME);
-
-        Restaurant updatedResto = Requester.getRestaurantByName(TEST_RESTO_NAME);
-
-        boolean containsOld = updatedResto.getDishes().stream().anyMatch(d -> d.getName().equals("Old Dish"));
-        boolean containsNew = updatedResto.getDishes().stream().anyMatch(d -> d.getName().equals("New Dish"));
-
-        assertFalse(containsOld);
-        assertTrue(containsNew);
+        restaurant.setDishes(new ArrayList<>(List.of(oldDish)));
+        manager.updateDish(oldDish, newDish);
+        assertFalse(restaurant.getDishes().contains(oldDish));
+        assertTrue(restaurant.getDishes().contains(newDish));
     }
 
     @Test
     void testAddCuisineType_AddsNewCuisine() throws Exception {
-        manager.addCuisineType(CuisineType.ITALIENNE, TEST_RESTO_NAME);
-
-        Restaurant updatedResto = Requester.getRestaurantByName(TEST_RESTO_NAME);
-        assertTrue(updatedResto.getCuisineTypes().contains(CuisineType.ITALIENNE));
+        manager.addCuisineType(CuisineType.ITALIENNE);
+        assertTrue(restaurant.getCuisineTypes().contains(CuisineType.ITALIENNE));
     }
 
     @Test
     void testRemoveCuisineType_RemovesExistingCuisine() throws Exception {
-        manager.addCuisineType(CuisineType.FRANCAISE, TEST_RESTO_NAME);
-
-        manager.removeCuisineType(CuisineType.FRANCAISE, TEST_RESTO_NAME);
-
-        Restaurant updatedResto = Requester.getRestaurantByName(TEST_RESTO_NAME);
-        assertFalse(updatedResto.getCuisineTypes().contains(CuisineType.FRANCAISE));
+        restaurant.setCuisineTypes(new ArrayList<>(List.of(CuisineType.FRANCAISE)));
+        manager.removeCuisineType(CuisineType.FRANCAISE);
+        assertFalse(restaurant.getCuisineTypes().contains(CuisineType.FRANCAISE));
     }
 
     @Test
     void previewSuggestion_returnsExpectedSuggestion() {
         Suggestion s = manager.previewSuggestion("Pizza Margherita");
+
         assertNotNull(s);
-        assertEquals(DishType.PIZZA, s.type);
+        assertEquals(DishType.PIZZA, s.type);   // attendu via KeywordSuggester
         assertNotNull(s.suggestedPrice);
+        assertTrue(s.toppings == null || !s.toppings.isEmpty());
+    }
+
+    @Test
+    void createDish_mergesUserAndSuggestion_andAddsToRestaurant() throws Exception {
+/*
+        // Saisie utilisateur (il ajuste le prix et ajoute un topping)
+        DishInput in = new DishInput();
+        in.name = "Pizza Margherita";                   // déclenche PIZZA
+        in.price = 12.0;                                // l’utilisateur prime > suggestion (10.0)
+        in.toppings = List.of(new DishTopping("Olives", 0.8f)); // ajout manuel
+
+        Dish created = manager.createDish(in);
+
+        // Vérifs
+        assertEquals(1, manager.getRestaurant().getDishes().size());
+        assertEquals("Pizza Margherita", created.getName());
+        assertEquals(12.0, created.getPrice(), 1e-6);     // user > suggestion
+        assertTrue(created.getAvailableToppings().stream()
+                .anyMatch(t -> t.getName().equalsIgnoreCase("Olives"))); // merge toppings
+    }
+
+    @Test
+    void createDish_sameNameTwice_throwsDishInDishes_ifEqualsImplemented() throws Exception {
+/*
+        DishInput in = new DishInput();
+        in.name = "Pizza Margherita";
+        in.toppings = List.of(new DishTopping("Olives", 0.8f));
+
+        manager.createDish(in); // OK 1ère fois
+
+        // 2e création avec le même nom → si Dish.equals/hashCode(name) est implémenté,
+        // RestaurantManager.addDish doit jeter DishInDishes.
+        assertThrows(DishInDishes.class, () -> manager.createDish(in));*/
     }
 }

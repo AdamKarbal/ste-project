@@ -12,7 +12,7 @@ import java.util.List;
 
 public class test {
     public static void main(String[] args) throws Exception {
-       /* // 1) Préparer un restaurant “vide”
+        // 1) Préparer un restaurant “vide”
         RestaurantRepo repo = new RestaurantRepo(new ArrayList<>());
         RestaurantService restaurantService = new RestaurantService(repo);
         RestaurantFactory restaurantFactory = new RestaurantFactory(restaurantService);
@@ -33,7 +33,7 @@ public class test {
         in.toppings = List.of(new DishTopping("Olives", 0.8f)); // l’owner ajoute un topping
 
         // 4) Créer + ajouter le plat via le manager (qui délègue à la factory)
-        Dish created = manager.createDish(in,"Chez test");
+        Dish created = manager.createDish(in);
 
         // 5) Vérifs visuelles
         System.out.println("\n=== Dish créé ===");
@@ -44,5 +44,5 @@ public class test {
 
         System.out.println("\n=== Dishes dans le restaurant ===");
         System.out.println(manager.getRestaurant().getDishes().size()); // attendu: 1
-    */}
+    }
 }

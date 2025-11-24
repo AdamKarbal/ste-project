@@ -5,22 +5,22 @@ import Restaurant.Exception.RestaurantExist;
 import java.util.ArrayList;
 
 public class RestaurantFactory {
-    private RestaurantService restaurantService;
+    private final RestaurantService restaurantService;
 
     public RestaurantFactory(RestaurantService restaurantService) {
         this.restaurantService = restaurantService;
     }
 
-    public RestaurantFactory(){
-    }
-
-    public Restaurant createRestaurant(String name) {
-        return new Restaurant.Builder()
+    public RestaurantManager createRestaurant(String name) throws RestaurantExist {
+        Restaurant.Builder builder = new Restaurant.Builder()
                 .name(name)
                 .dishes(new ArrayList<>())
                 .restaurantSchedules(new ArrayList<>())
                 .cuisineType(new ArrayList<>())
-                .establishmentType(null)
-                .build();
+                .establishmentType(null);
+
+        Restaurant newRestaurant = builder.build();
+        restaurantService.addRestaurant(newRestaurant);
+        return new RestaurantManager(newRestaurant);
     }
 }

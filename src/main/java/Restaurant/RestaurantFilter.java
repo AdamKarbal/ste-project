@@ -1,5 +1,6 @@
 package Restaurant;
 
+import Api.Utils.Requester;
 import Dish.DishTag;
 import Restaurant.Enum.CuisineType;
 import Restaurant.Enum.establishmentType;
@@ -27,7 +28,7 @@ public class RestaurantFilter {
     public List<Restaurant> filterByAvailability() {
         return restaurantRepo.getRestaurants()
                 .stream()
-                .filter(r -> RestaurantScheduleManager.isOpenNow(r.getName()))
+                .filter(r -> Requester.isOpenNow(r.getName()))
                 .toList();
     }
 
@@ -36,7 +37,7 @@ public class RestaurantFilter {
 
         return restaurantRepo.getRestaurants()
                 .stream()
-                .filter(r -> RestaurantScheduleManager.isOpenAt(r.getName(), targetDateTime))
+                .filter(r -> Requester.isOpenAt(r.getName(), targetDateTime))
                 .toList();
     }
 

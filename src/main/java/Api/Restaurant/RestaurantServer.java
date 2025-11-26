@@ -13,7 +13,7 @@ public class RestaurantServer {
     }
 
     public static HttpServer startServer() throws IOException {
-        int port = 8001;
+        int port = 8009;
         String path = "/api/restaurant";
         RestaurantManager restaurantManager = new RestaurantManager();
         HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);

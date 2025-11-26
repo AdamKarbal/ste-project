@@ -20,7 +20,9 @@ public class RestaurantRepoServer {
         startServer();
     }
 
-    public static Restaurant setUpTest(){
+    public static List<Restaurant> setUpTest(){
+
+        List<Restaurant> restaurants = new ArrayList<>();
         Dish dishSansGlutenEtVegan = new Dish(0f, "Dish SG+V", null, null, null,
                 new ArrayList<>(List.of(DishTag.GLUTEN_FREE, DishTag.VEGAN)));
         Dish dishVegan = new Dish(0f, "Dish Vegan",null, null, null,
@@ -29,21 +31,44 @@ public class RestaurantRepoServer {
         Dish dishSansGluten = new Dish(0f, "Dish SG", null, null, null,
                 new ArrayList<>(List.of(DishTag.GLUTEN_FREE)));
 
-        return new Restaurant.Builder()
+
+
+
+        Restaurant r3= new Restaurant.Builder()
                 .name("Tacos")
                 .establishmentType(establishmentType.RESTAURANT)
                 .restaurantSchedules(new ArrayList<>())     // always
                 .dishes(List.of(dishSansGlutenEtVegan))
-                .cuisineType(null)
+                .cuisineType(List.of(CuisineType.ITALIENNE))
                 .build();
+
+
+        Restaurant r1 = new Restaurant.Builder()
+                .name("Cafeteria du Campus")
+                .establishmentType(establishmentType.FAST_FOOD)
+                .cuisineType(List.of(CuisineType.AMERICAINE))
+                .dishes(new ArrayList<>())
+                .restaurantSchedules(new ArrayList<>())
+                .build();
+
+        Restaurant r2 = new Restaurant.Builder()
+                .name("Pizza Express")
+                .establishmentType(establishmentType.RESTAURANT)
+                .cuisineType(List.of(CuisineType.ITALIENNE, CuisineType.FRANCAISE))
+                .dishes(new ArrayList<>())
+                .restaurantSchedules(new ArrayList<>())
+                .build();
+
+
+        restaurants.addAll(new ArrayList<>(List.of(r1, r2,r3)));
+        return restaurants;
     }
     public static HttpServer startServer() throws IOException {
         int port = 8002;
         String path = "/api/restaurantrepo/";// port dédié au Customer Service
         HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
         RestaurantRepo repo = new RestaurantRepo(new ArrayList<>());
-        repo.addRestaurant(setUpTest());
-        repo.addRestaurant(new Restaurant.Builder().name("Clément la grosse merde").establishmentType(establishmentType.RESTAURANT).restaurantSchedules(null).dishes(null).cuisineType(null).build());
+        repo.updateRestaurants(setUpTest());
         server.createContext(path, new RestaurantRepoHandler(repo));
         server.setExecutor(null);
         server.start();

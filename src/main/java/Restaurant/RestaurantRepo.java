@@ -19,6 +19,12 @@ public class RestaurantRepo {
         return resto;
     }
 
+    public List<Restaurant> updateRestaurants(List<Restaurant> restaurants){
+        this.restaurants.clear();
+        this.restaurants.addAll(restaurants);
+        return restaurants;
+    }
+
     public boolean restaurantExist(Restaurant resto){
         return restaurants.contains(resto);
     }

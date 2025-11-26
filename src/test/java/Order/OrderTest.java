@@ -87,9 +87,7 @@ class OrderTest {
         LocalTime start = LocalTime.now().minusMinutes(15);
         LocalTime end = LocalTime.now().plusMinutes(30);
 
-        scheduleManager.addSchedule(restaurant.getName(), today, start, end, 10);
-
-
+        Requester.addSchedule(restaurant.getName(), today, start, end, 10);
 
         order = new Order(client.getId(), restaurant.getName());
 

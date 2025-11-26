@@ -48,7 +48,6 @@ import Restaurant.RestaurantFactory;
 import Restaurant.RestaurantManager;
 import Restaurant.RestaurantRepo;
 import Restaurant.RestaurantSchedule;
-import Restaurant.RestaurantScheduleManager;
 import Restaurant.RestaurantService;
 import Restaurant.Enum.*;
 import Dish.*;
@@ -93,13 +92,10 @@ public class DemoStep {
     private String currentRestaurantName;;
     private OrderManager currentOrderManager;
     private Map<String, AccountManager> restaurateurs = new HashMap<>();
-    private RestaurantScheduleManager scheduleManager;
     private RestaurantManager currentManager;
     private Restaurant currentRestaurant;
     private AccountUser client;
     private List<Restaurant> restaurantsByType;
-    private Restaurant currentRestaurant;
-    private RestaurantManager currentManager;
     private AccountService accountService;
     private int currentClientId;
     static HttpServer accountRepo;
@@ -136,7 +132,6 @@ public class DemoStep {
         factory = new RestaurantFactory(service);
         restaurateurs = new HashMap<>();
         accountService = new AccountService();
-        scheduleManager = new RestaurantScheduleManager();
     }
 
     @Given("un catalogue de restos")
@@ -162,8 +157,8 @@ public class DemoStep {
 
             List<DayOfTheWeek> days = DayOfTheWeek.getRealDays();
             for (DayOfTheWeek day : days) {
-                scheduleManager.addSchedule(name, day, hhmm(row.get("start1")), hhmm(row.get("end1")), Integer.parseInt(row.get("capacity1")));
-                scheduleManager.addSchedule(name, day, hhmm(row.get("start2")), hhmm(row.get("end2")), Integer.parseInt(row.get("capacity2")));
+                Requester.addSchedule(name, day, hhmm(row.get("start1")), hhmm(row.get("end1")), Integer.parseInt(row.get("capacity1")));
+                Requester.addSchedule(name, day, hhmm(row.get("start2")), hhmm(row.get("end2")), Integer.parseInt(row.get("capacity2")));
             }
             manager.saveRestaurant(r);
             service.addRestaurant(r);
@@ -184,7 +179,7 @@ public class DemoStep {
 
     @And("que {string} a un créneau de {int}:{int} à {int}:{int} avec une capacité de {int} repas")
     public void que_a_un_créneau_de_à_avec_une_capacité_de_repas(String restoName, Integer h1, Integer m1, Integer h2, Integer m2, Integer capacity) {
-        List<RestaurantSchedule> schedules = scheduleManager.getSchedules(currentRestaurant.getName());
+        List<RestaurantSchedule> schedules = Requester.getSchedules(currentRestaurant.getName());
         Assertions.assertTrue(
                 schedules.contains(new RestaurantSchedule(DayOfTheWeek.MONDAY, LocalTime.of(h1, m1), capacity))
         );
@@ -267,7 +262,7 @@ public class DemoStep {
 
         // ⚠️ Ce check ne sera vrai que si tu remets la logique de décrément dans ton code métier.
         Assertions.assertEquals(
-                scheduleManager.getCapacityById(currentRestaurant.getName(), order.getIdSchedule()),
+                Requester.getScheduleCapacity(currentRestaurant.getName(), order.getIdSchedule()),
                 expectedCapacity
         );
     }
@@ -307,10 +302,11 @@ public class DemoStep {
 
     @When("Il ajoute un creneau de {int}:{int} à {int}:{int} avec {int} capacités")
     public void il_ajoute_un_creneau(Integer h1, Integer m1, Integer h2, Integer m2, Integer cap) {
-        scheduleManager.updateSchedule(DayOfTheWeek.MONDAY,
+        Requester.addSchedule(currentRestaurantName,
+                DayOfTheWeek.MONDAY,
                 LocalTime.of(h1, m1),
                 LocalTime.of(h2, m2),
-                cap, currentRestaurantName);
+                cap);
     }
 
     @Then("Le restaurant doit être disponible sous le nom de {string}")

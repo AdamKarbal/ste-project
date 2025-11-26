@@ -1,29 +1,42 @@
+/* ===== PAGE ===== */
 .restaurant-detail {
+  width: 100%;
+  max-width: 900px;
+  margin: auto;
+  padding: 3rem 1rem 5rem;
   text-align: center;
-  padding: 4rem 2rem;
   color: #2e2e2e;
 }
 
+/* ===== TITRES ===== */
 .restaurant-detail h1 {
   color: #e53935;
-  font-size: 2.5rem;
-  margin-bottom: 1rem;
+  font-size: 3rem;
+  margin-bottom: 0.5rem;
+  font-weight: 700;
 }
 
 .restaurant-detail p {
   font-size: 1.2rem;
   margin-bottom: 2rem;
+  color: #555;
+}
+
+/* ===== BOUTON COMMANDER ===== */
+.actions {
+  margin: 2rem 0;
 }
 
 .actions button {
   background: #e53935;
   color: white;
-  padding: 12px 24px;
+  padding: 12px 28px;
   border: none;
-  border-radius: 10px;
+  border-radius: 14px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
+  font-size: 1.1rem;
+  transition: 0.3s ease;
 }
 
 .actions button:hover {
@@ -32,6 +45,107 @@
 }
 
 .actions .info {
-  color: #555;
   font-size: 1rem;
+  color: #777;
+}
+
+/* ===== SECTION MENU ===== */
+.restaurant-detail h2 {
+  margin-top: 3rem;
+  font-size: 2rem;
+  font-weight: 700;
+  color: #e53935;
+}
+
+/* ===== LISTE DES PLATS ===== */
+.menu {
+  margin-top: 2rem;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+}
+
+/* Responsive */
+@media (min-width: 700px) {
+  .menu {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* ===== CARTE DE PLAT ===== */
+.dish-card {
+  background: white;
+  padding: 20px;
+  border-radius: 18px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  text-align: left;
+  transition: 0.2s ease;
+}
+
+.dish-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 22px rgba(0, 0, 0, 0.12);
+}
+
+/* Header du plat */
+.dish-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.dish-header h3 {
+  font-weight: 700;
+  font-size: 1.3rem;
+  color: #333;
+}
+
+.price {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #e53935;
+}
+
+/* Description */
+.description {
+  font-size: 0.95rem;
+  color: #666;
+  margin-bottom: 0.8rem;
+}
+
+/* ===== TAGS ===== */
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 1rem;
+}
+
+.tag {
+  background: #ffeaea;
+  color: #e53935;
+  padding: 5px 10px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+/* ===== TOPPINGS ===== */
+.toppings h4 {
+  font-size: 0.9rem;
+  margin-bottom: 4px;
+  color: #333;
+  font-weight: 600;
+}
+
+.toppings ul {
+  margin: 0;
+  padding-left: 1rem;
+}
+
+.toppings li {
+  font-size: 0.85rem;
+  color: #555;
+  margin-bottom: 3px;
 }

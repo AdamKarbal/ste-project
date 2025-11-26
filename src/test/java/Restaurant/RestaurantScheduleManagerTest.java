@@ -1,7 +1,11 @@
 package Restaurant;
 
+import Api.RestaurantSchedule.RestaurantScheduleServer;
 import Api.Utils.Requester;
 import Restaurant.Enum.DayOfTheWeek;
+import com.sun.net.httpserver.HttpServer;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -14,6 +18,18 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class RestaurantScheduleManagerTest {
     private Restaurant restaurant;
+    private static HttpServer serverSchedule;
+    private static HttpServer serverRestoRepo;
+
+    @BeforeAll
+    static void setup() {
+        try {
+            serverSchedule = RestaurantScheduleServer.startServer();
+            serverRestoRepo = RestaurantScheduleServer.startServer();
+        } catch (Exception e) {
+            System.out.println("Schedule server could not be started");
+        }
+    }
 
     @BeforeEach
     void setUp() {
@@ -24,9 +40,21 @@ public class RestaurantScheduleManagerTest {
                 .cuisineType(new ArrayList<>())
                 .build();
 
+        Requester.createRestaurant(restaurant);
+
         Requester.addSchedule(restaurant.getName(), DayOfTheWeek.MONDAY, LocalTime.of(8, 0), LocalTime.of(12, 0), 10);
         Requester.addSchedule(restaurant.getName(), DayOfTheWeek.MONDAY, LocalTime.of(18, 0), LocalTime.of(23, 0), 20);
         Requester.addSchedule(restaurant.getName(), DayOfTheWeek.FRIDAY, LocalTime.of(22, 0), LocalTime.of(2, 0), 15); // overnight
+    }
+
+    @AfterAll
+    static void stopInfrastructure() {
+        if (serverSchedule != null) {
+            serverSchedule.stop(0);
+        }
+        if (serverRestoRepo != null) {
+            serverRestoRepo.stop(0);
+        }
     }
 
     @Test

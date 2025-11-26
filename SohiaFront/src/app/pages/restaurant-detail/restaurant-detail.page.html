@@ -1,13 +1,60 @@
 <app-navbar></app-navbar>
 
 <section class="restaurant-detail">
-  <h1>{{ restaurantName }}</h1>
-  <p>Bienvenue sur la page du restaurant <strong>{{ restaurantName }}</strong> 🍽️</p>
 
+  <h1>{{ restaurantName }}</h1>
+
+  <div *ngIf="loading" class="loading">
+    Chargement du restaurant...
+  </div>
+
+  <div *ngIf="!loading && restaurant">
+
+    <p>
+      Bienvenue sur la page de <strong>{{ restaurant.name }}</strong> 🍽️
+    </p>
+
+    <!-- ---------------- MENU ---------------- -->
+    <h2>Menu</h2>
+
+    <div class="menu">
+
+      <div class="dish-card" *ngFor="let dish of restaurant.dishes">
+
+        <div class="dish-header">
+          <h3>{{ dish.name }}</h3>
+          <span class="price">{{ dish.price }} €</span>
+        </div>
+
+        <p class="description">{{ dish.description }}</p>
+
+        <!-- TAGS -->
+        <div class="tags" *ngIf="dish.dishTag?.length">
+          <span class="tag" *ngFor="let tag of dish.dishTag">
+            {{ tagLabels[tag] || tag }}
+          </span>
+        </div>
+
+        <!-- TOPPINGS -->
+        <div class="toppings" *ngIf="dish.availableToppings?.length">
+          <h4>Toppings :</h4>
+          <ul>
+            <li *ngFor="let t of dish.availableToppings">
+              {{ t.name }} (+{{ t.price }}€)
+            </li>
+          </ul>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
   <div class="actions">
     <button *ngIf="isLoggedIn" (click)="onOrder()">Commander</button>
     <p *ngIf="!isLoggedIn" class="info">Connectez-vous pour commander.</p>
   </div>
+
 </section>
 
 <app-footer></app-footer>

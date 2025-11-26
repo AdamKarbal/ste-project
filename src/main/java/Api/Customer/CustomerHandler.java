@@ -20,31 +20,9 @@ import java.util.HashMap;
 import Restaurant.*;
 
 public class CustomerHandler implements HttpHandler {
-    private final RestaurantService restaurantService = new RestaurantService(new RestaurantRepo(new ArrayList<Restaurant>()));
+    private final RestaurantService restaurantService = new RestaurantService();
 
     public CustomerHandler() {
-        try {
-            Restaurant r1 = new Restaurant.Builder()
-                    .name("Cafeteria du Campus")
-                    .establishmentType(establishmentType.FAST_FOOD)
-                    .cuisineType(List.of(CuisineType.AMERICAINE))
-                    .dishes(new ArrayList<>())
-                    .restaurantSchedules(new ArrayList<>())
-                    .build();
-
-            Restaurant r2 = new Restaurant.Builder()
-                    .name("Pizza Express")
-                    .establishmentType(establishmentType.RESTAURANT)
-                    .cuisineType(List.of(CuisineType.ITALIENNE, CuisineType.FRANCAISE))
-                    .dishes(new ArrayList<>())
-                    .restaurantSchedules(new ArrayList<>())
-                    .build();
-
-            restaurantService.addRestaurant(r1);
-            restaurantService.addRestaurant(r2);
-        } catch (RestaurantExist e) {
-            e.printStackTrace();
-        }
     }
 
     @Override

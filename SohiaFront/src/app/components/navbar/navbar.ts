@@ -22,11 +22,7 @@ export class NavbarComponent {
     });
   }
 
-  /** Recherche dans la barre de recherche */
-  onSearch() {
-    if (!this.searchTerm.trim()) return;
-    this.router.navigate(['/home'], { queryParams: { name: this.searchTerm } });
-  }
+
 
   /** Navigation vers l’espace restaurateur */
   goToOwner() {
@@ -43,6 +39,7 @@ export class NavbarComponent {
   }
 
   goHome() {
+
     this.auth.logout();
     this.router.navigate(['/landing']);
   }

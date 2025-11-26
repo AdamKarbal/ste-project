@@ -29,7 +29,7 @@ public class RestaurantRepoHandler implements HttpHandler {
     public RestaurantRepoHandler(RestaurantRepo repo){
         this.repo=repo;
         ApiRegistry.addRoute("GET", "/api/restaurantrepo/{restaurantName}/", this::getRestaurant);
-        ApiRegistry.addRoute("GET","api/restaurantrepo/",this::getAllRestaurants);
+        ApiRegistry.addRoute("GET","/api/restaurantrepo/",this::getAllRestaurants);
         ApiRegistry.addRoute("POST","/api/restaurantrepo/",this::createRestaurant);
         ApiRegistry.addRoute("PUT","/api/restaurantrepo/{restaurantName}/",this::updateRestaurant);
     }

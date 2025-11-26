@@ -111,4 +111,21 @@ export class RestaurantService {
     console.log('[Service] ✅ Filtres combinés chargés');
     return { cuisines, establishments };
   }
+
+  async getRestaurantDetails(name: string) {
+    const url = `${this.baseUrl}/restaurants/filter?name=${encodeURIComponent(name)}`;
+    console.log(`[Service] 📡 Détails restaurant : "${name}" →`, url);
+
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`Erreur HTTP ${response.status}`);
+
+    const data = await response.json();
+
+    // Le backend renvoie une liste → on prend le premier
+    const restaurant = Array.isArray(data) ? data[0] : data;
+
+    console.log('[Service] 🍽️ Restaurant complet reçu :', restaurant);
+
+    return restaurant;
+  }
 }

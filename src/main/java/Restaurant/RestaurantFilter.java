@@ -18,6 +18,10 @@ public class RestaurantFilter {
         this.restaurantRepo = restaurantRepo;
     }
 
+    public void updateRepo(RestaurantRepo restaurantRepo) {
+        this.restaurantRepo = restaurantRepo;
+    }
+
     public List<Restaurant> filterByType(establishmentType type) {
         return restaurantRepo.getRestaurants()
                 .stream()

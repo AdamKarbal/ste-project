@@ -44,15 +44,11 @@ class OrderTest {
 
     @BeforeAll
     public static void setUpServers() throws IOException {
-        try{
         accountRepo = AccountRepoServer.startServer();
         dishRepo = DishRepoServer.startServer();
         orderRepo = OrderRepoServer.startServer();
         orderHandler = OrderServer.startServer();
-        restoRepo = RestaurantRepoServer.startServer();}
-        catch (java.net.BindException e) {
-            System.out.println("déjà utilisée");
-        }
+        restoRepo = RestaurantRepoServer.startServer();
 
         servers = List.of(accountRepo, dishRepo, orderRepo, orderHandler, restoRepo);
     }

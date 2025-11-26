@@ -1,0 +1,10 @@
+.settings-card { background: white; padding: 1.5rem; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+.settings-title { margin-top: 0; font-size: 1.2rem; color: #111827; border-bottom: 2px solid #f3f4f6; padding-bottom: 10px; margin-bottom: 20px; }
+.setting-group { margin-bottom: 1.5rem; }
+label { display: block; font-weight: 600; font-size: 0.9rem; margin-bottom: 0.5rem; color: #374151; }
+select { width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 6px; background: #f9fafb; }
+.tags-container { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+.cuisine-tag { background: #3b82f6; color: white; padding: 4px 10px; border-radius: 99px; font-size: 0.85rem; display: flex; align-items: center; gap: 6px; }
+.remove-tag { background: none; border: none; color: white; font-weight: bold; cursor: pointer; padding: 0; font-size: 1.1rem; }
+.add-cuisine-row { display: flex; gap: 8px; }
+.btn-add { background: #10b981; color: white; border: none; border-radius: 6px; width: 40px; cursor: pointer; font-size: 1.2rem; }

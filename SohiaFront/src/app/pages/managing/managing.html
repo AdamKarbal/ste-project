@@ -1,0 +1,96 @@
+<main class="menu-page-container" style="border-top: 5px solid #f59e0b;">
+
+  <div class="status" *ngIf="!restaurant">Chargement...</div>
+
+  <section class="menu-page-content" *ngIf="restaurant">
+    <header class="menu-header" style="display: flex; justify-content: space-between; align-items: center;">
+      <div>
+        <h1 class="menu-title">{{ restaurant.name }} <span style="font-size: 0.5em; background: #f59e0b; color: white; padding: 2px 8px; border-radius: 4px; vertical-align: middle;">MANAGER</span></h1>
+      </div>
+    </header>
+
+    <div class="menu-layout">
+
+      <se-restaurant-schedule-sidebar
+        class="menu-col menu-col--left"
+        [restaurantName]="restaurant.name"
+        [schedules]="restaurant.restaurantSchedules || []"
+      ></se-restaurant-schedule-sidebar>
+
+      <section class="menu-col menu-col--center">
+
+        <button *ngIf="!isCreatingDish" (click)="startCreation()" style="width: 100%; padding: 15px; background: white; border: 2px dashed #ccc; border-radius: 12px; cursor: pointer; color: #666; font-weight: bold; font-size: 1.1em; margin-bottom: 20px;">
+          + Ajouter un nouveau plat
+        </button>
+
+        <div *ngIf="isCreatingDish" class="create-dish-box">
+          <h3 style="margin-top: 0;">✨ Nouveau Plat</h3>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Nom</label>
+              <input [(ngModel)]="newDish.name" placeholder="Ex: Pizza Royale" class="input-field">
+            </div>
+            <div class="form-group">
+              <label>Prix (€)</label>
+              <input [(ngModel)]="newDish.price" type="number" placeholder="0.00" class="input-field">
+            </div>
+
+            <div class="form-group">
+              <label>Catégorie</label>
+              <select [(ngModel)]="newDish.category" class="input-field">
+                <option *ngFor="let c of categories" [value]="c">{{ c }}</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Type</label>
+              <select [(ngModel)]="newDish.type" class="input-field">
+                <option *ngFor="let t of types" [value]="t">{{ t }}</option>
+              </select>
+            </div>
+
+            <div class="form-group full-width">
+              <label>Description</label>
+              <textarea [(ngModel)]="newDish.description" rows="2" class="input-field"></textarea>
+            </div>
+
+            <div class="form-group full-width">
+              <label>Tags</label>
+              <div class="tags-selector">
+                    <span *ngFor="let tag of allTags"
+                          (click)="toggleTag(tag)"
+                          [class.selected]="newDish.dishTag.includes(tag)"
+                          class="tag-chip">
+                      {{ tag }}
+                    </span>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button (click)="createDish()" class="btn-save" [disabled]="!newDish.name">Créer le plat</button>
+            <button (click)="cancelCreation()" class="btn-cancel">Annuler</button>
+          </div>
+        </div>
+
+        <div class="dish-list-grid">
+          <se-restaurant-dish-card-manager
+            *ngFor="let dish of restaurant.dishes"
+            [dish]="dish"
+            (update)="onUpdateDish($event)"
+            (delete)="onDeleteDish($event)"
+          ></se-restaurant-dish-card-manager>
+        </div>
+      </section>
+
+      <se-restaurant-settings
+        class="menu-col menu-col--right"
+        [restaurant]="restaurant"
+        (establishmentChange)="onUpdateEstablishment($event)"
+        (addCuisine)="onAddCuisine($event)"
+        (removeCuisine)="onRemoveCuisine($event)"
+      ></se-restaurant-settings>
+
+    </div>
+  </section>
+</main>

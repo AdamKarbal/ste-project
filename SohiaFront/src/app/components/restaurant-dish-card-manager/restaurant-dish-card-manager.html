@@ -1,0 +1,70 @@
+<div class="dish-card" [class.editing]="isEditing">
+
+  <ng-container *ngIf="!isEditing">
+    <div class="dish-header">
+      <h3 class="dish-name">{{ dish.name }}</h3>
+      <div class="dish-price">{{ dish.price }} €</div>
+    </div>
+
+    <div class="dish-meta">
+      <span class="meta-badge">{{ catLabels[dish.category] || dish.category }}</span>
+      <span class="meta-badge meta-type">{{ typeLabels[dish.type] || dish.type }}</span>
+    </div>
+
+    <p class="dish-description">{{ dish.description || 'Aucune description' }}</p>
+
+    <div class="dish-meta" *ngIf="dish.dishTag && dish.dishTag.length > 0">
+      <span class="tag-badge" *ngFor="let tag of dish.dishTag">{{ tagLabels[tag] || tag }}</span>
+    </div>
+
+    <div class="dish-actions manager-actions">
+      <button class="btn-edit" (click)="startEdit()">✏️ Modifier</button>
+      <button class="btn-delete" (click)="onDelete()">🗑️ Supprimer</button>
+    </div>
+  </ng-container>
+
+  <ng-container *ngIf="isEditing">
+    <div class="edit-form">
+
+      <label class="field-label">Nom</label>
+      <input [(ngModel)]="tempDish.name" class="edit-input" placeholder="Nom du plat">
+
+      <div class="row">
+        <div class="col">
+          <label class="field-label">Prix (€)</label>
+          <input [(ngModel)]="tempDish.price" type="number" class="edit-input">
+        </div>
+        <div class="col">
+          <label class="field-label">Catégorie</label>
+          <select [(ngModel)]="tempDish.category" class="edit-input">
+            <option *ngFor="let c of categories" [value]="c">{{ catLabels[c] }}</option>
+          </select>
+        </div>
+      </div>
+
+      <label class="field-label">Type</label>
+      <select [(ngModel)]="tempDish.type" class="edit-input">
+        <option *ngFor="let t of types" [value]="t">{{ typeLabels[t] }}</option>
+      </select>
+
+      <label class="field-label">Description</label>
+      <textarea [(ngModel)]="tempDish.description" class="edit-input" rows="2"></textarea>
+
+      <label class="field-label">Tags</label>
+      <div class="tags-selector">
+            <span *ngFor="let tag of allTags"
+                  (click)="toggleTempTag(tag)"
+                  [class.selected]="tempDish.dishTag.includes(tag)"
+                  class="tag-chip">
+              {{ tagLabels[tag] }}
+            </span>
+      </div>
+
+      <div class="dish-actions manager-actions" style="margin-top: 15px;">
+        <button class="btn-save" (click)="onSave()">💾 Sauver</button>
+        <button class="btn-cancel" (click)="cancelEdit()">❌ Annuler</button>
+      </div>
+    </div>
+  </ng-container>
+
+</div>

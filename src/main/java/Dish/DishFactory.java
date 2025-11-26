@@ -15,10 +15,10 @@ public class DishFactory {
             String description,
             DishCategory category,
             DishType type,
-            List<DishTag> dishTags
+            List<DishTag> dishTag
     ) {
         validate(price, name, category, type);
-        return new Dish(price, name, description, category, type, dishTags);
+        return new Dish(price, name, description, category, type, dishTag);
     }
 
     /**

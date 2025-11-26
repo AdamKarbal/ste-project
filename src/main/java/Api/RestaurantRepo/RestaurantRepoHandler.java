@@ -9,7 +9,6 @@ import Restaurant.Restaurant;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -126,7 +125,4 @@ public class RestaurantRepoHandler implements HttpHandler {
             }
         }
     }
-
-
-
 }

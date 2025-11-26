@@ -16,9 +16,9 @@ public class Dish {
     private String description;
     private DishCategory category;
     private DishType type;
-    private List<DishTag> dishTag;
-    private List<DishTopping> availableToppings;
-    private List<DishTopping> selectedToppings;
+    private List<DishTag> dishTag = new ArrayList<>();
+    private List<DishTopping> availableToppings = new ArrayList<>();
+    private List<DishTopping> selectedToppings = new ArrayList<>();
     private int id;
 
     public Dish() {
@@ -73,8 +73,8 @@ public class Dish {
     public List<DishTag> getDishTag() {
         return dishTag;
     }
-    public void setDishTags(List<DishTag> dishTags) {
-        this.dishTag = dishTags;
+    public void setDishTag(List<DishTag> dishTag) {
+        this.dishTag = dishTag;
     }
     public boolean addDishTag(DishTag dishTag) {
         return this.dishTag.add(dishTag);

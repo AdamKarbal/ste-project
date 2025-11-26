@@ -1,0 +1,36 @@
+<div class="settings-card">
+  <h2 class="settings-title">⚙️ Réglages</h2>
+
+  <div class="setting-group">
+    <label>Type d'établissement</label>
+
+    <select [ngModel]="restaurant.establishmentType" (ngModelChange)="onChangeEstablishment($event)">
+      <option [ngValue]="null" disabled>Sélectionner un type...</option>
+
+      <option *ngFor="let type of eTypes" [value]="type">
+        {{ eLabels[type] }} </option>
+    </select>
+
+    <div style="margin-top: 5px; font-size: 0.9em; color: #666;" *ngIf="restaurant.establishmentType">
+      Actuel : <strong>{{ restaurant.establishmentType }}</strong>
+    </div>
+  </div>
+
+  <div class="setting-group">
+    <label>Cuisines</label>
+    <div class="tags-container">
+          <span *ngFor="let c of restaurant.cuisineTypes" class="cuisine-tag">
+            {{ cLabels[c] }}
+            <button class="remove-tag" (click)="onRemoveCuisine(c)">×</button>
+          </span>
+    </div>
+
+    <div class="add-cuisine-row">
+      <select [(ngModel)]="selectedCuisine">
+        <option [ngValue]="null">Ajouter...</option>
+        <option *ngFor="let c of cTypes" [value]="c">{{ cLabels[c] }}</option>
+      </select>
+      <button class="btn-add" (click)="onAddCuisine()" [disabled]="!selectedCuisine">+</button>
+    </div>
+  </div>
+</div>

@@ -1,10 +1,23 @@
 import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { Restaurant } from '../models/restaurant.model';
+import { CuisineType } from "../models/cuisine-type.model";
+import { Dish } from "../models/dish.models";
+import { EstablishmentType } from "../models/establishment-type.model";
+import {RestaurantSchedule} from '../models/restaurant-schedule.model';
+
+
 
 @Injectable({
   providedIn: 'root'
 })
 export class RestaurantService {
-  baseUrl = 'http://localhost:8001';
+  baseUrl = 'http://localhost:8007';
+  private apiUrl = 'http://localhost:8001/api/restaurant'
+
+  constructor(private http : HttpClient) {
+  }
 
   /** Obtenir tous les restaurants */
   async getAllRestaurants() {
@@ -110,5 +123,34 @@ export class RestaurantService {
     ]);
     console.log('[Service] ✅ Filtres combinés chargés');
     return { cuisines, establishments };
+  }
+
+  getRestaurant(name: string): Observable<Restaurant> {
+    return this.http.get<Restaurant>(`${this.apiUrl}/${name}`);
+  }
+
+  addDish(restaurantName : string, dish : Dish): Observable<any>{
+    return this.http.post(`${this.apiUrl}/${restaurantName}/dishes`, dish);}
+  updateDish(restaurantName: string, oldDishName: string, newDish: Dish): Observable<any> {
+    return this.http.put(`${this.apiUrl}/${restaurantName}/dishes/${encodeURIComponent(oldDishName)}`, newDish);
+  }
+  deleteDish(restaurantName: string, dishName: string): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/${restaurantName}/dishes/${encodeURIComponent(dishName)}`);
+  }
+  addCuisineType(restaurantName: string, type: CuisineType): Observable<any> {
+    return this.http.post(`${this.apiUrl}/${restaurantName}/cuisine-types`, JSON.stringify(type), {
+      headers: { 'Content-Type': 'application/json' }
+    });
+  }
+  removeCuisineType(restaurantName: string, type: CuisineType): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/${restaurantName}/cuisine-types/${type}`);
+  }
+  setEstablishmentType(restaurantName: string, type: EstablishmentType): Observable<any> {
+    return this.http.put(`${this.apiUrl}/${restaurantName}/establishment-type`, JSON.stringify(type), {
+      headers: { 'Content-Type': 'application/json' }
+    });
+  }
+  removeEstablishmentType(restaurantName: string): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/${restaurantName}/establishment-type`);
   }
 }

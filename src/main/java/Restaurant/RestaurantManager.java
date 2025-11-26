@@ -89,10 +89,8 @@ public class RestaurantManager {
     }
 
 
-    public void addEstablishmentType(establishmentType e, String name) throws EstablishmentTypeAlreadySet {
+    public void setEstablishmentType(establishmentType e, String name) {
         Restaurant restaurant = getRestaurantFromRepo(name);
-        if (restaurant.getEstablishmentType() != null)
-            throw new EstablishmentTypeAlreadySet("Le restaurant a déjà un type d'établissement défini.");
         restaurant.setEstablishmentType(e);
         saveRestaurant(restaurant);
     }

@@ -116,9 +116,11 @@ public class Requester {
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
             if (response.statusCode() == 404) {
+                System.out.println("on a pas trouvé le resto");
                 throw new OrderNotFoundException("Restaurant " + encodedName + " introuvable.");
             }
             if (response.statusCode() != 200) {
+                System.out.println("Erreur GET : code " + response.statusCode());
                 throw new RuntimeException("Erreur GET : code " + response.statusCode());
             }
 
@@ -128,6 +130,41 @@ public class Requester {
             throw new RuntimeException("Erreur GET require(" + restaurantName + ")", e);
         }
     }
+
+    public static Restaurant updateRestaurant(String restaurantName, Restaurant updatedRestaurant) {
+        try {
+            String encoded = URLEncoder.encode(restaurantName, StandardCharsets.UTF_8)
+                    .replace("+", "%20");
+
+            String url = "http://localhost:8002/api/restaurantrepo/" + encoded + "/";
+
+            String json = mapper.writeValueAsString(updatedRestaurant);
+
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(url))
+                    .method("PUT", HttpRequest.BodyPublishers.ofString(json))
+                    .header("Content-Type", "application/json")
+                    .build();
+
+            HttpClient client = HttpClient.newHttpClient();
+            HttpResponse<String> response =
+                    client.send(request, HttpResponse.BodyHandlers.ofString());
+
+            int code = response.statusCode();
+
+            if (code != 200 && code != 201) {
+                throw new RuntimeException("Erreur updateRestaurant : code " + code);
+            }
+
+            // Le body renvoyé par ton handler contient juste {"message":"..."}
+            // donc on renvoie quand même l'objet restaurant mis à jour côté client
+            return updatedRestaurant;
+
+        } catch (Exception e) {
+            throw new RuntimeException("Erreur PUT updateRestaurant(" + restaurantName + ")", e);
+        }
+    }
+
 
     public static AccountUser getClientById(int id) {
         try {
@@ -460,7 +497,7 @@ public class Requester {
                     .build();
 
             HttpClient client = HttpClient.newHttpClient();
-            HttpResponse<String> response =
+;            HttpResponse<String> response =
                     client.send(request, HttpResponse.BodyHandlers.ofString());
 
             if (response.statusCode() != 200 && response.statusCode() != 400) {

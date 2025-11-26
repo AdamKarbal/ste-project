@@ -15,6 +15,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -47,7 +48,6 @@ public class RestaurantRepoHandler implements HttpHandler {
     }
 
     public void updateRestaurant(HttpExchange exchange, String... params) throws IOException {
-        System.out.println("PUT reçu pour: " + params[0]);
         String name = URLDecoder.decode(params[0], StandardCharsets.UTF_8);
 
         try (InputStream is = exchange.getRequestBody()) {
@@ -90,7 +90,7 @@ public class RestaurantRepoHandler implements HttpHandler {
                 Sender.sendResponse(exchange, 400, "Field 'name' is required");
                 return;
             }
-            Restaurant restaurant = repo.addRestaurant(new Restaurant.Builder().name(name).build());
+            Restaurant restaurant = repo.addRestaurant(new Restaurant.Builder().name(name).restaurantSchedules(new ArrayList<>()).build());
             String json = mapper.writeValueAsString(restaurant);
             Sender.sendResponse(exchange, 201, json);
 

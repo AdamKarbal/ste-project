@@ -16,8 +16,10 @@ public class RestaurantScheduleManager {
 
     public List<RestaurantSchedule> getSchedules(String restaurantName) {
         Restaurant restaurant = Requester.getRestaurantByName(restaurantName);
-        if (restaurant == null || restaurant.getRestaurantSchedules() == null)
-            return List.of();
+        System.out.println(restaurant);
+        if (restaurant == null || restaurant.getRestaurantSchedules() == null){
+            System.out.println("Restaurant " + restaurantName + " not found");
+            return List.of();}
 
         return restaurant.getRestaurantSchedules();
     }
@@ -54,16 +56,17 @@ public class RestaurantScheduleManager {
 
     public boolean addSchedule(String restaurantName, DayOfTheWeek day, LocalTime start, LocalTime end, int capacity) {
         Restaurant restaurant = Requester.getRestaurantByName(restaurantName);
-        if (restaurant == null || restaurant.getRestaurantSchedules() == null || start == null || end == null || day == null)
+        if (restaurant == null || start == null || end == null || day == null)
             return false;
 
-        if (!end.isBefore(start)) {
+        if (start.isBefore(end)) {
             createIntervals(restaurant, day, start, end, capacity);
         } else {
             createIntervals(restaurant, day, start, LocalTime.of(23, 30), capacity);
             createIntervals(restaurant, nextDay(day), LocalTime.MIDNIGHT, end, capacity);
         }
-
+        Requester.updateRestaurant(restaurantName, restaurant);
+        Restaurant restaurantUpdated = Requester.getRestaurantByName(restaurantName);
         return true;
     }
 

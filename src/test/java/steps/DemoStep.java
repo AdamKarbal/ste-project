@@ -8,6 +8,7 @@ import Api.Order.OrderServer;
 import Api.OrderRepo.OrderRepoServer;
 import Api.Restaurant.RestaurantServer;
 import Api.RestaurantRepo.RestaurantRepoServer;
+import Api.RestaurantSchedule.RestaurantScheduleServer;
 import Payment.PaymentMethod;
 import Payment.PaymentState;
 import Restaurant.*;
@@ -104,6 +105,7 @@ public class DemoStep {
     static HttpServer orderHandler;
     static HttpServer restoRepo;
     static HttpServer restoHandler;
+    static HttpServer scheduleManager;
 
     @Before(order = 0)
     public static void setUpServers() throws IOException {
@@ -113,8 +115,9 @@ public class DemoStep {
         orderHandler = OrderServer.startServer();
         restoRepo = RestaurantRepoServer.startServer();
         restoHandler = RestaurantServer.startServer();
-
+        scheduleManager = RestaurantScheduleServer.startServer();
     }
+
     @After(order = 0)
     public static void stopServers(){
         accountRepo.stop(0);
@@ -123,6 +126,7 @@ public class DemoStep {
         orderHandler.stop(0);
         restoRepo.stop(0);
         restoHandler.stop(0);
+        scheduleManager.stop(0);
     }
 
     @Before
@@ -155,19 +159,26 @@ public class DemoStep {
                     .establishmentType(e)
                     .build();
 
+            Requester.createRestaurant(r);
+            manager.saveRestaurant(r);
             List<DayOfTheWeek> days = DayOfTheWeek.getRealDays();
             for (DayOfTheWeek day : days) {
+                RestaurantSchedule r1 = new RestaurantSchedule(name,day, hhmm(row.get("start1")), hhmm(row.get("end1")), Integer.parseInt(row.get("capacity1")));
+                r.addSchedule(r1);
                 Requester.addSchedule(name, day, hhmm(row.get("start1")), hhmm(row.get("end1")), Integer.parseInt(row.get("capacity1")));
+                RestaurantSchedule r2= new RestaurantSchedule(name, day, hhmm(row.get("start2")), hhmm(row.get("end2")), Integer.parseInt(row.get("capacity2")));
+                r.addSchedule(r2);
                 Requester.addSchedule(name, day, hhmm(row.get("start2")), hhmm(row.get("end2")), Integer.parseInt(row.get("capacity2")));
             }
-            manager.saveRestaurant(r);
+
+            manager.saveRestaurant(Requester.getRestaurantByName(r.getName()));
             service.addRestaurant(r);
         }
     }
 
     @Given("que le restaurant {string} propose le plat {string} à {double}€")
     public void que_le_restaurant_propose_le_plat_à_€(String restoName, String dishName, Double price) throws DishAlreadyInDishes {
-        currentRestaurant = service.getRestaurantByName(restoName);
+        currentRestaurant = Requester.getRestaurantByName(restoName);
         currentManager = new RestaurantManager();
 
         Assertions.assertNotNull(currentRestaurant);
@@ -179,9 +190,9 @@ public class DemoStep {
 
     @And("que {string} a un créneau de {int}:{int} à {int}:{int} avec une capacité de {int} repas")
     public void que_a_un_créneau_de_à_avec_une_capacité_de_repas(String restoName, Integer h1, Integer m1, Integer h2, Integer m2, Integer capacity) {
-        List<RestaurantSchedule> schedules = Requester.getSchedules(currentRestaurant.getName());
+        Restaurant restaurant = Requester.getRestaurantByName(restoName);
         Assertions.assertTrue(
-                schedules.contains(new RestaurantSchedule(DayOfTheWeek.MONDAY, LocalTime.of(h1, m1), capacity))
+                restaurant.getRestaurantSchedules().contains(new RestaurantSchedule(DayOfTheWeek.MONDAY, LocalTime.of(h1, m1), capacity))
         );
     }
 

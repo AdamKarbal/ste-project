@@ -14,7 +14,7 @@ public class RestaurantScheduleServer {
 
     public static HttpServer startServer() throws IOException {
         int port = 8007;
-        String path = "/api/restaurantSchedule/";
+        String path = "/api/schedule/";
 
         HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
 

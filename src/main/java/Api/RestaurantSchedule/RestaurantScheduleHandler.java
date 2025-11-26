@@ -2,6 +2,7 @@ package Api.RestaurantSchedule;
 
 import Api.Utils.ApiRegistry;
 import Api.Utils.RouteInfo;
+import Api.Utils.Sender;
 import Restaurant.RestaurantScheduleManager;
 import Restaurant.Enum.DayOfTheWeek;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -40,9 +41,14 @@ public class RestaurantScheduleHandler implements HttpHandler {
     }
 
     public void getSchedules(HttpExchange ex, String... name) throws IOException {
+        try{
         var schedules = scheduleManager.getSchedules(name[0]);
+        System.out.println(schedules);
         String response = mapper.writeValueAsString(schedules);
-        sendResponse(ex, 200, response);
+        sendResponse(ex, 200, response);}
+        catch (Exception e){
+            Sender.sendResponse(ex, 500, e.getMessage());
+        }
     }
 
     public void getToday(HttpExchange ex, String... name) throws IOException {

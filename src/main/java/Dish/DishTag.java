@@ -15,7 +15,7 @@ public enum DishTag {
     private final String label;
 
     DishTag(String label) {
-        this.label = label;
+;        this.label = label;
     }
 
     public String getLabel() {

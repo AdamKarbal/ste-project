@@ -425,6 +425,9 @@ public class Requester {
             HttpResponse<String> response =
                     client.send(request, HttpResponse.BodyHandlers.ofString());
 
+            System.out.println("GET " + url + " -> " + response.statusCode());
+            System.out.println("Body schedules brut: " + response.body());
+
             if (response.statusCode() != 200) {
                 throw new RuntimeException("Erreur GET schedules : code " + response.statusCode());
             }
@@ -438,6 +441,7 @@ public class Requester {
             throw new RuntimeException("Erreur GET getSchedules(" + restaurantName + ")", e);
         }
     }
+
 
 
     /**

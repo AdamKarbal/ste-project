@@ -161,13 +161,10 @@ public class DemoStep {
 
             Requester.createRestaurant(r);
             manager.saveRestaurant(r);
+
             List<DayOfTheWeek> days = DayOfTheWeek.getRealDays();
             for (DayOfTheWeek day : days) {
-                RestaurantSchedule r1 = new RestaurantSchedule(name,day, hhmm(row.get("start1")), hhmm(row.get("end1")), Integer.parseInt(row.get("capacity1")));
-                r.addSchedule(r1);
                 Requester.addSchedule(name, day, hhmm(row.get("start1")), hhmm(row.get("end1")), Integer.parseInt(row.get("capacity1")));
-                RestaurantSchedule r2= new RestaurantSchedule(name, day, hhmm(row.get("start2")), hhmm(row.get("end2")), Integer.parseInt(row.get("capacity2")));
-                r.addSchedule(r2);
                 Requester.addSchedule(name, day, hhmm(row.get("start2")), hhmm(row.get("end2")), Integer.parseInt(row.get("capacity2")));
             }
 
@@ -190,10 +187,16 @@ public class DemoStep {
 
     @And("que {string} a un créneau de {int}:{int} à {int}:{int} avec une capacité de {int} repas")
     public void que_a_un_créneau_de_à_avec_une_capacité_de_repas(String restoName, Integer h1, Integer m1, Integer h2, Integer m2, Integer capacity) {
-        Restaurant restaurant = Requester.getRestaurantByName(restoName);
         Assertions.assertTrue(
-                restaurant.getRestaurantSchedules().contains(new RestaurantSchedule(DayOfTheWeek.MONDAY, LocalTime.of(h1, m1), capacity))
+                Requester.getSchedules(restoName).stream().anyMatch(s ->
+                        s.getDay() == DayOfTheWeek.MONDAY &&
+                                s.getStart().equals(LocalTime.of(h1, m1)) &&
+                                s.getEnd().equals(LocalTime.of(h2, m2)) &&
+                                s.getCapacity() == capacity
+                ),
+                "Aucun créneau correspondant trouvé côté distant"
         );
+
     }
 
     @And("que le client {string} est connecté à son compte")

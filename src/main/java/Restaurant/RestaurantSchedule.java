@@ -26,6 +26,14 @@ public class RestaurantSchedule {
         this.capacity = capacity;
     }
 
+    public RestaurantSchedule(String id, DayOfTheWeek day, LocalTime start, LocalTime end, int capacity) {
+        this.id = id;
+        this.day = day;
+        this.start = start;
+        this.end = end;
+        this.capacity = capacity;
+    }
+
     private LocalTime normalizeStartTime(LocalTime time) {
         int minute = time.getMinute();
         if (minute < 15) minute = 0;

@@ -1,5 +1,6 @@
 package steps;
 
+import Api.Utils.Requester;
 import Utils.InvalidDate;
 import io.cucumber.java.Before;
 import io.cucumber.java.en.*;
@@ -21,13 +22,11 @@ public class RestaurantFilterSteps {
     private RestaurantRepo repo;
     private RestaurantService service;
     private List<Restaurant> resultats = new ArrayList<>();
-    private RestaurantScheduleManager scheduleManager;
 
     @Before
     public void setup() {
         repo = new RestaurantRepo(new ArrayList<>());
         service = new RestaurantService(repo);
-        scheduleManager = new RestaurantScheduleManager();
     }
 
     @Given("un catalogue de restaurants")
@@ -55,8 +54,8 @@ public class RestaurantFilterSteps {
 
             List<DayOfTheWeek> days = DayOfTheWeek.getRealDays();
             for (DayOfTheWeek day : days) {
-                scheduleManager.addSchedule(r.getName(), day, hhmm(row.get("start1")), hhmm(row.get("end1")), Integer.parseInt(row.get("capacity1")));
-                scheduleManager.addSchedule(r.getName(), day, hhmm(row.get("start2")), hhmm(row.get("end2")), Integer.parseInt(row.get("capacity2")));
+                Requester.addSchedule(r.getName(), day, hhmm(row.get("start1")), hhmm(row.get("end1")), Integer.parseInt(row.get("capacity1")));
+                Requester.addSchedule(r.getName(), day, hhmm(row.get("start2")), hhmm(row.get("end2")), Integer.parseInt(row.get("capacity2")));
             }
 
             repo.addRestaurant(r);

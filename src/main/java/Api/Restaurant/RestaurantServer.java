@@ -9,7 +9,11 @@ import java.util.concurrent.Executors;
 
 public class RestaurantServer {
     public static void main(String[] args) throws IOException {
-        int port = 8001;
+        startServer();
+    }
+
+    public static HttpServer startServer() throws IOException {
+        int port = 8009;
         String path = "/api/restaurant";
         RestaurantManager restaurantManager = new RestaurantManager();
         HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);

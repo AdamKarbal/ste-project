@@ -1,6 +1,7 @@
 package Restaurant;
 
 
+import Api.Utils.Requester;
 import Dish.DishTag;
 import Dish.Dish;
 import Restaurant.Enum.DayOfTheWeek;
@@ -17,7 +18,6 @@ import static org.junit.jupiter.api.Assertions.*;
 class RestaurantFilterTest {
     private RestaurantRepo restaurantRepo;
     private RestaurantFilter filter;
-    private RestaurantScheduleManager scheduleManager;
     private Restaurant restoA;
     private Restaurant restoB;
     private Restaurant restoC;
@@ -25,7 +25,6 @@ class RestaurantFilterTest {
 
     @BeforeEach
     void setUp() throws Exception {
-        scheduleManager = new RestaurantScheduleManager();
         //Dish
         Dish dishSansGlutenEtVegan = new Dish(0f, "Dish SG+V", null, null, null,
                 new ArrayList<>(List.of(DishTag.GLUTEN_FREE, DishTag.VEGAN)));
@@ -57,7 +56,7 @@ class RestaurantFilterTest {
                 .build();
 
         for (DayOfTheWeek day : DayOfTheWeek.getRealDays()) {
-            scheduleManager.addSchedule(restoA.getName(), day, LocalTime.of(0, 0), LocalTime.of(23, 59), 100);
+            Requester.addSchedule(restoA.getName(), day, LocalTime.of(0, 0), LocalTime.of(23, 59), 100);
         }
 
         restoB = new Restaurant.Builder()

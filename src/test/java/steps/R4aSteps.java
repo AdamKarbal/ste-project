@@ -44,6 +44,7 @@ public class R4aSteps {
     private Suggestion suggestion;
     private Exception caught;
     private String currentRestaurantName; // Nom du restaurant en cours de test
+    private HttpServer server;
 
     // ---------- Infrastructure ----------
 
@@ -51,7 +52,7 @@ public class R4aSteps {
     public void setup() throws IOException {
         if (!isServerRunning) {
             try {
-                RestaurantRepoServer.startServer();
+                server = RestaurantRepoServer.startServer();
                 isServerRunning = true;
             } catch (java.net.BindException e) {
                 System.out.println(" Serveur déjà lancé ");

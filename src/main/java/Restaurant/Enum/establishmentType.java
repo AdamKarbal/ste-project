@@ -7,7 +7,8 @@ public enum establishmentType {
     FAST_FOOD("Fast Food"),
     CAFE("Café"),
     PIZZERIA("Pizzeria"),
-    SUSHI_BAR("Sushi Bar");
+    SUSHI_BAR("Sushi Bar"),
+    DEFAULT("");
 
     private final String label;
 

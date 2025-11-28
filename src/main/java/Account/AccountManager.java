@@ -1,5 +1,6 @@
 package Account;
 
+import Api.Utils.Requester;
 import Restaurant.*;
 
 public class AccountManager extends Account {
@@ -17,22 +18,14 @@ public class AccountManager extends Account {
     }
 
     public void createRestaurant(String restaurantName, RestaurantFactory restaurantFactory){
-        // 1. Création de l'objet Restaurant via la Factory
         Restaurant newRestaurant = restaurantFactory.createRestaurant(restaurantName);
-
-        // 2. Sauvegarde sur le serveur via le Manager (PUT)
-        // ATTENTION : Assure-toi que la méthode saveRestaurant est 'public' dans RestaurantManager !
         try {
-            // Il faut que tu rendes la méthode saveRestaurant PUBLIQUE dans RestaurantManager
-            // Ou que tu passes par une méthode publique qui le fait.
-            // Pour l'instant, supposons que tu as rendu saveRestaurant public :
-            restaurantManager.saveRestaurant(newRestaurant);
+            Requester.createRestaurant(newRestaurant);
 
         } catch (Exception e) {
             throw new RuntimeException("Impossible de créer le restaurant sur le serveur", e);
         }
 
-        // 3. On mémorise le nom
         this.myRestaurantName = restaurantName;
     }
 

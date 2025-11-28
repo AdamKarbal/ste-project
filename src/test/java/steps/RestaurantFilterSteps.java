@@ -5,32 +5,33 @@ import Utils.InvalidDate;
 import io.cucumber.java.Before;
 import io.cucumber.java.en.*;
 import io.cucumber.datatable.DataTable;
-import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.*;
 
 import java.time.LocalTime;
 import java.util.*;
 
 import Restaurant.Restaurant;
-import Restaurant.RestaurantRepo;
 import Restaurant.RestaurantService;
 import Restaurant.Enum.*;
 import Dish.*;
 import  Restaurant.*;
 
-public class RestaurantFilterSteps {
+import static steps.StartServer.catalogueInit;
 
-    private RestaurantRepo repo;
-    private RestaurantService service;
+public class RestaurantFilterSteps {
+    private final RestaurantService service = new RestaurantService();
     private List<Restaurant> resultats = new ArrayList<>();
 
-    @Before
-    public void setup() {
-        repo = new RestaurantRepo(new ArrayList<>());
-        service = new RestaurantService(repo);
-    }
 
     @Given("un catalogue de restaurants")
     public void un_catalogue_de_restaurants(DataTable table) {
+        if (catalogueInit) {
+            System.out.println(">>> [Given catalogue RESTO] déjà initialisé, on ne recrée pas.");
+            return;
+        }
+        catalogueInit = true;
+        System.out.println(">>> [Given catalogue RESTO] INITIALISATION");
+
         for(Map<String,String> row : table.asMaps()){
             String name = row.get("name");
             List<CuisineType> c = List.of(CuisineType.valueOf(row.get("cuisineType").toUpperCase()));
@@ -56,11 +57,9 @@ public class RestaurantFilterSteps {
 
             List<DayOfTheWeek> days = DayOfTheWeek.getRealDays();
             for (DayOfTheWeek day : days) {
-                Requester.addSchedule(r.getName(), day, hhmm(row.get("start1")), hhmm(row.get("end1")), Integer.parseInt(row.get("capacity1")));
-                Requester.addSchedule(r.getName(), day, hhmm(row.get("start2")), hhmm(row.get("end2")), Integer.parseInt(row.get("capacity2")));
+                Requester.addSchedule(name, day, hhmm(row.get("start1")), hhmm(row.get("end1")), Integer.parseInt(row.get("capacity1")));
+                Requester.addSchedule(name, day, hhmm(row.get("start2")), hhmm(row.get("end2")), Integer.parseInt(row.get("capacity2")));
             }
-
-            repo.addRestaurant(r);
         }
     }
 
@@ -72,7 +71,7 @@ public class RestaurantFilterSteps {
 
     @Then("je vois exactement {int} restaurants")
     public void je_vois_exactement_restaurants(int count) {
-        Assertions.assertEquals(count, resultats.size(),"Taille inattendue, il y a : " + resultats.toString() );
+        Assertions.assertEquals(count, resultats.size(),"Taille inattendue");
     }
 
     @And("la liste contient {string}")
@@ -145,12 +144,11 @@ public class RestaurantFilterSteps {
         resultats = service.filterByAllTags(tags);
     }
 
-    //filtres multiples
-
+    // filtres multiples
     @When("je commence une recherche")
     public void je_commence_une_recherche() {
         // point de départ = tout le catalogue
-        resultats = new ArrayList<>(repo.getRestaurants());
+        resultats = Requester.getAllRestaurants();
     }
 
     @And("j'applique le filtre cuisine {string}")
@@ -257,8 +255,4 @@ public class RestaurantFilterSteps {
         }
         throw new IllegalArgumentException("Tag inconnu: " + raw);
     }
-
-
-
-
 }

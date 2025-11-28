@@ -28,7 +28,7 @@ public class OrderManagerTest {
         public Order order2;
     }
 
-    public TestClientData createClientWithTwoPaidOrdersUsingRequester() {
+    private TestClientData createClientWithTwoPaidOrdersUsingRequester() {
         TestClientData data = new TestClientData();
 
         AccountUser localClient = new AccountUser("Adam");

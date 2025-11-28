@@ -1,74 +1,28 @@
 package steps;
 
-import Account.AccountManager;
+import Api.Utils.Requester;
 import Dish.*;
 import Dish.suggest.Suggestion;
 import Restaurant.*;
-import Restaurant.Enum.CuisineType;
-import Restaurant.Enum.establishmentType;
 import Restaurant.RestaurantManager;
 import Restaurant.Exception.DishAlreadyInDishes;
-import Api.RestaurantRepo.RestaurantRepoServer;
-import com.sun.net.httpserver.HttpServer;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import io.cucumber.datatable.DataTable;
-import io.cucumber.java.After;
-import io.cucumber.java.Before;
 import io.cucumber.java.en.*;
 
-import java.io.IOException;
-import java.net.URI;
-import java.net.URLEncoder;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.nio.charset.StandardCharsets;
-import java.time.LocalTime;
 import java.util.*;
 import java.util.stream.Collectors;
-import Restaurant.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class R4aSteps {
-
-    private static boolean isServerRunning = false;
-    private final int PORT = 8002;
-    private final HttpClient httpClient = HttpClient.newHttpClient();
-    private final ObjectMapper mapper = new ObjectMapper().registerModule(new JavaTimeModule());
-
-    private RestaurantManager manager;
+    private final RestaurantManager manager = new RestaurantManager();
     private DishInput input;
     private Dish created;
     private Suggestion suggestion;
     private Exception caught;
     private String currentRestaurantName; // Nom du restaurant en cours de test
-    private HttpServer server;
-
-    // ---------- Infrastructure ----------
-
-    @Before
-    public void setup() throws IOException {
-        if (!isServerRunning) {
-            try {
-                server = RestaurantRepoServer.startServer();
-                isServerRunning = true;
-            } catch (java.net.BindException e) {
-                System.out.println(" Serveur déjà lancé ");
-                isServerRunning = true;
-            }
-        }
-        manager = new RestaurantManager();
-    }
-
-    @After
-    public void tearDown() {
-    }
-
 
     @Given("un RestaurantManager initialisé pour {string}")
-    public void unRestaurantManagerInitialisePour(String name) throws Exception {
+    public void unRestaurantManagerInitialisePour(String name) {
         currentRestaurantName = name;
         Restaurant restaurant = new Restaurant.Builder()
                 .name(name)
@@ -77,7 +31,8 @@ public class R4aSteps {
                 .cuisineType(new ArrayList<>())
                 .establishmentType(null)
                 .build();
-        manager.saveRestaurant(restaurant);
+
+        Requester.createRestaurant(restaurant);
     }
 
     @And("un référentiel de suggestions")
@@ -125,7 +80,6 @@ public class R4aSteps {
         DishTag expected = DishTag.valueOf(tagName);
         assertTrue(suggestion.tags.contains(expected), "Tag suggéré manquant: " + tagName);
     }
-
 
     @When("je saisis un plat avec")
     public void jeSaisisUnPlatAvec(io.cucumber.datatable.DataTable table) {
@@ -178,7 +132,7 @@ public class R4aSteps {
     @When("je crée le plat via le RestaurantManager")
     public void jeCreeLePlatViaLeRestaurantManager() throws Exception {
         caught = null;
-        created = manager.createDish(input,currentRestaurantName);
+        created = manager.createDish(input, currentRestaurantName);
     }
 
     @When("je tente de créer le plat via le RestaurantManager")
@@ -262,34 +216,11 @@ public class R4aSteps {
     @Then("une erreur de type {string} est levée")
     public void uneErreurDeTypeEstLevee(String typeName) {
         assertNotNull(caught, "Aucune erreur levée");
-        Throwable actual = caught;
-        if (caught instanceof RuntimeException && caught.getCause() != null) {
-            actual = caught.getCause();
-        }
 
-        switch (typeName) {
-            case "DishInDishes" -> assertTrue(caught instanceof DishAlreadyInDishes,
-                    "Erreur attendue DishInDishes, mais: " + caught.getClass());
-            default -> fail("Type d'erreur non géré dans les steps: " + typeName);
+        if (typeName.equals("DishInDishes")) {
+            assertInstanceOf(DishAlreadyInDishes.class, caught, "Erreur attendue DishInDishes, mais: " + caught.getClass());
+        } else {
+            fail("Type d'erreur non géré dans les steps: " + typeName);
         }
     }
-
-
-    private void forceUpdateRestaurantOnServer(Restaurant r) throws Exception {
-        String json = mapper.writeValueAsString(r);
-        String encodedName = URLEncoder.encode(r.getName(), StandardCharsets.UTF_8).replace("+", "%20");
-        String url = "http://localhost:" + PORT + "/api/restaurantrepo/" + encodedName+"/";
-
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(url))
-                .PUT(HttpRequest.BodyPublishers.ofString(json))
-                .header("Content-Type", "application/json")
-                .build();
-
-        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-        if (response.statusCode() != 200 && response.statusCode() != 201) {
-            throw new RuntimeException("Erreur lors du setup serveur: " + response.body());
-        }
-    }
-
 }

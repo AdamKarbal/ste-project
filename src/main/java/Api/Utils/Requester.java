@@ -131,8 +131,45 @@ public class Requester {
         }
     }
 
+    public static List<Restaurant> getAllRestaurants() {
+        try {
+            String url = "http://localhost:8002/api/restaurantrepo/";
+
+            HttpClient client = HttpClient.newHttpClient();
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(url))
+                    .GET()
+                    .build();
+
+            HttpResponse<String> response =
+                    client.send(request, HttpResponse.BodyHandlers.ofString());
+
+            if (response.statusCode() != 200) {
+                throw new RuntimeException("Erreur GET all restaurants : code " + response.statusCode());
+            }
+
+            return mapper.readValue(
+                    response.body(),
+                    new TypeReference<List<Restaurant>>() {}
+            );
+
+        } catch (Exception e) {
+            throw new RuntimeException("Erreur GET getAllRestaurants()", e);
+        }
+    }
+
+
     public static Restaurant updateRestaurant(String restaurantName, Restaurant updatedRestaurant) {
         try {
+            if (updatedRestaurant.getName() == null || updatedRestaurant.getName().isBlank()) {
+                updatedRestaurant.setName(restaurantName);
+            } else if (!updatedRestaurant.getName().equals(restaurantName)) {
+                throw new IllegalArgumentException(
+                        "Le nom du restaurant dans le body ('" + updatedRestaurant.getName() +
+                                "') ne correspond pas au nom passé en paramètre ('" + restaurantName + "')"
+                );
+            }
+
             String encoded = URLEncoder.encode(restaurantName, StandardCharsets.UTF_8)
                     .replace("+", "%20");
 
@@ -153,18 +190,16 @@ public class Requester {
             int code = response.statusCode();
 
             if (code != 200 && code != 201) {
-                throw new RuntimeException("Erreur updateRestaurant : code " + code);
+                throw new RuntimeException("Erreur updateRestaurant : code " + code +
+                        ", body = " + response.body());
             }
 
-            // Le body renvoyé par ton handler contient juste {"message":"..."}
-            // donc on renvoie quand même l'objet restaurant mis à jour côté client
-            return updatedRestaurant;
+            return mapper.readValue(response.body(), Restaurant.class);
 
         } catch (Exception e) {
             throw new RuntimeException("Erreur PUT updateRestaurant(" + restaurantName + ")", e);
         }
     }
-
 
     public static AccountUser getClientById(int id) {
         try {

@@ -4,11 +4,11 @@ Feature: R4a - Assistance intelligente (suggestions & création de plat)
     Given un RestaurantManager initialisé pour "Chez Test"
     And un référentiel de suggestions
       | keyword              | category     | type   | suggestedPrice | tags        | toppings                                  |
-      | Pizza Margherita     | MAIN_COURSE  | PIZZA  | 10.0           | VEGETARIAN  | Mozzarella:1.2; Basilic:0.5               |
-      | Couscous royal       | MAIN_COURSE  | MEAT   | 12.5           | HALAL       | Pois chiches:0.8; Légumes:1.0             |
+      | Pizza Margherita     | MAIN_COURSE  | PIZZA  | 17.0           | CHEESY  | Mozzarella:1.2; Basilic:0.5               |
+      | Couscous royal       | MAIN_COURSE  | MEAT   | 19.5           | HALAL       | Pois chiches:0.8; Légumes:1.0             |
       | Crème brûlée         | DESSERT      | OTHER  | 5.0            |             |                                            |
-      | Spaghetti bolognaise | MAIN_COURSE  | PASTA  | 11.0           |             | Parmesan:1.0                              |
-      | Tacos poulet         | MAIN_COURSE  | OTHER  | 9.0            |             | Guacamole:1.2; Fromage:1.0                |
+      | Spaghetti bolognaise | MAIN_COURSE  | PASTA  | 18.0           |             | Parmesan:1.0                              |
+      | Tacos poulet         | MAIN_COURSE  | OTHER  | 6.0            |             | Guacamole:1.2; Fromage:1.0                |
 
   Scenario: Prévisualiser une suggestion (Pizza Margherita)
     When je prévisualise la suggestion pour "Pizza Margherita"
@@ -16,7 +16,7 @@ Feature: R4a - Assistance intelligente (suggestions & création de plat)
     And le type suggéré est "PIZZA"
     And un prix moyen est proposé
     And les toppings suggérés contiennent "Mozzarella"
-    And les tags suggérés contiennent "VEGETARIAN"
+    And les tags suggérés contiennent "CHEESY"
 
   Scenario: Création avec saisie qui écrase le prix et merge les toppings
     When je saisis un plat avec
@@ -43,12 +43,12 @@ Feature: R4a - Assistance intelligente (suggestions & création de plat)
       | name     | Plat mystère |
       | category | MAIN_COURSE  |
       | type     | OTHER        |
-      | price    | 9.9          |
+      | price    | 2.0         |
     And je crée le plat via le RestaurantManager
     Then le plat créé a pour nom "Plat mystère"
     And le type final est "OTHER"
     And la catégorie finale est "MAIN_COURSE"
-    And le prix final est "9.9"
+    And le prix final est "2.0"
 
   Scenario: Prix négatif refusé
     When je saisis un plat avec

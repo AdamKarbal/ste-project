@@ -26,7 +26,7 @@ Feature: Démonstration de notre système de commande de repas
     When "Nico" crée son restaurant "Les delices de new delices"
     When Il le configure : cuisineType "INDIENNE"
     When Il le configure : establishmentType "RESTAURANT"
-    When Il ajoute le plat "Riz coco curry" à 12.5€
+    When Il ajoute le plat "Riz coco curry" à 13.5€
     When Il ajoute un creneau de 11:30 à 12:00 avec 5 capacités
     Then Le restaurant doit être disponible sous le nom de "Les delices de new delices"
     Then "Younes" peut passer trouver le restaurant "Les delices de new delices"

@@ -27,9 +27,9 @@ public class KeywordSuggester implements DishSuggestionEngine {
         );
 
         addTemplate("pizza", make(
-                        DishCategory.MAIN_COURSE, DishType.PIZZA, 10.0,
+                        DishCategory.MAIN_COURSE, DishType.PIZZA, 11.5,
                         "Base tomate, mozzarella, basilic.",
-                        List.of(DishTag.VEGETARIAN),
+                        List.of(DishTag.CHEESY),
                         List.of(new DishTopping("Mozzarella", 1.2f),
                                 new DishTopping("Basilic", 0.5f))),
                 "margherita", "4 fromages", "quatre fromages", "pepperoni"

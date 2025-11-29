@@ -98,31 +98,26 @@ public class RestaurantFilter {
     }
 
     public List<Restaurant> filterByPriceMax(double maxPrice) {
-        System.out.println("=== DEBUG Prix max " + maxPrice + " ===");
-        System.out.println("=== DEBUG nb restaurants : "+Requester.getAllRestaurants().size());
-        restaurantRepo.getRestaurants().forEach(r -> System.out.println(
-                r.getName() + " : " +
-                        r.getDishes().stream().map(d -> d.getName() + "=" + d.getPrice()).toList()
-        ));
-
         return restaurantRepo.getRestaurants()
                 .stream()
                 .filter(restaurant ->
                         restaurant.getDishes().stream()
-                                .anyMatch(dish -> dish.getPrice() <= maxPrice)
+                                .filter(d -> d.getPrice() > 0)
+                                .anyMatch(d -> d.getPrice() <= maxPrice)
                 )
                 .toList();
     }
 
 
     public List<Restaurant> filterByPriceRange(double minPrice, double maxPrice) {
-        System.out.println("=== DEBUG Prix max " + maxPrice + " ===");
-        System.out.println("=== DEBUG nb restaurants : "+Requester.getAllRestaurants().size());
+        System.out.println("=== DEBUG Prix min " + minPrice + " | Prix max " + maxPrice + " ===");
+        System.out.println("=== Avnat filtre DEBUG nb restaurants : " + Requester.getAllRestaurants().size());
         restaurantRepo.getRestaurants().forEach(r -> System.out.println(
                 r.getName() + " : " +
                         r.getDishes().stream().map(d -> d.getName() + "=" + d.getPrice()).toList()
         ));
-        return restaurantRepo.getRestaurants()
+
+        List<Restaurant> filtredResto = restaurantRepo.getRestaurants()
                 .stream()
                 .filter(restaurant ->
                         restaurant.getDishes().stream()
@@ -131,6 +126,14 @@ public class RestaurantFilter {
                                 )
                 )
                 .toList();
+
+        System.out.println("=== Après filtre DEBUG nb restaurants : " + filtredResto.size());
+        filtredResto.forEach(r -> System.out.println(
+                r.getName() + " : " +
+                        r.getDishes().stream().map(d -> d.getName() + "=" + d.getPrice()).toList()
+        ));
+
+        return filtredResto;
     }
 
 

@@ -93,13 +93,6 @@ public class RestaurantManager {
 
 
     public void saveRestaurant(Restaurant restaurant) {
-        try {
-            String json = new com.fasterxml.jackson.databind.ObjectMapper()
-                    .writeValueAsString(restaurant);
-            System.out.println("[DEBUG saveRestaurant] JSON envoyé = " + json);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
         Requester.updateRestaurant(restaurant.getName(), restaurant);
     }
 }

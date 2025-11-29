@@ -6,6 +6,7 @@ import Restaurant.Exception.dishNoInDishes;
 import Restaurant.Enum.*;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class Restaurant {
 
@@ -114,6 +115,8 @@ public class Restaurant {
             return;
         }
 
+        System.out.println("AVANT MODIFICATION");
+        System.out.println(restaurantSchedules);
         restaurantSchedules.stream()
                 .filter(s ->
                         s.getDay() == day &&
@@ -121,6 +124,8 @@ public class Restaurant {
                                 s.getStart().isBefore(end)        // s < end
                 )
                 .forEach(s -> s.setCapacity(capacity));
+        System.out.println("APRES");
+        System.out.println(restaurantSchedules);
     }
 
     public void addCuisineType(CuisineType c) {
@@ -157,7 +162,13 @@ public class Restaurant {
     }
     @Override
     public String toString(){
-        return "Nom : "+name+"plats :"+dishes+"schedules : "+restaurantSchedules+"typeCuisine"+getCuisineTypes();
+        return "======RESTAURANT======\n"
+                + "Nom : " + name + "\n"
+                + "Plats : " + dishes.stream()
+                .map(Object::toString)
+                .collect(Collectors.joining(", ")) + "\n"
+                + "Schedules : " + restaurantSchedules + "\n"
+                + "TypeCuisine : " + getCuisineTypes();
     }
 
     // InnerClass builder pour éviter d'avoir à faire plusieurs constructeurs en fonction du nombre de paramètre qu'on entre

@@ -1,10 +1,9 @@
 package Restaurant;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class RestaurantRepo {
-    private List<Restaurant> restaurants;
+    private final List<Restaurant> restaurants;
 
     public RestaurantRepo(List<Restaurant> restaurants) {
         this.restaurants = restaurants;
@@ -19,10 +18,9 @@ public class RestaurantRepo {
         return resto;
     }
 
-    public List<Restaurant> updateRestaurants(List<Restaurant> restaurants){
+    public void updateRestaurants(List<Restaurant> restaurants){
         this.restaurants.clear();
         this.restaurants.addAll(restaurants);
-        return restaurants;
     }
 
     public boolean restaurantExist(Restaurant resto){
@@ -37,12 +35,12 @@ public class RestaurantRepo {
     }
 
     public boolean updateRestaurant(String name, Restaurant updatedRestaurant) {
-        Restaurant oldRestaurant = getRestaurantByName(name);
-        if (oldRestaurant != null) {
-            restaurants.remove(oldRestaurant);
-            restaurants.add(updatedRestaurant);
-            return true;
-        }
-        return false;
+        boolean existed = restaurants.removeIf(r -> name.equals(r.getName()));
+
+        restaurants.add(updatedRestaurant);
+
+        return existed;
     }
+
+
 }

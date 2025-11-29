@@ -2,6 +2,7 @@ package Api.RestaurantSchedule;
 
 import Api.Utils.ApiRegistry;
 import Api.Utils.RouteInfo;
+import Api.Utils.Sender;
 import Restaurant.RestaurantScheduleManager;
 import Restaurant.Enum.DayOfTheWeek;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -10,22 +11,28 @@ import com.sun.net.httpserver.HttpHandler;
 
 import java.io.InputStream;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeParseException;
 import java.util.Map;
 import java.util.regex.Matcher;
 
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.fasterxml.jackson.databind.SerializationFeature;
+
 import static Api.Utils.Sender.sendResponse;
 
 public class RestaurantScheduleHandler implements HttpHandler {
 
     private final RestaurantScheduleManager scheduleManager;
-    private final ObjectMapper mapper = new ObjectMapper();
+    private final ObjectMapper mapper;
 
     public RestaurantScheduleHandler(RestaurantScheduleManager scheduleManager) {
         this.scheduleManager = scheduleManager;
+
+        this.mapper = new ObjectMapper();
+        this.mapper.registerModule(new JavaTimeModule());
+        this.mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 
         ApiRegistry.addRoute("GET", "/api/schedule/{restaurant}", this::getSchedules);
         ApiRegistry.addRoute("GET", "/api/schedule/{restaurant}/today", this::getToday);
@@ -40,9 +47,16 @@ public class RestaurantScheduleHandler implements HttpHandler {
     }
 
     public void getSchedules(HttpExchange ex, String... name) throws IOException {
+        try{
         var schedules = scheduleManager.getSchedules(name[0]);
         String response = mapper.writeValueAsString(schedules);
-        sendResponse(ex, 200, response);
+
+
+        System.out.println("JSON renvoyé par /api/schedule/" + name[0] + " = " + response);
+        sendResponse(ex, 200, response);}
+        catch (Exception e){
+            Sender.sendResponse(ex, 500, e.getMessage());
+        }
     }
 
     public void getToday(HttpExchange ex, String... name) throws IOException {

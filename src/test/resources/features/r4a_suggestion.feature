@@ -21,11 +21,11 @@ Feature: R4a - Assistance intelligente (suggestions & création de plat)
   Scenario: Création avec saisie qui écrase le prix et merge les toppings
     When je saisis un plat avec
       | name   | Pizza Margherita |
-      | price  | 12.0             |
+      | price  | 6.0             |
       | toppings | Olives:0.8     |
     And je crée le plat via le RestaurantManager
     Then le plat créé a pour type "PIZZA"
-    And le prix final est "12.0"
+    And le prix final est "6.0"
     And les toppings finaux contiennent "Mozzarella"
     And les toppings finaux contiennent "Basilic"
     And les toppings finaux contiennent "Olives"
@@ -33,7 +33,7 @@ Feature: R4a - Assistance intelligente (suggestions & création de plat)
 
   Scenario: Pas de doublon si l’utilisateur re-saisit un topping déjà suggéré
     When je saisis un plat avec
-      | name     | Pizza Margherita |
+      | name     | Pizza Mozzarella |
       | toppings | Mozzarella:1.2   |
     And je crée le plat via le RestaurantManager
     Then la liste des toppings finaux contient une seule fois "Mozzarella"
@@ -59,7 +59,7 @@ Feature: R4a - Assistance intelligente (suggestions & création de plat)
 
   Scenario: Doublon de plat (même nom) interdit
     When je saisis un plat avec
-      | name | Pizza Margherita |
+      | name | Pizza Royale |
     And je crée le plat via le RestaurantManager
     And je tente de créer le plat via le RestaurantManager
     Then une erreur de type "DishInDishes" est levée

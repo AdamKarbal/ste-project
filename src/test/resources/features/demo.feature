@@ -11,7 +11,7 @@ Feature: Démonstration de notre système de commande de repas
 
   Scenario: Un client passe une commande et la paye avec son crédit
     Given que le restaurant "Pasta Mia" propose le plat "Spaghetti" à 12.5€
-    And que "Pasta Mia" a un créneau de 20:00 à 22:00 avec une capacité de 120 repas
+    And que "Pasta Mia" a un créneau de 20:00 à 20:30 avec une capacité de 120 repas
     And que le client "Younes" est connecté à son compte
     And son crédit est de 10000.0€
     When "Younes" recherche les restaurants de type "ITALIENNE"

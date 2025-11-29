@@ -116,9 +116,11 @@ public class Requester {
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
             if (response.statusCode() == 404) {
+                System.out.println("on a pas trouvé le resto");
                 throw new OrderNotFoundException("Restaurant " + encodedName + " introuvable.");
             }
             if (response.statusCode() != 200) {
+                System.out.println("Erreur GET : code " + response.statusCode());
                 throw new RuntimeException("Erreur GET : code " + response.statusCode());
             }
 
@@ -126,6 +128,76 @@ public class Requester {
 
         } catch (IOException | InterruptedException e) {
             throw new RuntimeException("Erreur GET require(" + restaurantName + ")", e);
+        }
+    }
+
+    public static List<Restaurant> getAllRestaurants() {
+        try {
+            String url = "http://localhost:8002/api/restaurantrepo/";
+
+            HttpClient client = HttpClient.newHttpClient();
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(url))
+                    .GET()
+                    .build();
+
+            HttpResponse<String> response =
+                    client.send(request, HttpResponse.BodyHandlers.ofString());
+
+            if (response.statusCode() != 200) {
+                throw new RuntimeException("Erreur GET all restaurants : code " + response.statusCode());
+            }
+
+            return mapper.readValue(
+                    response.body(),
+                    new TypeReference<List<Restaurant>>() {}
+            );
+
+        } catch (Exception e) {
+            throw new RuntimeException("Erreur GET getAllRestaurants()", e);
+        }
+    }
+
+
+    public static Restaurant updateRestaurant(String restaurantName, Restaurant updatedRestaurant) {
+        try {
+            if (updatedRestaurant.getName() == null || updatedRestaurant.getName().isBlank()) {
+                updatedRestaurant.setName(restaurantName);
+            } else if (!updatedRestaurant.getName().equals(restaurantName)) {
+                throw new IllegalArgumentException(
+                        "Le nom du restaurant dans le body ('" + updatedRestaurant.getName() +
+                                "') ne correspond pas au nom passé en paramètre ('" + restaurantName + "')"
+                );
+            }
+
+            String encoded = URLEncoder.encode(restaurantName, StandardCharsets.UTF_8)
+                    .replace("+", "%20");
+
+            String url = "http://localhost:8002/api/restaurantrepo/" + encoded + "/";
+
+            String json = mapper.writeValueAsString(updatedRestaurant);
+
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(url))
+                    .method("PUT", HttpRequest.BodyPublishers.ofString(json))
+                    .header("Content-Type", "application/json")
+                    .build();
+
+            HttpClient client = HttpClient.newHttpClient();
+            HttpResponse<String> response =
+                    client.send(request, HttpResponse.BodyHandlers.ofString());
+
+            int code = response.statusCode();
+
+            if (code != 200 && code != 201) {
+                throw new RuntimeException("Erreur updateRestaurant : code " + code +
+                        ", body = " + response.body());
+            }
+
+            return mapper.readValue(response.body(), Restaurant.class);
+
+        } catch (Exception e) {
+            throw new RuntimeException("Erreur PUT updateRestaurant(" + restaurantName + ")", e);
         }
     }
 
@@ -388,6 +460,9 @@ public class Requester {
             HttpResponse<String> response =
                     client.send(request, HttpResponse.BodyHandlers.ofString());
 
+            System.out.println("GET " + url + " -> " + response.statusCode());
+            System.out.println("Body schedules brut: " + response.body());
+
             if (response.statusCode() != 200) {
                 throw new RuntimeException("Erreur GET schedules : code " + response.statusCode());
             }
@@ -401,6 +476,7 @@ public class Requester {
             throw new RuntimeException("Erreur GET getSchedules(" + restaurantName + ")", e);
         }
     }
+
 
 
     /**
@@ -460,7 +536,7 @@ public class Requester {
                     .build();
 
             HttpClient client = HttpClient.newHttpClient();
-            HttpResponse<String> response =
+;            HttpResponse<String> response =
                     client.send(request, HttpResponse.BodyHandlers.ofString());
 
             if (response.statusCode() != 200 && response.statusCode() != 400) {

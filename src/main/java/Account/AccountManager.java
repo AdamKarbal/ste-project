@@ -21,11 +21,9 @@ public class AccountManager extends Account {
         Restaurant newRestaurant = restaurantFactory.createRestaurant(restaurantName);
         try {
             Requester.createRestaurant(newRestaurant);
-
         } catch (Exception e) {
             throw new RuntimeException("Impossible de créer le restaurant sur le serveur", e);
         }
-
         this.myRestaurantName = restaurantName;
     }
 

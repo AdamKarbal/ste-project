@@ -1,5 +1,6 @@
 package Restaurant;
 
+import Api.RestaurantRepo.RestaurantRepoServer;
 import Api.RestaurantSchedule.RestaurantScheduleServer;
 import Api.Utils.Requester;
 import Restaurant.Enum.DayOfTheWeek;
@@ -20,14 +21,25 @@ public class RestaurantScheduleManagerTest {
     private Restaurant restaurant;
     private static HttpServer serverSchedule;
     private static HttpServer serverRestoRepo;
-
+    private static List<HttpServer> servers;
     @BeforeAll
     static void setup() {
         try {
             serverSchedule = RestaurantScheduleServer.startServer();
-            serverRestoRepo = RestaurantScheduleServer.startServer();
+            serverRestoRepo = RestaurantRepoServer.startServer();
+            servers = List.of(serverSchedule,serverRestoRepo);
         } catch (Exception e) {
             System.out.println("Schedule server could not be started");
+        }
+    }
+    @AfterAll
+    public static void stopServers() {
+        if (servers != null) {
+            for (HttpServer server : servers) {
+                if (server != null) {
+                    server.stop(0);
+                }
+            }
         }
     }
 
@@ -143,10 +155,9 @@ public class RestaurantScheduleManagerTest {
                 .name("Testaurant")
                 .restaurantSchedules(new ArrayList<>())
                 .build();
-
         RestaurantSchedule mondayEvening = new RestaurantSchedule(DayOfTheWeek.MONDAY, LocalTime.of(18, 0), 20);
         restaurant.addSchedule(mondayEvening);
-
+        Requester.createRestaurant(restaurant);
         boolean updated = Requester.updateScheduleCapacity(restaurant.getName(), mondayEvening.getId(), 99);
 
         assertTrue(updated, "La mise à jour doit réussir");

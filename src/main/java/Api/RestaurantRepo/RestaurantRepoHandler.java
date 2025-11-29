@@ -24,12 +24,13 @@ import static Api.Utils.Sender.sendResponse;
 public class RestaurantRepoHandler implements HttpHandler {
     private RestaurantRepo repo;
     private final ObjectMapper mapper = new ObjectMapper().registerModule(new JavaTimeModule());
-    public RestaurantRepoHandler(RestaurantRepo repo){
-        this.repo=repo;
+    public RestaurantRepoHandler(RestaurantRepo repo) {
+        this.repo = repo;
         ApiRegistry.addRoute("GET", "/api/restaurantrepo/{restaurantName}/", this::getRestaurant);
-        ApiRegistry.addRoute("GET","/api/restaurantrepo/",this::getAllRestaurants);
-        ApiRegistry.addRoute("POST","/api/restaurantrepo/",this::createRestaurant);
-        ApiRegistry.addRoute("PUT","/api/restaurantrepo/{restaurantName}/",this::updateRestaurant);
+        ApiRegistry.addRoute("GET", "/api/restaurantrepo/", this::getAllRestaurants);
+        ApiRegistry.addRoute("POST", "/api/restaurantrepo/", this::createRestaurant);
+        ApiRegistry.addRoute("PUT", "/api/restaurantrepo/{restaurantName}/", this::updateRestaurant);
+        ApiRegistry.addRoute("DELETE", "/api/restaurantrepo/", this::clearAll);
     }
   
     public void getRestaurant(HttpExchange exchange,String... param1) throws IOException {
@@ -95,10 +96,10 @@ public class RestaurantRepoHandler implements HttpHandler {
             int status = existed ? 200 : 201;
             Sender.sendResponse(exchange, status, json);
 
-            System.out.println("\n[DEBUG updateRestaurant] PATH = " + pathName);
+            /*System.out.println("\n[DEBUG updateRestaurant] PATH = " + pathName);
             System.out.println("[DEBUG updateRestaurant] BODY reçu = " + jsonBody);
             System.out.println("[DEBUG updateRestaurant] Restaurant désérialisé = " + updatedRestaurant);
-            System.out.println("[DEBUG updateRestaurant] Dishes count = " + updatedRestaurant.getDishes().size());
+            System.out.println("[DEBUG updateRestaurant] Dishes count = " + updatedRestaurant.getDishes().size());*/
 
 
         } catch (Exception e) {
@@ -157,6 +158,11 @@ public class RestaurantRepoHandler implements HttpHandler {
             e.printStackTrace();
             Sender.sendResponse(exchange, 500, "Internal server error: " + e.getMessage());
         }
+    }
+
+    private void clearAll(HttpExchange ex, String... params) throws IOException {
+        repo.clear();
+        Sender.sendResponse(ex, 200, "{\"ok\": true}");
     }
 
 

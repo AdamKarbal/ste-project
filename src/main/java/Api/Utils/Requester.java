@@ -131,6 +131,27 @@ public class Requester {
         }
     }
 
+    public static void clearRestaurants() {
+        try {
+            HttpClient client = HttpClient.newHttpClient();
+
+            HttpRequest req = HttpRequest.newBuilder()
+                    .uri(URI.create("http://localhost:8002/api/restaurantrepo/"))
+                    .DELETE()
+                    .build();
+
+            HttpResponse<String> response = client.send(req, HttpResponse.BodyHandlers.ofString());
+
+            if (response.statusCode() != 200) {
+                throw new RuntimeException("Failed to clear restaurants, status: " + response.statusCode());
+            }
+
+        } catch (Exception e) {
+            throw new RuntimeException("Error while clearing restaurants", e);
+        }
+    }
+
+
     public static List<Restaurant> getAllRestaurants() {
         try {
             String url = "http://localhost:8002/api/restaurantrepo/";

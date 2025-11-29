@@ -181,14 +181,23 @@ public class RestaurantScheduleManager {
     public boolean updateCapacityById(String restaurantName, String id, int capacity) {
         Restaurant restaurant = Requester.getRestaurantByName(restaurantName);
         if (restaurant == null || restaurant.getRestaurantSchedules() == null) return false;
+
+        boolean updated = false;
         for (RestaurantSchedule s : restaurant.getRestaurantSchedules()) {
             if (s.getId().equals(id)) {
                 s.setCapacity(capacity);
-                return true;
+                updated = true;
+                break;
             }
         }
-        return false;
+
+        if (!updated) return false;
+
+        Requester.updateRestaurant(restaurantName, restaurant);
+
+        return updated;
     }
+
 
     public boolean incrementCapacityById(String restaurantName, String id, int capacity) {
         Restaurant restaurant = Requester.getRestaurantByName(restaurantName);

@@ -6,6 +6,7 @@ import Api.DishRepo.DishRepoServer;
 import Api.Order.OrderServer;
 import Api.OrderRepo.OrderRepoServer;
 import Api.RestaurantRepo.RestaurantRepoServer;
+import Api.RestaurantSchedule.RestaurantScheduleServer;
 import Api.Utils.Requester;
 import Dish.Dish;
 import Dish.DishCategory;
@@ -40,7 +41,7 @@ class OrderTest {
     private static HttpServer orderRepo;
     private static HttpServer orderHandler;
     private static HttpServer restoRepo;
-
+    private static HttpServer scheduleServer;
     private static List<HttpServer> servers;
 
     @BeforeAll
@@ -50,12 +51,14 @@ class OrderTest {
         dishRepo = DishRepoServer.startServer();
         orderRepo = OrderRepoServer.startServer();
         orderHandler = OrderServer.startServer();
-        restoRepo = RestaurantRepoServer.startServer();}
+        restoRepo = RestaurantRepoServer.startServer();
+        scheduleServer = RestaurantScheduleServer.startServer();
+        }
         catch (java.net.BindException e) {
             System.out.println("déjà utilisée");
         }
 
-        servers = List.of(accountRepo, dishRepo, orderRepo, orderHandler, restoRepo);
+        servers = List.of(accountRepo, dishRepo, orderRepo, orderHandler, restoRepo,scheduleServer);
     }
 
     @AfterAll

@@ -1,5 +1,6 @@
 package Restaurant;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class RestaurantRepo {
@@ -40,6 +41,10 @@ public class RestaurantRepo {
         restaurants.add(updatedRestaurant);
 
         return existed;
+    }
+
+    public void clear(){
+        restaurants.clear();
     }
 
 

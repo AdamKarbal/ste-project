@@ -11,6 +11,7 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Stream;
 
 public class RestaurantFilter {
     RestaurantRepo restaurantRepo;
@@ -62,9 +63,12 @@ public class RestaurantFilter {
     public List<Restaurant> filterByTag(DishTag tag) {
         return restaurantRepo.getRestaurants()
                 .stream()
-                .filter(restaurant ->
-                        restaurant.getDishes().stream()
-                                .flatMap(dish -> dish.getDishTag().stream())
+                .filter(r -> r.getDishes() != null &&
+                        r.getDishes().stream()
+                                .flatMap(dish -> {
+                                    var tags = dish.getDishTag();
+                                    return tags == null ? Stream.<DishTag>empty() : tags.stream();
+                                })
                                 .anyMatch(t -> t.equals(tag))
                 )
                 .toList();
@@ -73,9 +77,12 @@ public class RestaurantFilter {
     public List<Restaurant> filterByAllTags(List<DishTag> tags) {
         return restaurantRepo.getRestaurants()
                 .stream()
-                .filter(restaurant ->
-                        restaurant.getDishes().stream()
-                                .anyMatch(dish -> dish.getDishTag().containsAll(tags))
+                .filter(r -> r.getDishes() != null &&
+                        r.getDishes().stream()
+                                .anyMatch(dish -> {
+                                    var dishTags = dish.getDishTag();
+                                    return dishTags != null && dishTags.containsAll(tags);
+                                })
                 )
                 .toList();
     }
@@ -91,6 +98,13 @@ public class RestaurantFilter {
     }
 
     public List<Restaurant> filterByPriceMax(double maxPrice) {
+        System.out.println("=== DEBUG Prix max " + maxPrice + " ===");
+        System.out.println("=== DEBUG nb restaurants : "+Requester.getAllRestaurants().size());
+        restaurantRepo.getRestaurants().forEach(r -> System.out.println(
+                r.getName() + " : " +
+                        r.getDishes().stream().map(d -> d.getName() + "=" + d.getPrice()).toList()
+        ));
+
         return restaurantRepo.getRestaurants()
                 .stream()
                 .filter(restaurant ->
@@ -100,7 +114,14 @@ public class RestaurantFilter {
                 .toList();
     }
 
+
     public List<Restaurant> filterByPriceRange(double minPrice, double maxPrice) {
+        System.out.println("=== DEBUG Prix max " + maxPrice + " ===");
+        System.out.println("=== DEBUG nb restaurants : "+Requester.getAllRestaurants().size());
+        restaurantRepo.getRestaurants().forEach(r -> System.out.println(
+                r.getName() + " : " +
+                        r.getDishes().stream().map(d -> d.getName() + "=" + d.getPrice()).toList()
+        ));
         return restaurantRepo.getRestaurants()
                 .stream()
                 .filter(restaurant ->

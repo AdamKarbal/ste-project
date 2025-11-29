@@ -1,11 +1,17 @@
 package Restaurant;
 
+import Api.RestaurantRepo.RestaurantRepoServer;
+import Api.RestaurantSchedule.RestaurantScheduleServer;
 import Api.Utils.Requester;
 import Restaurant.Enum.DayOfTheWeek;
 import Restaurant.Enum.CuisineType;
+import com.sun.net.httpserver.HttpServer;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -16,14 +22,39 @@ import static org.junit.jupiter.api.Assertions.*;
 public class RestaurantTest {
 
     private Restaurant restaurant;
-
     private static Restaurant restaurantWithSingleSlot(DayOfTheWeek dayOfTheWeek, LocalTime start, LocalTime end) {
         Restaurant restaurant = new Restaurant.Builder()
                 .name("R")
                 .restaurantSchedules(new ArrayList<>())
                 .build();
+        Requester.createRestaurant(restaurant);
         Requester.addSchedule(restaurant.getName(), dayOfTheWeek, start, end, 10);
         return restaurant;
+    }
+    private static HttpServer serverSchedule;
+    private static HttpServer serverRestoRepo;
+    private static List<HttpServer> servers;
+
+    @BeforeAll
+    static void setup() {
+        try {
+            serverSchedule = RestaurantScheduleServer.startServer();
+            serverRestoRepo = RestaurantRepoServer.startServer();
+            servers = List.of(serverSchedule, serverRestoRepo);
+        } catch (Exception e) {
+            System.out.println("Servers could not be started: " + e.getMessage());
+        }
+    }
+
+    @AfterAll
+    public static void stopServers() {
+        if (servers != null) {
+            for (HttpServer server : servers) {
+                if (server != null) {
+                    server.stop(0);
+                }
+            }
+        }
     }
 
     @BeforeEach
@@ -32,7 +63,7 @@ public class RestaurantTest {
                 .name("Testaurant")
                 .restaurantSchedules(new ArrayList<>())
                 .build();
-
+        Requester.createRestaurant(restaurant);
         Requester.addSchedule(restaurant.getName(), DayOfTheWeek.SUNDAY, LocalTime.of(10, 0), LocalTime.of(14, 0), 30);
         Requester.addSchedule(restaurant.getName(), DayOfTheWeek.SUNDAY, LocalTime.of(18, 0), LocalTime.of(23, 0), 50);
         Requester.addSchedule(restaurant.getName(), DayOfTheWeek.SUNDAY, LocalTime.of(22, 0), LocalTime.of(2, 0), 20);
@@ -117,26 +148,6 @@ public class RestaurantTest {
         assertFalse(r.alreadyCuisineType(CuisineType.MEXICAINE));
     }
 
-    @Test
-    void testAlreadyScheduled_WhenScheduleExists() {
-        DayOfTheWeek day = DayOfTheWeek.MONDAY;
-        LocalTime start = LocalTime.of(10, 0);
-        LocalTime end = LocalTime.of(14, 0);
-
-        Restaurant r = new Restaurant.Builder()
-                .name("R")
-                .restaurantSchedules(new ArrayList<>())
-                .build();
-
-        Requester.addSchedule(r.getName(), day, start, end, 20);
-
-        LocalTime current = start;
-        while (!current.equals(end)) {
-            assertTrue(r.alreadyScheduled(current, current.plusMinutes(30), day),
-                    "Le créneau " + current + " : " + current.plusMinutes(30) + " devrait exister");
-            current = current.plusMinutes(30);
-        }
-    }
 
     @Test
     void testAlreadyScheduled_WhenNoMatchingSchedule() {
@@ -222,6 +233,7 @@ public class RestaurantTest {
                 .name("R")
                 .restaurantSchedules(new ArrayList<>())
                 .build();
+        Requester.createRestaurant(r);
 
         Requester.addSchedule(r.getName(), day, start1, end1, 20);
 

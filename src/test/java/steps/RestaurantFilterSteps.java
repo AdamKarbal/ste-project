@@ -9,6 +9,7 @@ import org.junit.jupiter.api.*;
 
 import java.time.LocalTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import Restaurant.Restaurant;
 import Restaurant.RestaurantService;
@@ -30,6 +31,7 @@ public class RestaurantFilterSteps {
             return;
         }
         catalogueInit = true;
+        Requester.clearRestaurants();
         System.out.println(">>> [Given catalogue RESTO] INITIALISATION");
 
         for(Map<String,String> row : table.asMaps()){
@@ -212,12 +214,24 @@ public class RestaurantFilterSteps {
     }
 
     // helper: intersecte en gardant l'ordre de la liste courante
-    private static <T> List<T> intersectOrdered(List<T> base, List<T> other) {
-        if (base.isEmpty() || other.isEmpty()) return java.util.Collections.emptyList();
-        List<T> res = new ArrayList<>();
-        for (T x : base) if (other.contains(x)) res.add(x);
+    private static List<Restaurant> intersectOrdered(List<Restaurant> base, List<Restaurant> other) {
+        if (base.isEmpty() || other.isEmpty()) return Collections.emptyList();
+
+        // on intersecte par nom (tu peux changer pour un id si tu en as un)
+        Set<String> namesOther = other.stream()
+                .map(Restaurant::getName)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+
+        List<Restaurant> res = new ArrayList<>();
+        for (Restaurant r : base) {
+            if (r.getName() != null && namesOther.contains(r.getName())) {
+                res.add(r);
+            }
+        }
         return res;
     }
+
 
     // --- Helpers SCHEDULES ---
     private static LocalTime hhmm(String s) {

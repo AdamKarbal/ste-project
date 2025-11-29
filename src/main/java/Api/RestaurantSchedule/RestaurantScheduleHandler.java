@@ -1,8 +1,10 @@
 package Api.RestaurantSchedule;
 
 import Api.Utils.ApiRegistry;
+import Api.Utils.Requester;
 import Api.Utils.RouteInfo;
 import Api.Utils.Sender;
+import Restaurant.RestaurantSchedule;
 import Restaurant.RestaurantScheduleManager;
 import Restaurant.Enum.DayOfTheWeek;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -137,7 +139,19 @@ public class RestaurantScheduleHandler implements HttpHandler {
         Map<String,Object> body = mapper.readValue(ex.getRequestBody(), Map.class);
         int capacity = (int) body.get("capacity");
 
+        System.out.println("Before update capacity");
+        for (RestaurantSchedule s : Requester.getRestaurantByName(restaurant).getRestaurantSchedules()) {
+            if (s.getId().equals(id)) {
+                System.out.println(s);
+            }
+        }
         boolean ok = scheduleManager.updateCapacityById(restaurant, id, capacity);
+        System.out.println("After update capacity");
+        for (RestaurantSchedule s : Requester.getRestaurantByName(restaurant).getRestaurantSchedules()) {
+            if (s.getId().equals(id)) {
+                System.out.println(s);
+            }
+        }
 
         sendResponse(ex, ok ? 200 : 404, "{\"ok\": " + ok + "}");
     }
@@ -146,7 +160,23 @@ public class RestaurantScheduleHandler implements HttpHandler {
         String restaurant = params[0];
         String id = params[1];
 
+        System.out.println("Id : " + id);
+
+        System.out.println("Before delete schedule");
+        for (RestaurantSchedule s : scheduleManager.getSchedules(restaurant)){
+            if (s.getId().equals(id)) {
+                System.out.println(s);
+            }
+        }
+
         boolean ok = scheduleManager.removeScheduleById(restaurant, id);
+
+        System.out.println("After delete schedule");
+        for (RestaurantSchedule s : scheduleManager.getSchedules(restaurant)){
+            if (s.getId().equals(id)) {
+                System.out.println(s);
+            }
+        }
 
         sendResponse(ex, ok ? 200 : 404, "{\"ok\": " + ok + "}");
     }

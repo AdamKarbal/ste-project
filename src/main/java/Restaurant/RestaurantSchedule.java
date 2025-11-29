@@ -51,7 +51,7 @@ public class RestaurantSchedule {
     public LocalTime getEnd() { return end; }
     public int getCapacity() { return capacity; }
 
-    public void setCapacity(int capacity) { this.capacity = capacity; }
+    public void setCapacity(int capacity) {this.capacity = capacity;}
 
     public void addCapacity(int capacity){
         this.capacity+=capacity;

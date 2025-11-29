@@ -16,7 +16,6 @@ public class RestaurantScheduleManager {
 
     public List<RestaurantSchedule> getSchedules(String restaurantName) {
         Restaurant restaurant = Requester.getRestaurantByName(restaurantName);
-        System.out.println(restaurant);
         if (restaurant == null || restaurant.getRestaurantSchedules() == null){
             System.out.println("Restaurant " + restaurantName + " not found");
             return List.of();}
@@ -66,7 +65,6 @@ public class RestaurantScheduleManager {
             createIntervals(restaurant, nextDay(day), LocalTime.MIDNIGHT, end, capacity);
         }
         Requester.updateRestaurant(restaurantName, restaurant);
-        Restaurant restaurantUpdated = Requester.getRestaurantByName(restaurantName);
         return true;
     }
 
@@ -81,74 +79,15 @@ public class RestaurantScheduleManager {
         } while (!current.equals(LocalTime.MIDNIGHT) && current.isBefore(end));
     }
 
-
-    public void updateSchedule(String restaurantName, DayOfTheWeek day, LocalTime start, LocalTime end, int capacity) {
-        Restaurant restaurant = Requester.getRestaurantByName(restaurantName);
-        Objects.requireNonNull(day);
-        Objects.requireNonNull(start);
-        Objects.requireNonNull(end);
-
-        List<RestaurantSchedule> schedules = restaurant.getRestaurantSchedules();
-        if (schedules != null) {
-            schedules.removeIf(s -> schedulesOverlap(day, start, end, s));
-        }
-
-        addSchedule(restaurantName, day, start, end, capacity);
-    }
-
-           
-    public void updateCapacity(String restaurantName, DayOfTheWeek day, LocalTime start, LocalTime end, int capacity) throws ScheduleNoExist {
-        Restaurant restaurant = Requester.getRestaurantByName(restaurantName);
-        Objects.requireNonNull(day);
-        Objects.requireNonNull(start);
-        Objects.requireNonNull(end);
-
-        boolean found = false;
-        for (RestaurantSchedule s : restaurant.getRestaurantSchedules()) {
-            if (scheduleInRange(day, start, end, s)) {
-                s.setCapacity(capacity);
-                found = true;
-            }
-        }
-        if (!found) {
-            throw new ScheduleNoExist("Le créneau à modifier n'existe pas : " + day + " " + start + " → " + end);
-        }
-    }
-
-    private boolean schedulesOverlap(DayOfTheWeek targetDay, LocalTime start, LocalTime end, RestaurantSchedule s) {
-        DayOfTheWeek sDay = s.getDay();
-        LocalTime sStart = s.getStart();
-        LocalTime sEnd = sStart.plusMinutes(30);
-
-        if (sDay == targetDay) {
-            return intervalOverlap(start, end, sStart, sEnd);
-        }
-        return false;
-    }
-
-    private boolean scheduleInRange(DayOfTheWeek targetDay, LocalTime start, LocalTime end, RestaurantSchedule s) {
-        DayOfTheWeek sDay = s.getDay();
-        LocalTime sStart = s.getStart();
-        LocalTime sEnd = sStart.plusMinutes(30);
-
-        if (start.equals(end)) return false;
-        if (!end.isBefore(start)) {
-            if (sDay != targetDay) return false;
-            return intervalOverlap(start, end, sStart, sEnd);
-        } else {
-            if (sDay == targetDay && !sStart.isBefore(start)) return true;
-            return sDay == nextDay(targetDay) && sStart.isBefore(end);
-        }
-    }
-
-    private boolean intervalOverlap(LocalTime aStart, LocalTime aEnd, LocalTime bStart, LocalTime bEnd) {
-        return !aEnd.isBefore(bStart) && !bEnd.isBefore(aStart);
-    }
-
     public boolean removeScheduleById(String restaurantName, String id) {
         Restaurant restaurant = Requester.getRestaurantByName(restaurantName);
-        if (restaurant == null || restaurant.getRestaurantSchedules() == null) return false;
-        return restaurant.getRestaurantSchedules().removeIf(s -> s.getId().equals(id));
+        if (restaurant == null || restaurant.getRestaurantSchedules() == null) {
+            System.out.println("FAUX");
+            return false;
+        }
+        boolean worked = restaurant.getRestaurantSchedules().removeIf(s -> s.getId().equals(id));
+        Requester.updateRestaurant(restaurantName, restaurant);
+        return worked;
     }
 
     public int getCapacityById(String restaurantName, String id) {
@@ -175,6 +114,7 @@ public class RestaurantScheduleManager {
                 return true;
             }
         }
+        Requester.updateRestaurant(restaurantName, restaurant);
         return false;
     }
 
@@ -208,6 +148,7 @@ public class RestaurantScheduleManager {
                 return true;
             }
         }
+        Requester.updateRestaurant(restaurantName, restaurant);
         return false;
     }
 

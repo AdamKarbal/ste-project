@@ -198,12 +198,13 @@ public class DemoStep {
         AccountManager account = restaurateurs.get(nomRestaurateur);
         Assertions.assertNotNull(account);
         account.createRestaurant(nomRestaurant, new RestaurantFactory());
-
+        System.out.println(Requester.getRestaurantByName(nomRestaurant));
         currentRestaurantName = nomRestaurant;
     }
 
     @When("Il le configure : cuisineType {string}")
     public void il_le_configure_cuisine_type(String type) throws Exception {
+        System.out.println(Requester.getRestaurantByName(currentRestaurantName));
         manager.addCuisineType(CuisineType.valueOf(type.toUpperCase()), currentRestaurantName);
     }
 

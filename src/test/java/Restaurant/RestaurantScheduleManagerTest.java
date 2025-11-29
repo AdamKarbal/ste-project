@@ -72,9 +72,11 @@ public class RestaurantScheduleManagerTest {
     @Test
     void testAddScheduleSuccess() {
         Restaurant r = new Restaurant.Builder()
-                .name("Testaurant")
+                .name("Testaurant1")
                 .restaurantSchedules(new ArrayList<>())
                 .build();
+
+        Requester.createRestaurant(r);
 
         boolean added = Requester.addSchedule(r.getName(), DayOfTheWeek.TUESDAY, LocalTime.of(12, 0), LocalTime.of(14, 0), 10);
 
@@ -83,7 +85,7 @@ public class RestaurantScheduleManagerTest {
         LocalTime current = LocalTime.of(12, 0);
         while (!current.equals(LocalTime.of(14, 0))) {
             final LocalTime slotStart = current;
-            assertTrue(r.getRestaurantSchedules().stream()
+            assertTrue(Requester.getSchedules(r.getName()).stream()
                             .anyMatch(s -> s.getDay() == DayOfTheWeek.TUESDAY && s.getStart().equals(slotStart)),
                     "Le créneau " + slotStart + " - " + slotStart.plusMinutes(30) + " devrait exister");
             current = current.plusMinutes(30);
@@ -93,9 +95,11 @@ public class RestaurantScheduleManagerTest {
     @Test
     void testAddScheduleOverlapOrUpdate() {
         Restaurant r = new Restaurant.Builder()
-                .name("Testaurant")
+                .name("Testaurant2")
                 .restaurantSchedules(new ArrayList<>())
                 .build();
+
+        Requester.createRestaurant(r);
 
         Requester.addSchedule(r.getName(), DayOfTheWeek.MONDAY, LocalTime.of(10, 0), LocalTime.of(12, 0), 20);
 
@@ -104,7 +108,7 @@ public class RestaurantScheduleManagerTest {
         LocalTime t = LocalTime.of(11, 0);
         while (t.isBefore(LocalTime.of(12, 0))) {
             LocalTime finalT = t;
-            long count = r.getRestaurantSchedules().stream()
+            long count = Requester.getSchedules(r.getName()).stream()
                     .filter(s -> s.getDay() == DayOfTheWeek.MONDAY && s.getStart().equals(finalT))
                     .count();
             assertEquals(1, count, "Il ne doit y avoir qu'un seul schedule pour " + t);
@@ -114,7 +118,7 @@ public class RestaurantScheduleManagerTest {
         t = LocalTime.of(11, 0);
         while (t.isBefore(LocalTime.of(12, 0))) {
             LocalTime finalT = t;
-            int capacity = r.getRestaurantSchedules().stream()
+            int capacity = Requester.getSchedules(r.getName()).stream()
                     .filter(s -> s.getDay() == DayOfTheWeek.MONDAY && s.getStart().equals(finalT))
                     .findFirst().get()
                     .getCapacity();
@@ -125,7 +129,7 @@ public class RestaurantScheduleManagerTest {
         t = LocalTime.of(12, 0);
         while (t.isBefore(LocalTime.of(13, 0))) {
             LocalTime finalT = t;
-            boolean exists = r.getRestaurantSchedules().stream()
+            boolean exists = Requester.getSchedules(r.getName()).stream()
                     .anyMatch(s -> s.getDay() == DayOfTheWeek.MONDAY && s.getStart().equals(finalT));
             assertTrue(exists, "Un schedule doit exister pour " + t);
             t = t.plusMinutes(30);
@@ -135,33 +139,38 @@ public class RestaurantScheduleManagerTest {
     @Test
     void testRemoveScheduleById_Local() {
         Restaurant restaurant = new Restaurant.Builder()
-                .name("Testaurant")
+                .name("Testaurant3")
                 .restaurantSchedules(new ArrayList<>())
                 .build();
 
-        RestaurantSchedule mondayMorning = new RestaurantSchedule(DayOfTheWeek.MONDAY, LocalTime.of(8, 0), 10);
+        RestaurantSchedule mondayMorning = new RestaurantSchedule(DayOfTheWeek.SPECIAL_DAY, LocalTime.of(8, 0), 10);
+
         restaurant.addSchedule(mondayMorning);
+
+        Requester.createRestaurant(restaurant);
 
         boolean removed = Requester.deleteSchedule(restaurant.getName(), mondayMorning.getId());
 
         assertTrue(removed, "Le schedule doit être supprimé");
-        assertFalse(restaurant.getRestaurantSchedules().contains(mondayMorning),
+        assertFalse(Requester.getSchedules(restaurant.getName()).contains(mondayMorning),
                 "Le schedule ne doit plus exister dans la liste");
     }
 
     @Test
     void testUpdateCapacityById_Local() {
         Restaurant restaurant = new Restaurant.Builder()
-                .name("Testaurant")
+                .name("Testaurant4")
                 .restaurantSchedules(new ArrayList<>())
                 .build();
-        RestaurantSchedule mondayEvening = new RestaurantSchedule(DayOfTheWeek.MONDAY, LocalTime.of(18, 0), 20);
+        RestaurantSchedule mondayEvening = new RestaurantSchedule(DayOfTheWeek.SPECIAL_DAY, LocalTime.of(18, 0), 20);
         restaurant.addSchedule(mondayEvening);
+
         Requester.createRestaurant(restaurant);
+
         boolean updated = Requester.updateScheduleCapacity(restaurant.getName(), mondayEvening.getId(), 99);
 
         assertTrue(updated, "La mise à jour doit réussir");
-        assertEquals(99, mondayEvening.getCapacity(), "La capacité doit être mise à jour à 99");
+        assertEquals(99, Requester.getScheduleCapacity(restaurant.getName(), mondayEvening.getId()), "La capacité doit être mise à jour à 99");
     }
 
     @Test

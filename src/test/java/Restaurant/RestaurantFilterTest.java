@@ -53,16 +53,16 @@ class RestaurantFilterTest {
         Requester.clearRestaurants();
 
         // --- Création des Dishs avec tags/prix ---
-        Dish dishSansGlutenEtVegan = new Dish(0f, "Dish SG+V", null, null, null,
+        Dish dishSansGlutenEtVegan = new Dish(16f, "Dish SG+V", null, null, null,
                 new ArrayList<>(List.of(DishTag.GLUTEN_FREE, DishTag.VEGAN)));
 
-        Dish dishVegan = new Dish(0f, "Dish Vegan", null, null, null,
+        Dish dishVegan = new Dish(16f, "Dish Vegan", null, null, null,
                 new ArrayList<>(List.of(DishTag.VEGAN)));
 
-        Dish dishSansGluten = new Dish(0f, "Dish SG", null, null, null,
+        Dish dishSansGluten = new Dish(5f, "Dish SG", null, null, null,
                 new ArrayList<>(List.of(DishTag.GLUTEN_FREE)));
 
-        Dish dishEpice = new Dish(0f, "Dish Spicy", null, null, null,
+        Dish dishEpice = new Dish(16f, "Dish Spicy", null, null, null,
                 new ArrayList<>(List.of(DishTag.SPICY)));
 
         Dish cheapDish = new Dish(10f, "Dish Cheap", null, null, null,
@@ -283,9 +283,10 @@ class RestaurantFilterTest {
         List<Restaurant> result = service.filterByPriceRange(10.0, 20.0);
         List<String> names = namesOf(result);
 
-        assertEquals(2, result.size());
+        assertEquals(3, result.size());
         assertTrue(names.contains("Pizza Palace")); // 10 & 20
         assertTrue(names.contains("Burger King"));  // 20
+        assertTrue(names.contains("La pizza roma"));  // 16
     }
 
     // Filter with combined criteria (FilterCriteria via service)

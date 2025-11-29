@@ -45,6 +45,7 @@ public class R4aSteps {
     @When("je prévisualise la suggestion pour {string}")
     public void jePrevisualiseLaSuggestionPour(String name) {
         suggestion = manager.previewSuggestion(name);
+        System.out.println(suggestion);
     }
 
     @Then("la catégorie suggérée est {string}")

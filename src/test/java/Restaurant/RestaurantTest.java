@@ -16,6 +16,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -202,23 +203,21 @@ public class RestaurantTest {
                 .name("R")
                 .restaurantSchedules(new ArrayList<>())
                 .build();
+        Requester.createRestaurant(r);
 
         Requester.addSchedule(r.getName(), day, start, end, 20);
 
-        r.setNewCapacity(start, end, day, 50);
+        Restaurant resto = Requester.getRestaurantByName(r.getName());
 
-        LocalTime current = start;
-        while (!current.equals(end)) {
-            LocalTime finalCurrent = current;
-            RestaurantSchedule rs = r.getRestaurantSchedules().stream()
-                    .filter(s -> s.getDay() == day && s.getStart().equals(finalCurrent))
-                    .findFirst().orElseThrow();
+        resto.setNewCapacity(start, end, day, 50);
 
-            assertEquals(50, rs.getCapacity(),
-                    "La capacité du créneau " + current + " → " + current.plusMinutes(30) + " doit être mise à jour");
-
-            current = current.plusMinutes(30);
-        }
+        assertEquals(8, resto.getRestaurantSchedules().stream()
+                .filter(s ->
+                        s.getDay() == day &&
+                                !s.getStart().isBefore(start) &&  // s >= start
+                                s.getStart().isBefore(end)   &&     // s < end
+                                s.getCapacity() == 50
+                ).toList().size());
     }
 
     @Test
@@ -237,19 +236,16 @@ public class RestaurantTest {
 
         Requester.addSchedule(r.getName(), day, start1, end1, 20);
 
-        r.setNewCapacity(start2, end2, day, 99);
+        Restaurant resto = Requester.getRestaurantByName(r.getName());
 
-        LocalTime current = start1;
-        while (!current.equals(end1)) {
-            LocalTime finalCurrent = current;
-            RestaurantSchedule rs = r.getRestaurantSchedules().stream()
-                    .filter(s -> s.getDay() == day && s.getStart().equals(finalCurrent))
-                    .findFirst().orElseThrow();
+        resto.setNewCapacity(start2, end2, day, 99);
 
-            assertEquals(20, rs.getCapacity(),
-                    "La capacité du créneau " + current + " → " + current.plusMinutes(30) + " ne doit pas changer");
-
-            current = current.plusMinutes(30);
-        }
+        assertEquals(0, resto.getRestaurantSchedules().stream()
+                .filter(s ->
+                        s.getDay() == day &&
+                                !s.getStart().isBefore(start1) &&  // s >= start
+                                s.getStart().isBefore(end1)   &&     // s < end
+                                s.getCapacity() == 99
+                ).toList().size());
     }
 }

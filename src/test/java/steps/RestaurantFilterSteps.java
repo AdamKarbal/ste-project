@@ -26,6 +26,10 @@ public class RestaurantFilterSteps {
 
     @Given("un catalogue de restaurants")
     public void un_catalogue_de_restaurants(DataTable table) {
+        Requester.getAllRestaurants().forEach(r -> System.out.println(
+                r.getName() + " : " +
+                        r.getDishes().stream().map(d -> d.getName() + "=" + d.getPrice()).toList()
+        ));
         if (catalogueInit) {
             System.out.println(">>> [Given catalogue RESTO] déjà initialisé, on ne recrée pas.");
             return;
@@ -120,6 +124,7 @@ public class RestaurantFilterSteps {
     @When("je filtre les restaurants avec un prix entre {double} et {double} euros")
     public void je_filtre_par_prix_min_et_max(double p1, double p2) {
         resultats = service.filterByPriceRange(p1,p2);
+        System.out.println(resultats);
     }
 
     @When("je filtre les restaurants avec un prix min de {double} euros")

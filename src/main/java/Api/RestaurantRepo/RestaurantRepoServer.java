@@ -4,14 +4,17 @@ import Api.Customer.CustomerHandler;
 import Dish.Dish;
 import Dish.DishTag;
 import Restaurant.Enum.CuisineType;
+import Restaurant.Enum.DayOfTheWeek;
 import Restaurant.Enum.establishmentType;
 import Restaurant.Restaurant;
 import Restaurant.RestaurantRepo;
+import Restaurant.RestaurantSchedule;
 import com.sun.net.httpserver.HttpServer;
 import Dish.*;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,7 +40,58 @@ public class RestaurantRepoServer {
     public static List<Restaurant> setUpTest() {
 
         List<Restaurant> restaurants = new ArrayList<>();
+        List<RestaurantSchedule> schedules = List.of(
+                new RestaurantSchedule(DayOfTheWeek.MONDAY,
+                        LocalTime.of(11, 30),
+                        50),
 
+                new RestaurantSchedule(DayOfTheWeek.MONDAY,
+                        LocalTime.of(18, 0),
+                        70),
+
+                new RestaurantSchedule(DayOfTheWeek.TUESDAY,
+                        LocalTime.of(11, 30),
+                        50),
+
+                new RestaurantSchedule(DayOfTheWeek.TUESDAY,
+                        LocalTime.of(18, 0),
+                        70),
+
+                new RestaurantSchedule(DayOfTheWeek.WEDNESDAY,
+                        LocalTime.of(11, 30),
+                        50),
+
+                new RestaurantSchedule(DayOfTheWeek.WEDNESDAY,
+                        LocalTime.of(18, 0),
+                        70),
+
+                new RestaurantSchedule(DayOfTheWeek.THURSDAY,
+                        LocalTime.of(11, 30),
+                        50),
+
+                new RestaurantSchedule(DayOfTheWeek.THURSDAY,
+                        LocalTime.of(18, 0),
+                        70),
+
+                new RestaurantSchedule(DayOfTheWeek.FRIDAY,
+                        LocalTime.of(11, 30),
+                        60),
+
+                new RestaurantSchedule(DayOfTheWeek.FRIDAY,
+                        LocalTime.of(19, 0),
+                        80),
+
+                new RestaurantSchedule(DayOfTheWeek.SATURDAY,
+                        LocalTime.of(12, 0),
+                        100),
+
+                new RestaurantSchedule(DayOfTheWeek.SUNDAY,
+                        LocalTime.of(12, 0),
+                        80),
+                new RestaurantSchedule(DayOfTheWeek.SUNDAY,
+                        LocalTime.of(20, 0),
+                        80)
+        );
         Dish tacosClassic = new Dish(
                 7.5,
                 "Tacos Classique",
@@ -64,7 +118,7 @@ public class RestaurantRepoServer {
                 .establishmentType(establishmentType.RESTAURANT)
                 .cuisineType(List.of(CuisineType.MEXICAINE))
                 .dishes(List.of(tacosClassic, tacosVegan))
-                .restaurantSchedules(new ArrayList<>())
+                .restaurantSchedules(schedules)
                 .build();
 
 

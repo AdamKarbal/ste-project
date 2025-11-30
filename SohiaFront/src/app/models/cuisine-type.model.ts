@@ -1,0 +1,43 @@
+export enum CuisineType {
+  ITALIENNE = 'ITALIENNE',
+  FRANCAISE = 'FRANCAISE',
+  JAPONAISE = 'JAPONAISE',
+  CHINOISE = 'CHINOISE',
+  INDIENNE = 'INDIENNE',
+  MEXICAINE = 'MEXICAINE',
+  AMERICAINE = 'AMERICAINE',
+  THAILANDAISE = 'THAILANDAISE',
+  VIETNAMIENNE = 'VIETNAMIENNE',
+  MAROCAINE = 'MAROCAINE',
+  ESPAGNOLE = 'ESPAGNOLE',
+  GRECQUE = 'GRECQUE',
+  TURQUE = 'TURQUE',
+  LIBANAISE = 'LIBANAISE',
+  AFRICAINE = 'AFRICAINE',
+  BRESILIENNE = 'BRESILIENNE',
+  COREENNE = 'COREENNE',
+  ALLEMANDE = 'ALLEMANDE',
+  RUSSE = 'RUSSE'
+}
+
+export const CuisineTypeLabel: Record<string, string> = {
+  [CuisineType.ITALIENNE]: 'Italienne',
+  [CuisineType.FRANCAISE]: 'Française',
+  [CuisineType.JAPONAISE]: 'Japonaise',
+  [CuisineType.CHINOISE]: 'Chinoise',
+  [CuisineType.INDIENNE]: 'Indienne',
+  [CuisineType.MEXICAINE]: 'Mexicaine',
+  [CuisineType.AMERICAINE]: 'Américaine',
+  [CuisineType.THAILANDAISE]: 'Thaïlandaise',
+  [CuisineType.VIETNAMIENNE]: 'Vietnamienne ',
+  [CuisineType.MAROCAINE]: 'Marocaine',
+  [CuisineType.ESPAGNOLE]: 'Espagnole',
+  [CuisineType.GRECQUE]: 'Grecque',
+  [CuisineType.TURQUE]: 'Turque',
+  [CuisineType.LIBANAISE]: 'Libanaise',
+  [CuisineType.AFRICAINE]: 'Africaine',
+  [CuisineType.BRESILIENNE]: 'Brésilienne',
+  [CuisineType.COREENNE]: 'Coréenne',
+  [CuisineType.ALLEMANDE]: 'Allemande',
+  [CuisineType.RUSSE]: 'Russe'
+};

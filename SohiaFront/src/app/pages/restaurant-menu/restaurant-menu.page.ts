@@ -167,18 +167,20 @@ export class RestaurantMenuPage implements OnInit {
 */
 
 
-import { CommonModule } from '@angular/common';
-import { Component, OnInit, Injectable } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import {CommonModule} from '@angular/common';
+import {Component, Injectable, OnInit} from '@angular/core';
+import {ActivatedRoute} from '@angular/router';
 
-import { NavbarComponent } from '../../components/navbar/navbar';
-import { FooterComponent } from '../../components/footer/footer';
-import { RestaurantDishListComponent } from '../../components/restaurant-dish-list/restaurant-dish-list.component';
-import { RestaurantScheduleSidebarComponent } from '../../components/restaurant-schedule-sidebar/restaurant-schedule-sidebar.component';
-import { OrderCartComponent } from '../../components/order-card/order-cart.component';
+import {NavbarComponent} from '../../components/navbar/navbar';
+import {FooterComponent} from '../../components/footer/footer';
+import {RestaurantDishListComponent} from '../../components/restaurant-dish-list/restaurant-dish-list.component';
+import {
+  RestaurantScheduleSidebarComponent
+} from '../../components/restaurant-schedule-sidebar/restaurant-schedule-sidebar.component';
+import {OrderCartComponent} from '../../components/order-card/order-cart.component';
 
-import { Dish } from '../../models/dish.models';
-import { RestaurantSchedule } from '../../models/restaurant-schedule.model';
+import {Dish, DishCategory, DishTag, DishType} from '../../models/dish.models';
+import {RestaurantSchedule} from '../../models/restaurant-schedule.model';
 
 import {Observable, of, tap} from 'rxjs';
 import {HttpClient} from '@angular/common/http';
@@ -210,32 +212,26 @@ export class RestaurantService {
         name: 'Pizza Margherita',
         description: 'Tomate, mozzarella, basilic frais',
         price: 11.9,
-        category: 'Main_Course',
-        type: 'Pizza',
-        dishTag: ['Végétarien'],
-        availableToppings: [],
-        selectedToppings: []
-      }),
-      new DishModel({
+        category: DishCategory.MAIN_COURSE,
+        type: DishType.PIZZA,
+        dishTag: [DishTag.VEGAN]
+      },
+      {
         name: 'Burger Classique',
         description: 'Bœuf, cheddar, salade, tomate, sauce maison',
         price: 13.5,
-        category: 'Starter',
-        type: 'Meat',
-        dishTag: ['Best-seller'],
-        availableToppings: [],
-        selectedToppings: []
-      }),
-      new DishModel({
+        category: DishCategory.MAIN_COURSE,
+        type: DishType.MEAT,
+        dishTag: [DishTag.HALAL]
+      },
+      {
         name: 'Tiramisu',
         description: 'Dessert italien au café',
         price: 6.0,
-        category: 'Dessert',
-        type: 'Cake',
-        dishTag: [],
-        availableToppings: [],
-        selectedToppings: []
-      }),
+        category: DishCategory.DESSERT,
+        type: DishType.MEAT,
+        dishTag: []
+      }
     ],
     restaurantSchedules: [
       { id: 'slot1', day: 'MONDAY',    start: '11:30', end: '12:00', capacity: 10 },

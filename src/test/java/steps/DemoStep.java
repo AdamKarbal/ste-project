@@ -65,8 +65,8 @@ public class DemoStep {
 
             Dish d1 = Requester.createDish(new Dish(Double.parseDouble(row.get("price1")), row.get("dish1"), "", DishCategory.STARTER, DishType.PIZZA, null).toCreateDTO());
             Dish d2 = Requester.createDish(new Dish(Double.parseDouble(row.get("price2")), row.get("dish2"), "", DishCategory.STARTER, DishType.PIZZA, null).toCreateDTO());
-            d1.setDishTags(new ArrayList<>(parseTags(row.get("tags1"))));
-            d2.setDishTags(new ArrayList<>(parseTags(row.get("tags2"))));
+            d1.setDishTag(new ArrayList<>(parseTags(row.get("tags1"))));
+            d2.setDishTag(new ArrayList<>(parseTags(row.get("tags2"))));
 
             Restaurant r = new Restaurant.Builder()
                     .name(name)
@@ -210,7 +210,7 @@ public class DemoStep {
 
     @When("Il le configure : establishmentType {string}")
     public void il_le_configure_establishment_type(String type) throws Exception {
-        manager.addEstablishmentType(establishmentType.valueOf(type.toUpperCase()), currentRestaurantName);
+        manager.setEstablishmentType(establishmentType.valueOf(type.toUpperCase()), currentRestaurantName);
     }
 
     @When("Il ajoute le plat {string} à {double}€")

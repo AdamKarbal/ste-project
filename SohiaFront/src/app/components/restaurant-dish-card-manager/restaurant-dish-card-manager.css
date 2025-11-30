@@ -1,0 +1,43 @@
+.dish-card {
+  display: flex; flex-direction: column; gap: 0.5rem; padding: 1rem;
+  border-radius: 12px; border: 1px solid #e5e7eb; background-color: #fff;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+  transition: all 0.2s;
+}
+.dish-card.editing { border-color: #3b82f6; box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1); }
+
+.dish-header { display: flex; justify-content: space-between; font-weight: 600; align-items: center;}
+.dish-name { margin: 0; font-size: 1.1rem; }
+.dish-price { color: #16a34a; font-weight: bold; }
+.dish-description { font-size: 0.9rem; color: #4b5563; margin: 5px 0; }
+
+.dish-meta { display: flex; gap: 0.35rem; flex-wrap: wrap; margin-bottom: 5px; }
+.meta-badge { background: #eff6ff; color: #1d4ed8; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 500; }
+.meta-type { background: #fff7ed; color: #9a3412; }
+.tag-badge { background: #f3f4f6; color: #374151; padding: 2px 8px; border-radius: 99px; font-size: 0.75rem; border: 1px solid #e5e7eb;}
+
+/* Formulaire Édition */
+.edit-form { display: flex; flex-direction: column; gap: 8px; }
+.field-label { font-size: 0.75rem; font-weight: bold; color: #6b7280; text-transform: uppercase; margin-bottom: -4px; margin-top: 4px;}
+.edit-input { padding: 8px; border: 1px solid #d1d5db; border-radius: 6px; width: 100%; box-sizing: border-box; font-size: 0.9rem; }
+.edit-input:focus { outline: 2px solid #3b82f6; border-color: transparent; }
+.row { display: flex; gap: 10px; }
+.col { flex: 1; }
+
+/* Chips Tags */
+.tags-selector { display: flex; flex-wrap: wrap; gap: 5px; }
+.tag-chip { padding: 4px 10px; border-radius: 15px; background: #f3f4f6; cursor: pointer; font-size: 0.75rem; border: 1px solid transparent; transition: 0.1s; }
+.tag-chip:hover { background: #e5e7eb; }
+.tag-chip.selected { background: #dbeafe; color: #2563eb; border-color: #2563eb; font-weight: bold; }
+
+/* Boutons */
+.manager-actions { display: flex; gap: 10px; margin-top: auto; }
+.manager-actions button { flex: 1; border: none; padding: 8px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.9rem; transition: 0.2s; }
+.btn-edit { background: #eff6ff; color: #2563eb; }
+.btn-edit:hover { background: #dbeafe; }
+.btn-delete { background: #fef2f2; color: #dc2626; }
+.btn-delete:hover { background: #fee2e2; }
+.btn-save { background: #22c55e; color: white; }
+.btn-save:hover { background: #16a34a; }
+.btn-cancel { background: #f3f4f6; color: #4b5563; }
+.btn-cancel:hover { background: #e5e7eb; }

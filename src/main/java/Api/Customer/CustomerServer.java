@@ -6,7 +6,7 @@ import java.net.InetSocketAddress;
 
 public class CustomerServer {
     public static void main(String[] args) throws IOException {
-        int port = 8001; // port dédié au Customer Service
+        int port = 8007; // port dédié au Customer Service
         HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
 
         // Associe la route /restaurants à ton handler

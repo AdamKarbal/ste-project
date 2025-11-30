@@ -19,6 +19,7 @@ import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalTime;
 import java.util.Map;
+import java.util.ArrayList;
 
 public class RestaurantHandler implements HttpHandler {
     private final RestaurantManager restaurantManager;
@@ -30,12 +31,26 @@ public class RestaurantHandler implements HttpHandler {
 
     @Override
     public void handle(HttpExchange exchange) throws IOException {
+        exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
+        exchange.getResponseHeaders().add("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+        exchange.getResponseHeaders().add("Access-Control-Allow-Headers", "Content-Type, Authorization");
+
+        if (exchange.getRequestMethod().equalsIgnoreCase("OPTIONS")) {
+            exchange.sendResponseHeaders(204, -1);
+            return;
+        }
+
         String method = exchange.getRequestMethod();
         String path = exchange.getRequestURI().getPath();
         String route = path.replaceFirst("/api/restaurant", "");
+
         if (route.isEmpty()) route = "/";
+
         try {
             switch (method) {
+                case "GET":
+                    handleGet(exchange, route);
+                    break;
                 case "POST":
                     handlePost(exchange, route);
                     break;
@@ -54,17 +69,35 @@ public class RestaurantHandler implements HttpHandler {
         }
     }
 
-    private void handlePost(HttpExchange exchange, String route) throws IOException {
+    private void handleGet(HttpExchange exchange, String route) throws IOException {
         String[] parts = route.split("/");
+        if (parts.length >= 2) {
+            String restaurantName = URLDecoder.decode(parts[1], StandardCharsets.UTF_8);
+            try {
+                Restaurant restaurant = restaurantManager.getRestaurantFromRepo(restaurantName);
+                String jsonResponse = objectMapper.writeValueAsString(restaurant);
+                sendResponse(exchange, 200, jsonResponse);
+            } catch (Exception e) {
+                sendErrorResponse(exchange, 404, "Restaurant non trouvé : " + e.getMessage());
+            }
+        } else {
+            sendErrorResponse(exchange, 400, "Nom du restaurant manquant");
+        }
+    }
+
+    private void handlePost(HttpExchange exchange, String route) throws IOException {
         if (route.equals("/") || route.isEmpty()) {
             handleCreateRestaurant(exchange);
             return;
         }
+
+        String[] parts = route.split("/");
         if (parts.length < 2) {
             sendErrorResponse(exchange, 400, "Nom du restaurant manquant");
             return;
         }
         String restaurantName = URLDecoder.decode(parts[1], StandardCharsets.UTF_8);
+
         if (parts.length == 3 && parts[2].equals("dishes")) {
             try {
                 Dish dish = objectMapper.readValue(readRequestBody(exchange), Dish.class);
@@ -73,8 +106,7 @@ public class RestaurantHandler implements HttpHandler {
             } catch (DishAlreadyInDishes e) {
                 sendErrorResponse(exchange, 409, e.getMessage());
             }
-        }
-        else if (parts.length == 3 && parts[2].equals("cuisine-types")) {
+        } else if (parts.length == 3 && parts[2].equals("cuisine-types")) {
             try {
                 String typeStr = objectMapper.readValue(readRequestBody(exchange), String.class);
                 CuisineType cType = CuisineType.valueOf(typeStr.toUpperCase());
@@ -95,17 +127,17 @@ public class RestaurantHandler implements HttpHandler {
             return;
         }
         String restaurantName = URLDecoder.decode(parts[1], StandardCharsets.UTF_8);
+
         if (parts.length == 3 && parts[2].equals("establishment-type")) {
             try {
                 String typeStr = objectMapper.readValue(readRequestBody(exchange), String.class);
                 establishmentType eType = establishmentType.valueOf(typeStr.toUpperCase());
-                restaurantManager.addEstablishmentType(eType, restaurantName);
+                restaurantManager.setEstablishmentType(eType, restaurantName);
                 sendResponse(exchange, 200, "{\"message\": \"Type d'établissement défini\"}");
             } catch (EstablishmentTypeAlreadySet e) {
                 sendErrorResponse(exchange, 409, e.getMessage());
             }
-        }
-        else if (parts.length == 4 && parts[2].equals("dishes")) {
+        } else if (parts.length == 4 && parts[2].equals("dishes")) {
             String oldDishName = URLDecoder.decode(parts[3], StandardCharsets.UTF_8);
             try {
                 Dish newDish = objectMapper.readValue(readRequestBody(exchange), Dish.class);
@@ -129,6 +161,7 @@ public class RestaurantHandler implements HttpHandler {
             return;
         }
         String restaurantName = URLDecoder.decode(parts[1], StandardCharsets.UTF_8);
+
         if (parts.length == 3 && parts[2].equals("establishment-type")) {
             try {
                 restaurantManager.removeEstablishmentType(restaurantName);
@@ -136,8 +169,7 @@ public class RestaurantHandler implements HttpHandler {
             } catch (EstablishmentTypeNoExist e) {
                 sendErrorResponse(exchange, 404, e.getMessage());
             }
-        }
-        else if (parts.length == 4 && parts[2].equals("cuisine-types")) {
+        } else if (parts.length == 4 && parts[2].equals("cuisine-types")) {
             String typeStr = parts[3];
             try {
                 CuisineType cType = CuisineType.valueOf(typeStr.toUpperCase());
@@ -146,8 +178,7 @@ public class RestaurantHandler implements HttpHandler {
             } catch (CuisineTypeNoExist e) {
                 sendErrorResponse(exchange, 404, e.getMessage());
             }
-        }
-        else if (parts.length == 4 && parts[2].equals("dishes")) {
+        } else if (parts.length == 4 && parts[2].equals("dishes")) {
             String dishName = URLDecoder.decode(parts[3], StandardCharsets.UTF_8);
             try {
                 Dish dishToDelete = new Dish();
@@ -157,9 +188,33 @@ public class RestaurantHandler implements HttpHandler {
             } catch (dishNoInDishes e) {
                 sendErrorResponse(exchange, 404, e.getMessage());
             }
-        }
-        else {
+        } else {
             sendErrorResponse(exchange, 404, "Route DELETE inconnue : " + route);
+        }
+    }
+
+    private void handleCreateRestaurant(HttpExchange exchange) throws IOException {
+        try {
+            Map<String, String> body = objectMapper.readValue(readRequestBody(exchange), Map.class);
+            String name = body.get("name");
+            if (name == null || name.isEmpty()) {
+                sendErrorResponse(exchange, 400, "Bad Request: 'name' est requis.");
+                return;
+            }
+
+            Restaurant newRestaurant = new Restaurant.Builder()
+                    .name(name)
+                    .dishes(new ArrayList<>())
+                    .restaurantSchedules(new ArrayList<>())
+                    .cuisineType(new ArrayList<>())
+                    .establishmentType(null)
+                    .build();
+
+            restaurantManager.saveRestaurant(newRestaurant);
+            sendResponse(exchange, 201, "{\"message\": \"Restaurant " + name + " created\"}");
+        } catch (Exception e) {
+            e.printStackTrace();
+            sendErrorResponse(exchange, 500, "Erreur lors de la création : " + e.getMessage());
         }
     }
 
@@ -183,23 +238,5 @@ public class RestaurantHandler implements HttpHandler {
         String cleanMessage = errorMessage.replace("\"", "'");
         String errorResponse = String.format("{\"error\": \"%s\"}", cleanMessage);
         sendResponse(exchange, statusCode, errorResponse);
-    }
-
-    private void handleCreateRestaurant(HttpExchange exchange) throws IOException {
-        try {
-            Map<String, String> body = objectMapper.readValue(readRequestBody(exchange), Map.class);
-            String name = body.get("name");
-            if (name == null || name.isEmpty()) {
-                sendErrorResponse(exchange, 400, "Bad Request: 'name' est requis.");
-                return;
-            }
-            RestaurantFactory localFactory = new RestaurantFactory();
-            Restaurant newRestaurant = localFactory.createRestaurant(name);
-            restaurantManager.saveRestaurant(newRestaurant);
-            sendResponse(exchange, 201, "{\"message\": \"Restaurant " + name + " created\"}");
-        } catch (Exception e) {
-            e.printStackTrace();
-            sendErrorResponse(exchange, 500, "Erreur lors de la création : " + e.getMessage());
-        }
     }
 }

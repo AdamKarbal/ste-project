@@ -28,7 +28,6 @@ class InternalPaymentTest {
 
     @BeforeAll
     public static void setUpServers() throws IOException {
-        try{
         accountRepo = AccountRepoServer.startServer();
         orderRepo = OrderRepoServer.startServer();
         orderHandler = OrderServer.startServer();

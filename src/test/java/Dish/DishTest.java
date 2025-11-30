@@ -15,7 +15,7 @@ public class DishTest {
     private Dish dish;
     private DishTopping olives;
     private DishTopping cheese;
-    private List<DishTag> dishTags = new ArrayList<>();
+    private List<DishTag> dishTag = new ArrayList<>();
 
     @BeforeEach
     public void setUp() {
@@ -28,10 +28,10 @@ public class DishTest {
                 "Pizza classique avec mozzarella et sauce tomate",
                 DishCategory.MAIN_COURSE,
                 DishType.PIZZA,
-                dishTags
+                dishTag
         );
-        dishTags.add(DishTag.HALAL);
-        dishTags.add(DishTag.VEGETARIAN);
+        dishTag.add(DishTag.HALAL);
+        dishTag.add(DishTag.VEGETARIAN);
 
     }
 
@@ -71,7 +71,7 @@ public class DishTest {
 
     @Test
     void testSetDishTagOverridesList() {
-        dish.setDishTags(List.of(DishTag.VEGAN, DishTag.GLUTEN_FREE));
+        dish.setDishTag(List.of(DishTag.VEGAN, DishTag.GLUTEN_FREE));
         assertEquals(2, dish.getDishTag().size());
         assertTrue(dish.getDishTag().contains(DishTag.VEGAN));
         assertFalse(dish.getDishTag().contains(DishTag.HALAL));

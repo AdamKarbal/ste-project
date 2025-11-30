@@ -46,7 +46,6 @@ class OrderTest {
 
     @BeforeAll
     public static void setUpServers() throws IOException {
-        try{
         accountRepo = AccountRepoServer.startServer();
         dishRepo = DishRepoServer.startServer();
         orderRepo = OrderRepoServer.startServer();

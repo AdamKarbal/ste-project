@@ -120,7 +120,6 @@ public class RestaurantRepoHandler implements HttpHandler {
             e.printStackTrace();
             sendResponse(exchange, 500, "Erreur interne du serveur : " + e.getMessage());
         }
-
     }
 
     private void createRestaurant(HttpExchange exchange, String... params) throws IOException {

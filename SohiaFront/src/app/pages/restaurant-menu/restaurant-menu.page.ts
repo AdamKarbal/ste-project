@@ -301,7 +301,6 @@ export class RestaurantMenuPage implements OnInit {
   private loadRestaurant(id: string): void {
     this.isLoading = true;
     this.errorMessage = null;
-
     this.restaurantService.getRestaurantById(id).subscribe({
       next: (restaurant) => {
         this.restaurant = restaurant;
@@ -379,6 +378,7 @@ export class RestaurantMenuPage implements OnInit {
       error: (err) => console.error('Erreur addItem :', err),
     });
   }
+
 
   onQuantityChanged(event: { dish: Dish; quantity: number }): void {
     const item = this.cartItems.find(i => i.dish.name === event.dish.name);

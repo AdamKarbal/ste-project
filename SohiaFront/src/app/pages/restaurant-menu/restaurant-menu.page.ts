@@ -119,6 +119,10 @@ export class RestaurantMenuPage implements OnInit {
 
   onScheduleSelected(schedule: RestaurantSchedule): void {
     this.selectedSchedule = schedule;
+    this.orderService.chooseSchedule(schedule.id).subscribe({
+      next: (schedule) => console.log("Nouvel etat de la commande",schedule),
+      error: (err) => console.error(err)
+    });
   }
 
   // --------- Gestion du panier ---------

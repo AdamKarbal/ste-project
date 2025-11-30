@@ -10,6 +10,7 @@ import Payment.PaymentService;
 import Payment.PaymentState;
 import Payment.PaymentMethod;
 import Payment.PaymentService;
+import Restaurant.Exception.ScheduleNoExist;
 import Restaurant.Restaurant;
 import Restaurant.RestaurantSchedule;
 import Restaurant.RestaurantScheduleManager;
@@ -61,9 +62,28 @@ public class OrderManager {
         return newState;
     }
 
-    public void chooseSchedule(int orderId,LocalTime time){
-        Requester.getOrderById(orderId).chooseSchedule(time);
+    public chooseScheduleResult chooseSchedule(int orderId, String scheduleId) {
+        Order order = Requester.getOrderById(orderId);
+        if (order == null) {
+            return chooseScheduleResult.ORDER_NOT_FOUND;
+        }
+
+        try {
+            RestaurantSchedule schedule =
+                    Requester.getScheduleById(order.getRestaurant(), scheduleId);
+
+            order.chooseSchedule(schedule);
+            Requester.updateOrder(orderId,order);
+
+            return chooseScheduleResult.SUCCESS;
+
+        } catch (ScheduleNoExist e) {
+            return chooseScheduleResult.SCHEDULE_NOT_FOUND;
+        } catch (Exception e) {
+            return chooseScheduleResult.ERROR;
+        }
     }
+
 
     public OrderState finishOrder(int orderId,PaymentMethod paymentMethod){ // faudra appeler le service restaurant schedule
         Order order = Requester.getOrderById(orderId);
@@ -138,5 +158,11 @@ public class OrderManager {
         order.updatePrice();
         updateOrder(orderId,order);
     }*/
+    public enum chooseScheduleResult{
+        ORDER_NOT_FOUND,
+        SCHEDULE_NOT_FOUND,
+        SUCCESS,
+        ERROR
+    }
 }
 

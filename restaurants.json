@@ -1,0 +1,114 @@
+[
+  {
+    "name": "ChezMario",
+    "dishes": [
+      {
+        "price": 12.5,
+        "name": "Pizza Margherita",
+        "description": "Tomate, Mozza, Basilic",
+        "category": "MAIN_COURSE",
+        "type": "PIZZA",
+        "dishTag": ["VEGETARIAN"],
+        "availableToppings": [],
+        "selectedToppings": []
+      },
+      {
+        "price": 14.0,
+        "name": "Pasta Carbonara",
+        "description": "Pâtes fraîches, guanciale, pecorino, oeuf",
+        "category": "MAIN_COURSE",
+        "type": "PASTA",
+        "dishTag": [],
+        "availableToppings": [],
+        "selectedToppings": []
+      }
+    ],
+    "restaurantSchedules": [],
+    "cuisineTypes": ["ITALIENNE"],
+    "establishmentType": "Restaurant"
+  },
+  {
+    "name": "SushiZen",
+    "dishes": [
+      {
+        "price": 18.0,
+        "name": "Plateau Sushi Mix",
+        "description": "12 pièces (Saumon, Thon, Daurade)",
+        "category": "MAIN_COURSE",
+        "type": "SEAFOOD",
+        "dishTag": ["GLUTEN_FREE"],
+        "availableToppings": [],
+        "selectedToppings": []
+      },
+      {
+        "price": 5.0,
+        "name": "Soupe Miso",
+        "description": "Traditionnelle au tofu",
+        "category": "STARTER",
+        "type": "SOUP",
+        "dishTag": ["VEGAN"],
+        "availableToppings": [],
+        "selectedToppings": []
+      }
+    ],
+    "restaurantSchedules": [],
+    "cuisineTypes": ["JAPONAISE"],
+    "establishmentType": "Sushi Bar"
+  },
+  {
+    "name": "Le Burger du Campus",
+    "dishes": [
+      {
+        "price": 11.5,
+        "name": "Cheeseburger Classique",
+        "description": "Boeuf, cheddar, salade, tomate, sauce maison",
+        "category": "MAIN_COURSE",
+        "type": "SANDWICH",
+        "dishTag": [],
+        "availableToppings": [],
+        "selectedToppings": []
+      },
+      {
+        "price": 3.5,
+        "name": "Frites Maison",
+        "description": "Portion moyenne",
+        "category": "STARTER",
+        "type": "OTHER",
+        "dishTag": ["VEGETARIAN"],
+        "availableToppings": [],
+        "selectedToppings": []
+      }
+    ],
+    "restaurantSchedules": [],
+    "cuisineTypes": ["AMERICAINE"],
+    "establishmentType": "Fast Food"
+  },
+  {
+    "name": "Au Bon Pain",
+    "dishes": [
+      {
+        "price": 4.5,
+        "name": "Sandwich Jambon Beurre",
+        "description": "Baguette tradition, jambon blanc, beurre demi-sel",
+        "category": "MAIN_COURSE",
+        "type": "SANDWICH",
+        "dishTag": [],
+        "availableToppings": [],
+        "selectedToppings": []
+      },
+      {
+        "price": 2.0,
+        "name": "Croissant",
+        "description": "Pur beurre",
+        "category": "DESSERT",
+        "type": "OTHER",
+        "dishTag": ["VEGETARIAN"],
+        "availableToppings": [],
+        "selectedToppings": []
+      }
+    ],
+    "restaurantSchedules": [],
+    "cuisineTypes": ["FRANCAISE"],
+    "establishmentType": "Restaurant"
+  }
+]

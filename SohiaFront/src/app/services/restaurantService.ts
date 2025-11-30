@@ -16,7 +16,7 @@ import {orderService} from './orderService';
 })
 export class RestaurantService {
   baseUrl = 'http://localhost:8008';
-  private apiUrl = 'http://localhost:8001/api/restaurant'
+  private apiUrl = 'http://localhost:8009/api/restaurant'
 
   constructor(private http : HttpClient, private OrderService:orderService) {
   }

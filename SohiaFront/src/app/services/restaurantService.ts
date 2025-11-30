@@ -1,16 +1,20 @@
 import { Injectable } from '@angular/core';
-import {Observable, Subject, tap} from 'rxjs';
+import {map, Observable, Subject, tap} from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import {orderCreateResponse} from '../models/orderCreateResponse';
 import {ConsoleLogger} from '@angular/compiler-cli';
 import {orderService} from './orderService';
+import {RestaurantSchedule} from '../models/restaurant-schedule.model';
+import {Restaurant} from '../models/restaurant';
 
 @Injectable({
   providedIn: 'root'
 })
 export class RestaurantService {
   baseUrl = 'http://localhost:8001';
-  constructor(private OrderService:orderService) {
+  restoRepoUrl = 'http://localhost:8002/api/restaurantrepo'
+  scheduleUrl = 'http://localhost:8007/api/schedule'
+  constructor(private OrderService:orderService,private client:HttpClient) {
   }
   /** Obtenir tous les restaurants */
   async getAllRestaurants() {
@@ -137,5 +141,25 @@ export class RestaurantService {
     console.log('[Service] 🍽️ Restaurant complet reçu :', restaurant);
 
     return restaurant;
+  }
+
+  getSchedulesToday(restaurantName: string): Observable<RestaurantSchedule[]> {
+    const url = `${this.scheduleUrl}/${restaurantName}/today`;
+
+    return this.client.get<RestaurantSchedule[]>(url);
+  }
+  getRestaurantById(id: string): Observable<Restaurant> {
+    const url = `${this.restoRepoUrl}/${id}/`;
+    return this.client.get<Restaurant>(url).pipe(
+      map(reponse => this.mapRestaurantToModel(reponse) )
+    )
+  }
+
+  mapRestaurantToModel(restaurant:Restaurant) : Restaurant{
+    return{
+      name:restaurant.name,
+      dishes:restaurant.dishes
+      //restaurantSchedules:restaurant.restaurantSchedules
+    }
   }
 }

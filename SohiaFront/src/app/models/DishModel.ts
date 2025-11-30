@@ -8,7 +8,7 @@ export class DishModel implements Dish {
   type: string;
   dishTag?: string[];
   availableToppings?: string[];
-  selectedToppings?: string[];
+  selectedToppings: string[];
   id : number;
 
   constructor(data: Dish) {
@@ -19,7 +19,7 @@ export class DishModel implements Dish {
     this.type = data.type;
     this.dishTag = data.dishTag ?? [];
     this.availableToppings = data.availableToppings ?? [];
-    this.selectedToppings = data.selectedToppings ?? [];
+    this.selectedToppings = [];
     this.id=0;
   }
 

@@ -28,15 +28,17 @@ class InternalPaymentTest {
 
     @BeforeAll
     public static void setUpServers() throws IOException {
-        accountRepo = AccountRepoServer.startServer();
-        orderRepo = OrderRepoServer.startServer();
-        orderHandler = OrderServer.startServer();
-        scheduleManager = OrderServer.startServer();
+        try {
+            accountRepo = AccountRepoServer.startServer();
+            orderRepo = OrderRepoServer.startServer();
+            orderHandler = OrderServer.startServer();
+            scheduleManager = OrderServer.startServer();
         }
-        catch (java.net.BindException e) {
+        catch(java.net.BindException e) {
             System.out.println("⚠️ InternalPaymentTest: Port 8005 déjà occupé, on continue...");
         }
     }
+
 
     @AfterAll
     public static void stopServers() {

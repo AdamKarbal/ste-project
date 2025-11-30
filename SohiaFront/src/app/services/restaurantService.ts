@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
 import { Restaurant } from '../models/restaurant.model';
 import { CuisineType } from "../models/cuisine-type.model";
 import { Dish } from "../models/dish.models";
@@ -11,13 +10,12 @@ import {orderCreateResponse} from '../models/orderCreateResponse';
 import {ConsoleLogger} from '@angular/compiler-cli';
 import {orderService} from './orderService';
 
-n
 
 @Injectable({
   providedIn: 'root'
 })
 export class RestaurantService {
-  baseUrl = 'http://localhost:8007';
+  baseUrl = 'http://localhost:8008';
   private apiUrl = 'http://localhost:8001/api/restaurant'
 
   constructor(private http : HttpClient, private OrderService:orderService) {
@@ -154,8 +152,10 @@ export class RestaurantService {
       headers: { 'Content-Type': 'application/json' }
     });
   }
+
   removeEstablishmentType(restaurantName: string): Observable<any> {
     return this.http.delete(`${this.apiUrl}/${restaurantName}/establishment-type`);
+  }
   createOrder(body: any): Observable<number> {
     return this.OrderService.createOrder(body);
   }

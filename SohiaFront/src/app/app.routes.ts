@@ -16,7 +16,7 @@ export const routes: Routes = [
   // Route de test optionnelle
   { path: 'test-menu', component: RestaurantMenuPage },
 
-  {path : 'restaurant-manager/:name', component : RestaurantManagerPageComponent}
+  {path : 'restaurant-manager/:name', component : RestaurantManagerPageComponent},
   {
     path: 'payment/:orderId',
     component: PaymentPage

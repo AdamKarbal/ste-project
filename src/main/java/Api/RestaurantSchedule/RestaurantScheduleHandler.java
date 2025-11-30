@@ -4,6 +4,7 @@ import Api.Utils.ApiRegistry;
 import Api.Utils.Requester;
 import Api.Utils.RouteInfo;
 import Api.Utils.Sender;
+import Restaurant.Exception.ScheduleNoExist;
 import Restaurant.RestaurantSchedule;
 import Restaurant.RestaurantScheduleManager;
 import Restaurant.Enum.DayOfTheWeek;
@@ -38,6 +39,7 @@ public class RestaurantScheduleHandler implements HttpHandler {
 
         ApiRegistry.addRoute("GET", "/api/schedule/{restaurant}", this::getSchedules);
         ApiRegistry.addRoute("GET", "/api/schedule/{restaurant}/today", this::getToday);
+        ApiRegistry.addRoute("GET", "/api/schedule/{restaurant}/{id}", this::getScheduleById);
         ApiRegistry.addRoute("GET", "/api/schedule/{restaurant}/capacity/{id}", this::getCapacityById);
         ApiRegistry.addRoute("GET", "/api/schedule/{restaurant}/open/now", this::isOpenNow);
         ApiRegistry.addRoute("GET", "/api/schedule/{restaurant}/open/at/{datetime}", this::isOpenAt);
@@ -65,6 +67,21 @@ public class RestaurantScheduleHandler implements HttpHandler {
         var schedules = scheduleManager.getTodaySchedules(name[0]);
         String response = mapper.writeValueAsString(schedules);
         sendResponse(ex, 200, response);
+    }
+
+    public void getScheduleById(HttpExchange ex, String... params) throws IOException {
+        String restaurant = params[0];
+        String id = params[1];
+
+        try {
+            RestaurantSchedule schedule = scheduleManager.getScheduleById(restaurant, id);
+            String json = mapper.writeValueAsString(schedule);
+            sendResponse(ex, 200, json);
+        } catch (ScheduleNoExist e) {
+            sendResponse(ex, 404, "{\"error\": \"Schedule not found\"}");
+        } catch (Exception e) {
+            sendResponse(ex, 500, "{\"error\": \"Internal server error\"}");
+        }
     }
 
     public void getCapacityById(HttpExchange ex, String... params) throws IOException {

@@ -529,6 +529,38 @@ public class Requester {
         }
     }
 
+    public static RestaurantSchedule getScheduleById(String restaurantName, String scheduleId) {
+        try {
+            String url = SCHEDULE_BASE_URL
+                    + encode(restaurantName)
+                    + "/"
+                    + scheduleId;
+
+            HttpClient client = HttpClient.newHttpClient();
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(url))
+                    .GET()
+                    .build();
+
+            HttpResponse<String> response =
+                    client.send(request, HttpResponse.BodyHandlers.ofString());
+
+            if (response.statusCode() == 404) {
+                throw new RuntimeException("Schedule introuvable");
+            }
+
+            if (response.statusCode() != 200) {
+                throw new RuntimeException("Erreur GET scheduleById : code " + response.statusCode());
+            }
+
+            return mapper.readValue(response.body(), RestaurantSchedule.class);
+
+        } catch (Exception e) {
+            throw new RuntimeException("Erreur getScheduleById(" + restaurantName + ", " + scheduleId + ")", e);
+        }
+    }
+
+
     /**
      * Ajouter un créneau pour un restaurant
      * POST /api/schedule/{restaurant}/add

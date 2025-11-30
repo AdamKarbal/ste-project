@@ -68,6 +68,20 @@ public class RestaurantScheduleManager {
         return true;
     }
 
+    public RestaurantSchedule getScheduleById(String restaurantName, String id) {
+        Restaurant restaurant = Requester.getRestaurantByName(restaurantName);
+        if (restaurant == null || restaurant.getRestaurantSchedules() == null) {
+            throw new ScheduleNoExist("Aucun schedule pour ce restaurant");
+        }
+
+        for (RestaurantSchedule s : restaurant.getRestaurantSchedules()) {
+            if (s.getId().equals(id)) {
+                return s;
+            }
+        }
+
+        throw new ScheduleNoExist("Ce schedule n'existe pas");
+    }
 
     private void createIntervals(Restaurant restaurant, DayOfTheWeek day, LocalTime start, LocalTime end, int capacity) {
         LocalTime current = start;

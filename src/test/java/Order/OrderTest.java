@@ -6,6 +6,7 @@ import Api.DishRepo.DishRepoServer;
 import Api.Order.OrderServer;
 import Api.OrderRepo.OrderRepoServer;
 import Api.RestaurantRepo.RestaurantRepoServer;
+import Api.RestaurantSchedule.RestaurantScheduleServer;
 import Api.Utils.Requester;
 import Dish.Dish;
 import Dish.DishCategory;
@@ -33,13 +34,14 @@ class OrderTest {
     private Restaurant restaurant;
     private Order order;
     private Dish pizza, burger;
+    private RestaurantScheduleManager scheduleManager;
 
     private static HttpServer accountRepo;
     private static HttpServer dishRepo;
     private static HttpServer orderRepo;
     private static HttpServer orderHandler;
     private static HttpServer restoRepo;
-
+    private static HttpServer scheduleServer;
     private static List<HttpServer> servers;
 
     @BeforeAll
@@ -49,8 +51,13 @@ class OrderTest {
         orderRepo = OrderRepoServer.startServer();
         orderHandler = OrderServer.startServer();
         restoRepo = RestaurantRepoServer.startServer();
+        scheduleServer = RestaurantScheduleServer.startServer();
+        }
+        catch (java.net.BindException e) {
+            System.out.println("déjà utilisée");
+        }
 
-        servers = List.of(accountRepo, dishRepo, orderRepo, orderHandler, restoRepo);
+        servers = List.of(accountRepo, dishRepo, orderRepo, orderHandler, restoRepo,scheduleServer);
     }
 
     @AfterAll
@@ -74,14 +81,15 @@ class OrderTest {
                 .build();
 
         Requester.createRestaurant(restaurant);
+      
+        scheduleManager = new RestaurantScheduleManager();
 
-        var today = RestaurantScheduleManager.convertDayOfWeek(LocalDate.now().getDayOfWeek());
+        var today = scheduleManager.convertDayOfWeek(LocalDate.now().getDayOfWeek());
+      
         LocalTime start = LocalTime.now().minusMinutes(15);
         LocalTime end = LocalTime.now().plusMinutes(30);
 
-        RestaurantScheduleManager.addSchedule(restaurant, today, start, end, 10);
-
-
+        Requester.addSchedule(restaurant.getName(), today, start, end, 10);
 
         order = new Order(client.getId(), restaurant.getName());
 

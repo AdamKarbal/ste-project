@@ -1,0 +1,41 @@
+<app-navbar></app-navbar>
+
+<main class="payment-page-container">
+  <section class="payment-page-content">
+
+    <header class="payment-header">
+      <h1 class="payment-title">Paiement de la commande #{{ orderId }}</h1>
+      <p class="payment-subtitle">
+        Choisis ta méthode de paiement et valide ta commande SophiaEat.
+      </p>
+    </header>
+
+    <div class="payment-layout">
+
+      <section class="payment-col payment-col--left">
+        <se-payment-method-selector
+          (methodSelected)="onMethodSelected($event)">
+        </se-payment-method-selector>
+      </section>
+
+      <section class="payment-col payment-col--center">
+        <se-payment-summary
+          [orderId]="orderId"
+          [selectedMethod]="selectedMethod"
+          [totalAmount]="totalAmount"
+          (pay)="onPay()"
+          [isPaying]="isPaying">
+        </se-payment-summary>
+      </section>
+
+      <section class="payment-col payment-col--right">
+        <se-payment-status
+          [isPaying]="isPaying">
+        </se-payment-status>
+      </section>
+
+    </div>
+  </section>
+</main>
+
+<app-footer></app-footer>

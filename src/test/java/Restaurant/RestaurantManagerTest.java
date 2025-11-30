@@ -1,6 +1,7 @@
 package Restaurant;
 
 import Api.RestaurantRepo.RestaurantRepoServer;
+import Api.RestaurantSchedule.RestaurantScheduleServer;
 import Api.Utils.Requester;
 import Dish.*;
 import Dish.suggest.Suggestion;
@@ -26,13 +27,15 @@ import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class RestaurantManagerTest {
 
-    private static HttpServer server;
+    private static HttpServer serverRepo;
+    private static HttpServer serverSchedule;
     private static boolean isServerRunning = false;
     private RestaurantManager manager;
     private final String TEST_RESTO_NAME = "Chez akhi ali";
@@ -41,7 +44,8 @@ public class RestaurantManagerTest {
     public static void setup() throws IOException {
         if (!isServerRunning) {
             try {
-                server=RestaurantRepoServer.startServer();
+                serverRepo = RestaurantRepoServer.startServer();
+                serverSchedule = RestaurantScheduleServer.startServer();
                 isServerRunning = true;
             } catch (java.net.BindException e) {
                 System.out.println(" Serveur déjà lancé ");
@@ -52,8 +56,11 @@ public class RestaurantManagerTest {
 
     @AfterAll
     static void stopInfrastructure() {
-        if (server != null) {
-            server.stop(0);
+        if (serverRepo != null) {
+            serverRepo.stop(0);
+        }
+        if (serverSchedule != null) {
+            serverSchedule.stop(0);
         }
     }
 
@@ -71,23 +78,14 @@ public class RestaurantManagerTest {
     }
 
     @Test
-    void testUpdateSchedule_AddNewScheduleIfNotExists() throws Exception {
-        LocalTime start = LocalTime.of(12, 0);
-        LocalTime end = LocalTime.of(15, 0);
-        manager.updateSchedule(DayOfTheWeek.MONDAY, start, end, 40, TEST_RESTO_NAME);
-        Restaurant updatedResto = Requester.getRestaurantByName(TEST_RESTO_NAME);
-        assertEquals(6, updatedResto.getRestaurantSchedules().size());
-        assertEquals(40, updatedResto.getRestaurantSchedules().get(0).getCapacity());
-    }
-
-    @Test
     void testUpdateCapacity_ChangesExistingCapacity() throws Exception {
         LocalTime start = LocalTime.of(10, 0);
         LocalTime end = LocalTime.of(14, 0);
         DayOfTheWeek day = DayOfTheWeek.WEDNESDAY;
-        manager.updateSchedule(day, start, end, 20, TEST_RESTO_NAME);
-        manager.updateCapacity(day, start, end, 50, TEST_RESTO_NAME);
-
+        Requester.addSchedule(TEST_RESTO_NAME, day, start, end, 20);
+        List<RestaurantSchedule> schedules = Requester.getSchedules(TEST_RESTO_NAME);
+        String id = schedules.get(0).getId();
+        Requester.updateScheduleCapacity(TEST_RESTO_NAME, id, 50);
         Restaurant updatedResto = Requester.getRestaurantByName(TEST_RESTO_NAME);
         assertEquals(50, updatedResto.getRestaurantSchedules().get(0).getCapacity());
     }

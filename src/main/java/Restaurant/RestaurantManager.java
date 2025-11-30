@@ -2,53 +2,14 @@ package Restaurant;
 import Api.Utils.Requester;
 import Dish.*;
 import Dish.suggest.Suggestion;
-import Restaurant.Enum.DayOfTheWeek;
 import Restaurant.Enum.CuisineType;
 import Restaurant.Enum.establishmentType;
 import Restaurant.Exception.*;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-
-import java.net.URI;
-import java.net.URLEncoder;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.nio.charset.StandardCharsets;
-import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.concurrent.CompletableFuture;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 public class RestaurantManager {
-    //Instances
-    private final ObjectMapper mapper = new ObjectMapper().registerModule(new JavaTimeModule());
-    private final HttpClient httpClient = HttpClient.newHttpClient();
-
     private final SmartDishFactory smartDishFactory = new SmartDishFactory();
 
-    //Constructeur
-    public RestaurantManager(){
-    }
-
-
-    //Méthodes
-    // Pourquoi on fait comme ca ? parceque c'est au manager de demandé au restaurant l'état est en fonction il choisit quoi faire
-    // c'est pas au restaurant de le faire même si il verifie.
-    public void updateSchedule(DayOfTheWeek day, LocalTime start, LocalTime end, int capacity,String name) {
-        Restaurant restaurant = getRestaurantFromRepo(name);
-        RestaurantScheduleManager.updateSchedule(restaurant, day, start, end, capacity);
-        saveRestaurant(restaurant);
-    }
-
-
-    public void updateCapacity(DayOfTheWeek day, LocalTime start, LocalTime end, int capacity, String name) throws ScheduleNoExist {
-        Restaurant restaurant = getRestaurantFromRepo(name);
-        RestaurantScheduleManager.updateCapacity(restaurant, day, start, end, capacity);
-        saveRestaurant(restaurant);
-    }
+    public RestaurantManager(){}
 
     public void addDish(Dish d, String name) throws DishAlreadyInDishes {
         Restaurant restaurant = getRestaurantFromRepo(name);
@@ -91,6 +52,8 @@ public class RestaurantManager {
 
     public void setEstablishmentType(establishmentType e, String name) {
         Restaurant restaurant = getRestaurantFromRepo(name);
+        if (restaurant.getEstablishmentType() != null && restaurant.getEstablishmentType() != establishmentType.DEFAULT)
+            throw new EstablishmentTypeAlreadySet("Le restaurant a déjà un type d'établissement défini.");
         restaurant.setEstablishmentType(e);
         saveRestaurant(restaurant);
     }
@@ -108,37 +71,28 @@ public class RestaurantManager {
         dish.addAvailableTopping(topping);
         return topping;
     }
+
     public Suggestion previewSuggestion(String nameOrKeyword) {
         return smartDishFactory.suggest(nameOrKeyword);
     }
 
-    public Dish createDish(DishInput input,String name) throws DishAlreadyInDishes {
+    public Dish createDish(DishInput input, String restoName) throws DishAlreadyInDishes {
         Dish dish = smartDishFactory.create(input);
-        this.addDish(dish, name); // tes règles (doublon, etc.)
+        this.addDish(dish, restoName);
+
         return dish;
     }
 
     public Restaurant getRestaurantFromRepo(String name) {
-        return Requester.getRestaurantByName(name);
+        Restaurant r = Requester.getRestaurantByName(name);
+        if (r == null) {
+            throw new RuntimeException("Restaurant " + name + " introuvable dans le RestaurantRepo");
+        }
+        return r;
     }
 
-    public void saveRestaurant(Restaurant restaurant) {
-        try {
-            String restaurantJson = mapper.writeValueAsString(restaurant);
-            String name = restaurant.getName();
-            String encodedName = URLEncoder.encode(name, StandardCharsets.UTF_8).replace("+", "%20");
 
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create("http://localhost:8002/api/restaurantrepo/" + encodedName+"/"))
-                    .PUT(HttpRequest.BodyPublishers.ofString(restaurantJson))
-                    .header("Content-Type", "application/json")
-                    .build();
-            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-            if (response.statusCode() != 200 && response.statusCode() != 201) {
-                throw new RuntimeException("Échec de la sauvegarde du restaurant: " + response.body());
-            }
-        } catch (Exception e) {
-            throw new RuntimeException("Erreur HTTP (PUT) lors de la sauvegarde: " + e.getMessage(), e);
-        }
+    public void saveRestaurant(Restaurant restaurant) {
+        Requester.updateRestaurant(restaurant.getName(), restaurant);
     }
 }

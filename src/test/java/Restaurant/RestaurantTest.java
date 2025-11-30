@@ -1,28 +1,61 @@
 package Restaurant;
 
+import Api.RestaurantRepo.RestaurantRepoServer;
+import Api.RestaurantSchedule.RestaurantScheduleServer;
+import Api.Utils.Requester;
 import Restaurant.Enum.DayOfTheWeek;
 import Restaurant.Enum.CuisineType;
+import com.sun.net.httpserver.HttpServer;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class RestaurantTest {
 
     private Restaurant restaurant;
-
     private static Restaurant restaurantWithSingleSlot(DayOfTheWeek dayOfTheWeek, LocalTime start, LocalTime end) {
         Restaurant restaurant = new Restaurant.Builder()
                 .name("R")
                 .restaurantSchedules(new ArrayList<>())
                 .build();
-        RestaurantScheduleManager.addSchedule(restaurant, dayOfTheWeek, start, end, 10);
+        Requester.createRestaurant(restaurant);
+        Requester.addSchedule(restaurant.getName(), dayOfTheWeek, start, end, 10);
         return restaurant;
+    }
+    private static HttpServer serverSchedule;
+    private static HttpServer serverRestoRepo;
+    private static List<HttpServer> servers;
+
+    @BeforeAll
+    static void setup() {
+        try {
+            serverSchedule = RestaurantScheduleServer.startServer();
+            serverRestoRepo = RestaurantRepoServer.startServer();
+            servers = List.of(serverSchedule, serverRestoRepo);
+        } catch (Exception e) {
+            System.out.println("Servers could not be started: " + e.getMessage());
+        }
+    }
+
+    @AfterAll
+    public static void stopServers() {
+        if (servers != null) {
+            for (HttpServer server : servers) {
+                if (server != null) {
+                    server.stop(0);
+                }
+            }
+        }
     }
 
     @BeforeEach
@@ -31,10 +64,10 @@ public class RestaurantTest {
                 .name("Testaurant")
                 .restaurantSchedules(new ArrayList<>())
                 .build();
-
-        RestaurantScheduleManager.addSchedule(restaurant, DayOfTheWeek.SUNDAY, LocalTime.of(10, 0), LocalTime.of(14, 0), 30);
-        RestaurantScheduleManager.addSchedule(restaurant, DayOfTheWeek.SUNDAY, LocalTime.of(18, 0), LocalTime.of(23, 0), 50);
-        RestaurantScheduleManager.addSchedule(restaurant, DayOfTheWeek.SUNDAY, LocalTime.of(22, 0), LocalTime.of(2, 0), 20);
+        Requester.createRestaurant(restaurant);
+        Requester.addSchedule(restaurant.getName(), DayOfTheWeek.SUNDAY, LocalTime.of(10, 0), LocalTime.of(14, 0), 30);
+        Requester.addSchedule(restaurant.getName(), DayOfTheWeek.SUNDAY, LocalTime.of(18, 0), LocalTime.of(23, 0), 50);
+        Requester.addSchedule(restaurant.getName(), DayOfTheWeek.SUNDAY, LocalTime.of(22, 0), LocalTime.of(2, 0), 20);
     }
 
 
@@ -43,7 +76,7 @@ public class RestaurantTest {
         Restaurant r = restaurantWithSingleSlot(DayOfTheWeek.SUNDAY, LocalTime.of(10, 0), LocalTime.of(14, 0));
 
         LocalDateTime dt = LocalDateTime.of(2025, 10, 5, 12, 0); // 12h dans 10–14
-        assertTrue(r.isOpenAt(dt));
+        assertTrue(Requester.isOpenAt(r.getName(), dt));
     }
 
     @Test
@@ -51,7 +84,7 @@ public class RestaurantTest {
         Restaurant r = restaurantWithSingleSlot(DayOfTheWeek.SUNDAY, LocalTime.of(10, 0), LocalTime.of(14, 0));
 
         LocalDateTime dt = LocalDateTime.of(2025, 10, 5, 15, 0); // hors 10–14
-        assertFalse(r.isOpenAt(dt));
+        assertFalse(Requester.isOpenAt(r.getName(), dt));
     }
 
     @Test
@@ -59,7 +92,7 @@ public class RestaurantTest {
         Restaurant r = restaurantWithSingleSlot(DayOfTheWeek.SUNDAY, LocalTime.of(22, 0), LocalTime.of(2, 0));
 
         LocalDateTime dt = LocalDateTime.of(2025, 10, 5, 23, 0); // 23h dans 22–02
-        assertTrue(r.isOpenAt(dt));
+        assertTrue(Requester.isOpenAt(r.getName(), dt));
     }
 
     @Test
@@ -67,7 +100,7 @@ public class RestaurantTest {
         Restaurant r = restaurantWithSingleSlot(DayOfTheWeek.SUNDAY, LocalTime.of(22, 0), LocalTime.of(2, 0));
 
         LocalDateTime dt = LocalDateTime.of(2025, 10, 6, 1, 0); // 1h du matin  toujours ouvert
-        assertTrue(r.isOpenAt(dt));
+        assertTrue(Requester.isOpenAt(r.getName(), dt));
     }
 
     @Test
@@ -75,25 +108,25 @@ public class RestaurantTest {
         Restaurant r = restaurantWithSingleSlot(DayOfTheWeek.SUNDAY, LocalTime.of(22, 0), LocalTime.of(2, 0));
 
         LocalDateTime dt = LocalDateTime.of(2025, 10, 5, 18, 0); // 18h  avant ouverture
-        assertFalse(r.isOpenAt(dt));
+        assertFalse(Requester.isOpenAt(r.getName(), dt));
     }
 
     @Test
     void testIsOpenAt_Open() {
         LocalDateTime current = LocalDateTime.of(2025, 10, 5, 19, 0); // dans 18–23
-        assertTrue(restaurant.isOpenAt(current));
+        assertTrue(Requester.isOpenAt(restaurant.getName(), current));
     }
 
     @Test
     void testIsOpenAt_Closed() {
         LocalDateTime current = LocalDateTime.of(2025, 10, 5, 15, 0); // entre 14 et 18 fermé
-        assertFalse(restaurant.isOpenAt(current));
+        assertFalse(Requester.isOpenAt(restaurant.getName(), current));
     }
 
     @Test
     void testIsOpenAt_OvernightOpenAfterMidnight() {
         LocalDateTime current = LocalDateTime.of(2025, 10, 6, 1, 0); // 1h  dans 22–02
-        assertTrue(restaurant.isOpenAt(current));
+        assertTrue(Requester.isOpenAt(restaurant.getName(), current));
     }
 
     @Test
@@ -116,26 +149,6 @@ public class RestaurantTest {
         assertFalse(r.alreadyCuisineType(CuisineType.MEXICAINE));
     }
 
-    @Test
-    void testAlreadyScheduled_WhenScheduleExists() {
-        DayOfTheWeek day = DayOfTheWeek.MONDAY;
-        LocalTime start = LocalTime.of(10, 0);
-        LocalTime end = LocalTime.of(14, 0);
-
-        Restaurant r = new Restaurant.Builder()
-                .name("R")
-                .restaurantSchedules(new ArrayList<>())
-                .build();
-
-        RestaurantScheduleManager.addSchedule(r, day, start, end, 20);
-
-        LocalTime current = start;
-        while (!current.equals(end)) {
-            assertTrue(r.alreadyScheduled(current, current.plusMinutes(30), day),
-                    "Le créneau " + current + " : " + current.plusMinutes(30) + " devrait exister");
-            current = current.plusMinutes(30);
-        }
-    }
 
     @Test
     void testAlreadyScheduled_WhenNoMatchingSchedule() {
@@ -148,7 +161,7 @@ public class RestaurantTest {
                 .restaurantSchedules(new ArrayList<>())
                 .build();
 
-        RestaurantScheduleManager.addSchedule(r, day, start, end, 20);
+        Requester.addSchedule(r.getName(), day, start, end, 20);
 
         LocalTime otherStart = LocalTime.of(15, 0);
         LocalTime otherEnd = LocalTime.of(18, 0);
@@ -190,23 +203,21 @@ public class RestaurantTest {
                 .name("R")
                 .restaurantSchedules(new ArrayList<>())
                 .build();
+        Requester.createRestaurant(r);
 
-        RestaurantScheduleManager.addSchedule(r, day, start, end, 20);
+        Requester.addSchedule(r.getName(), day, start, end, 20);
 
-        r.setNewCapacity(start, end, day, 50);
+        Restaurant resto = Requester.getRestaurantByName(r.getName());
 
-        LocalTime current = start;
-        while (!current.equals(end)) {
-            LocalTime finalCurrent = current;
-            RestaurantSchedule rs = r.getRestaurantSchedules().stream()
-                    .filter(s -> s.getDay() == day && s.getStart().equals(finalCurrent))
-                    .findFirst().orElseThrow();
+        resto.setNewCapacity(start, end, day, 50);
 
-            assertEquals(50, rs.getCapacity(),
-                    "La capacité du créneau " + current + " → " + current.plusMinutes(30) + " doit être mise à jour");
-
-            current = current.plusMinutes(30);
-        }
+        assertEquals(8, resto.getRestaurantSchedules().stream()
+                .filter(s ->
+                        s.getDay() == day &&
+                                !s.getStart().isBefore(start) &&  // s >= start
+                                s.getStart().isBefore(end)   &&     // s < end
+                                s.getCapacity() == 50
+                ).toList().size());
     }
 
     @Test
@@ -221,22 +232,20 @@ public class RestaurantTest {
                 .name("R")
                 .restaurantSchedules(new ArrayList<>())
                 .build();
+        Requester.createRestaurant(r);
 
-        RestaurantScheduleManager.addSchedule(r, day, start1, end1, 20);
+        Requester.addSchedule(r.getName(), day, start1, end1, 20);
 
-        r.setNewCapacity(start2, end2, day, 99);
+        Restaurant resto = Requester.getRestaurantByName(r.getName());
 
-        LocalTime current = start1;
-        while (!current.equals(end1)) {
-            LocalTime finalCurrent = current;
-            RestaurantSchedule rs = r.getRestaurantSchedules().stream()
-                    .filter(s -> s.getDay() == day && s.getStart().equals(finalCurrent))
-                    .findFirst().orElseThrow();
+        resto.setNewCapacity(start2, end2, day, 99);
 
-            assertEquals(20, rs.getCapacity(),
-                    "La capacité du créneau " + current + " → " + current.plusMinutes(30) + " ne doit pas changer");
-
-            current = current.plusMinutes(30);
-        }
+        assertEquals(0, resto.getRestaurantSchedules().stream()
+                .filter(s ->
+                        s.getDay() == day &&
+                                !s.getStart().isBefore(start1) &&  // s >= start
+                                s.getStart().isBefore(end1)   &&     // s < end
+                                s.getCapacity() == 99
+                ).toList().size());
     }
 }

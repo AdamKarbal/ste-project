@@ -6,8 +6,12 @@ import { CuisineType } from "../models/cuisine-type.model";
 import { Dish } from "../models/dish.models";
 import { EstablishmentType } from "../models/establishment-type.model";
 import {RestaurantSchedule} from '../models/restaurant-schedule.model';
+import {Observable, Subject, tap} from 'rxjs';
+import {orderCreateResponse} from '../models/orderCreateResponse';
+import {ConsoleLogger} from '@angular/compiler-cli';
+import {orderService} from './orderService';
 
-
+n
 
 @Injectable({
   providedIn: 'root'
@@ -16,7 +20,7 @@ export class RestaurantService {
   baseUrl = 'http://localhost:8007';
   private apiUrl = 'http://localhost:8001/api/restaurant'
 
-  constructor(private http : HttpClient) {
+  constructor(private http : HttpClient, private OrderService:orderService) {
   }
 
   /** Obtenir tous les restaurants */
@@ -152,5 +156,24 @@ export class RestaurantService {
   }
   removeEstablishmentType(restaurantName: string): Observable<any> {
     return this.http.delete(`${this.apiUrl}/${restaurantName}/establishment-type`);
+  createOrder(body: any): Observable<number> {
+    return this.OrderService.createOrder(body);
+  }
+
+  async getRestaurantDetails(name: string) {
+    const url = `${this.baseUrl}/restaurants/filter?name=${encodeURIComponent(name)}`;
+    console.log(`[Service] 📡 Détails restaurant : "${name}" →`, url);
+
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`Erreur HTTP ${response.status}`);
+
+    const data = await response.json();
+
+    // Le backend renvoie une liste → on prend le premier
+    const restaurant = Array.isArray(data) ? data[0] : data;
+
+    console.log('[Service] 🍽️ Restaurant complet reçu :', restaurant);
+
+    return restaurant;
   }
 }

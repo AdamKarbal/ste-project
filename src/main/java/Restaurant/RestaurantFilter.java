@@ -1,5 +1,6 @@
 package Restaurant;
 
+import Api.Utils.Requester;
 import Dish.DishTag;
 import Restaurant.Enum.CuisineType;
 import Restaurant.Enum.establishmentType;
@@ -10,10 +11,15 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Stream;
 
 public class RestaurantFilter {
     RestaurantRepo restaurantRepo;
     public RestaurantFilter(RestaurantRepo restaurantRepo) {
+        this.restaurantRepo = restaurantRepo;
+    }
+
+    public void updateRepo(RestaurantRepo restaurantRepo) {
         this.restaurantRepo = restaurantRepo;
     }
 
@@ -27,7 +33,7 @@ public class RestaurantFilter {
     public List<Restaurant> filterByAvailability() {
         return restaurantRepo.getRestaurants()
                 .stream()
-                .filter(Restaurant::isOpenNow)
+                .filter(r -> Requester.isOpenNow(r.getName()))
                 .toList();
     }
 
@@ -36,7 +42,7 @@ public class RestaurantFilter {
 
         return restaurantRepo.getRestaurants()
                 .stream()
-                .filter(r -> r.isOpenAt(targetDateTime)) // ← utilise la version LocalDateTime de isOpenAt
+                .filter(r -> Requester.isOpenAt(r.getName(), targetDateTime))
                 .toList();
     }
 
@@ -57,9 +63,12 @@ public class RestaurantFilter {
     public List<Restaurant> filterByTag(DishTag tag) {
         return restaurantRepo.getRestaurants()
                 .stream()
-                .filter(restaurant ->
-                        restaurant.getDishes().stream()
-                                .flatMap(dish -> dish.getDishTag().stream())
+                .filter(r -> r.getDishes() != null &&
+                        r.getDishes().stream()
+                                .flatMap(dish -> {
+                                    var tags = dish.getDishTag();
+                                    return tags == null ? Stream.<DishTag>empty() : tags.stream();
+                                })
                                 .anyMatch(t -> t.equals(tag))
                 )
                 .toList();
@@ -68,9 +77,12 @@ public class RestaurantFilter {
     public List<Restaurant> filterByAllTags(List<DishTag> tags) {
         return restaurantRepo.getRestaurants()
                 .stream()
-                .filter(restaurant ->
-                        restaurant.getDishes().stream()
-                                .anyMatch(dish -> dish.getDishTag().containsAll(tags))
+                .filter(r -> r.getDishes() != null &&
+                        r.getDishes().stream()
+                                .anyMatch(dish -> {
+                                    var dishTags = dish.getDishTag();
+                                    return dishTags != null && dishTags.containsAll(tags);
+                                })
                 )
                 .toList();
     }
@@ -90,13 +102,22 @@ public class RestaurantFilter {
                 .stream()
                 .filter(restaurant ->
                         restaurant.getDishes().stream()
-                                .anyMatch(dish -> dish.getPrice() <= maxPrice)
+                                .filter(d -> d.getPrice() > 0)
+                                .anyMatch(d -> d.getPrice() <= maxPrice)
                 )
                 .toList();
     }
 
+
     public List<Restaurant> filterByPriceRange(double minPrice, double maxPrice) {
-        return restaurantRepo.getRestaurants()
+        System.out.println("=== DEBUG Prix min " + minPrice + " | Prix max " + maxPrice + " ===");
+        System.out.println("=== Avnat filtre DEBUG nb restaurants : " + Requester.getAllRestaurants().size());
+        restaurantRepo.getRestaurants().forEach(r -> System.out.println(
+                r.getName() + " : " +
+                        r.getDishes().stream().map(d -> d.getName() + "=" + d.getPrice()).toList()
+        ));
+
+        List<Restaurant> filtredResto = restaurantRepo.getRestaurants()
                 .stream()
                 .filter(restaurant ->
                         restaurant.getDishes().stream()
@@ -105,6 +126,14 @@ public class RestaurantFilter {
                                 )
                 )
                 .toList();
+
+        System.out.println("=== Après filtre DEBUG nb restaurants : " + filtredResto.size());
+        filtredResto.forEach(r -> System.out.println(
+                r.getName() + " : " +
+                        r.getDishes().stream().map(d -> d.getName() + "=" + d.getPrice()).toList()
+        ));
+
+        return filtredResto;
     }
 
 

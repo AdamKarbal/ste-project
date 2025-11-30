@@ -1,35 +1,43 @@
 package steps;
 
+import Api.Utils.Requester;
 import Utils.InvalidDate;
 import io.cucumber.java.Before;
 import io.cucumber.java.en.*;
 import io.cucumber.datatable.DataTable;
-import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.*;
 
 import java.time.LocalTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import Restaurant.Restaurant;
-import Restaurant.RestaurantRepo;
 import Restaurant.RestaurantService;
 import Restaurant.Enum.*;
 import Dish.*;
 import  Restaurant.*;
 
-public class RestaurantFilterSteps {
+import static steps.StartServer.catalogueInit;
 
-    private RestaurantRepo repo;
-    private RestaurantService service;
+public class RestaurantFilterSteps {
+    private final RestaurantService service = new RestaurantService();
     private List<Restaurant> resultats = new ArrayList<>();
 
-    @Before
-    public void setup() {
-        repo = new RestaurantRepo(new ArrayList<>());
-        service = new RestaurantService(repo);
-    }
 
     @Given("un catalogue de restaurants")
     public void un_catalogue_de_restaurants(DataTable table) {
+        Requester.getAllRestaurants().forEach(r -> System.out.println(
+                r.getName() + " : " +
+                        r.getDishes().stream().map(d -> d.getName() + "=" + d.getPrice()).toList()
+        ));
+        if (catalogueInit) {
+            System.out.println(">>> [Given catalogue RESTO] déjà initialisé, on ne recrée pas.");
+            return;
+        }
+        catalogueInit = true;
+        Requester.clearRestaurants();
+        System.out.println(">>> [Given catalogue RESTO] INITIALISATION");
+
         for(Map<String,String> row : table.asMaps()){
             String name = row.get("name");
             List<CuisineType> c = List.of(CuisineType.valueOf(row.get("cuisineType").toUpperCase()));
@@ -51,13 +59,13 @@ public class RestaurantFilterSteps {
                     .establishmentType(e)
                     .build();
 
+            Requester.createRestaurant(r);
+
             List<DayOfTheWeek> days = DayOfTheWeek.getRealDays();
             for (DayOfTheWeek day : days) {
-                RestaurantScheduleManager.addSchedule(r, day, hhmm(row.get("start1")), hhmm(row.get("end1")), Integer.parseInt(row.get("capacity1")));
-                RestaurantScheduleManager.addSchedule(r, day, hhmm(row.get("start2")), hhmm(row.get("end2")), Integer.parseInt(row.get("capacity2")));
+                Requester.addSchedule(name, day, hhmm(row.get("start1")), hhmm(row.get("end1")), Integer.parseInt(row.get("capacity1")));
+                Requester.addSchedule(name, day, hhmm(row.get("start2")), hhmm(row.get("end2")), Integer.parseInt(row.get("capacity2")));
             }
-
-            repo.addRestaurant(r);
         }
     }
 
@@ -69,7 +77,7 @@ public class RestaurantFilterSteps {
 
     @Then("je vois exactement {int} restaurants")
     public void je_vois_exactement_restaurants(int count) {
-        Assertions.assertEquals(count, resultats.size(),"Taille inattendue, il y a : " + resultats.toString() );
+        Assertions.assertEquals(count, resultats.size(),"Taille inattendue");
     }
 
     @And("la liste contient {string}")
@@ -116,6 +124,7 @@ public class RestaurantFilterSteps {
     @When("je filtre les restaurants avec un prix entre {double} et {double} euros")
     public void je_filtre_par_prix_min_et_max(double p1, double p2) {
         resultats = service.filterByPriceRange(p1,p2);
+        System.out.println(resultats);
     }
 
     @When("je filtre les restaurants avec un prix min de {double} euros")
@@ -142,12 +151,11 @@ public class RestaurantFilterSteps {
         resultats = service.filterByAllTags(tags);
     }
 
-    //filtres multiples
-
+    // filtres multiples
     @When("je commence une recherche")
     public void je_commence_une_recherche() {
         // point de départ = tout le catalogue
-        resultats = new ArrayList<>(repo.getRestaurants());
+        resultats = Requester.getAllRestaurants();
     }
 
     @And("j'applique le filtre cuisine {string}")
@@ -211,12 +219,24 @@ public class RestaurantFilterSteps {
     }
 
     // helper: intersecte en gardant l'ordre de la liste courante
-    private static <T> List<T> intersectOrdered(List<T> base, List<T> other) {
-        if (base.isEmpty() || other.isEmpty()) return java.util.Collections.emptyList();
-        List<T> res = new ArrayList<>();
-        for (T x : base) if (other.contains(x)) res.add(x);
+    private static List<Restaurant> intersectOrdered(List<Restaurant> base, List<Restaurant> other) {
+        if (base.isEmpty() || other.isEmpty()) return Collections.emptyList();
+
+        // on intersecte par nom (tu peux changer pour un id si tu en as un)
+        Set<String> namesOther = other.stream()
+                .map(Restaurant::getName)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+
+        List<Restaurant> res = new ArrayList<>();
+        for (Restaurant r : base) {
+            if (r.getName() != null && namesOther.contains(r.getName())) {
+                res.add(r);
+            }
+        }
         return res;
     }
+
 
     // --- Helpers SCHEDULES ---
     private static LocalTime hhmm(String s) {
@@ -254,8 +274,4 @@ public class RestaurantFilterSteps {
         }
         throw new IllegalArgumentException("Tag inconnu: " + raw);
     }
-
-
-
-
 }

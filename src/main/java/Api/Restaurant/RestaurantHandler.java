@@ -1,5 +1,6 @@
 package Api.Restaurant;
 
+import Api.Utils.Requester;
 import Restaurant.*;
 import Restaurant.Enum.CuisineType;
 import Restaurant.Enum.DayOfTheWeek;
@@ -114,14 +115,6 @@ public class RestaurantHandler implements HttpHandler {
             } catch (CuisineTypeInList e) {
                 sendErrorResponse(exchange, 409, e.getMessage());
             }
-        } else if (parts.length == 3 && parts[2].equals("schedules")) {
-            Map<String, Object> body = objectMapper.readValue(readRequestBody(exchange), Map.class);
-            DayOfTheWeek day = DayOfTheWeek.valueOf((String) body.get("day"));
-            LocalTime start = objectMapper.convertValue(body.get("start"), LocalTime.class);
-            LocalTime end = objectMapper.convertValue(body.get("end"), LocalTime.class);
-            int capacity = (int) body.get("capacity");
-            restaurantManager.updateSchedule(day, start, end, capacity, restaurantName);
-            sendResponse(exchange, 200, "{\"message\": \"Horaire mis à jour/ajouté\"}");
         } else {
             sendErrorResponse(exchange, 404, "Route POST inconnue : " + route);
         }
@@ -155,19 +148,8 @@ public class RestaurantHandler implements HttpHandler {
             } catch (dishNoInDishes e) {
                 sendErrorResponse(exchange, 404, e.getMessage());
             }
-        } else if (parts.length == 4 && parts[2].equals("schedules") && parts[3].equals("capacity")) {
-            Map<String, Object> body = objectMapper.readValue(readRequestBody(exchange), Map.class);
-            DayOfTheWeek day = DayOfTheWeek.valueOf((String) body.get("day"));
-            LocalTime start = objectMapper.convertValue(body.get("start"), LocalTime.class);
-            LocalTime end = objectMapper.convertValue(body.get("end"), LocalTime.class);
-            int capacity = (int) body.get("capacity");
-            try {
-                restaurantManager.updateCapacity(day, start, end, capacity, restaurantName);
-                sendResponse(exchange, 200, "{\"message\": \"Capacité mise à jour\"}");
-            } catch (ScheduleNoExist e) {
-                sendErrorResponse(exchange, 404, e.getMessage());
-            }
-        } else {
+        }
+        else {
             sendErrorResponse(exchange, 404, "Route PUT inconnue : " + route);
         }
     }

@@ -4,11 +4,9 @@ import Restaurant.Enum.CuisineType;
 import Restaurant.Enum.establishmentType;
 import Restaurant.Exception.dishNoInDishes;
 import Restaurant.Enum.*;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class Restaurant {
 
@@ -19,8 +17,7 @@ public class Restaurant {
     private List<CuisineType> CuisineTypes;
     private establishmentType establishmentType;
     //Constructeur
-    public Restaurant() {
-    }
+    public Restaurant() {}
 
     public Restaurant(Builder builder){
         this.name = builder.name;
@@ -118,6 +115,8 @@ public class Restaurant {
             return;
         }
 
+        System.out.println("AVANT MODIFICATION");
+        System.out.println(restaurantSchedules);
         restaurantSchedules.stream()
                 .filter(s ->
                         s.getDay() == day &&
@@ -125,6 +124,8 @@ public class Restaurant {
                                 s.getStart().isBefore(end)        // s < end
                 )
                 .forEach(s -> s.setCapacity(capacity));
+        System.out.println("APRES");
+        System.out.println(restaurantSchedules);
     }
 
     public void addCuisineType(CuisineType c) {
@@ -147,14 +148,6 @@ public class Restaurant {
                 .orElse(null);
     }
 
-
-
-
-    /*@Override
-    public String toString(){
-        return name + " " + establishmentType + "\n.";
-    }*/
-
     @Override
     public boolean equals(Object obj) {
         if (this == obj) return true;
@@ -169,20 +162,16 @@ public class Restaurant {
     }
     @Override
     public String toString(){
-        return "Nom : "+name+"plats :"+dishes+"schedules : "+restaurantSchedules+"typeCuisine"+getCuisineTypes();
+        return "======RESTAURANT======\n"
+                + "Nom : " + name + "\n"
+                + "Plats : " + dishes.stream()
+                .map(Object::toString)
+                .collect(Collectors.joining(", ")) + "\n"
+                + "Schedules : " + restaurantSchedules + "\n"
+                + "TypeCuisine : " + getCuisineTypes();
     }
-    @JsonIgnore
-    public boolean isOpenNow() {
-        return RestaurantScheduleManager.isOpenNow(this);
-    }
-    @JsonIgnore
-    public boolean isOpenAt(LocalDateTime dateTime) {
-        return RestaurantScheduleManager.isOpenAt(this, dateTime);
-    }
-
 
     // InnerClass builder pour éviter d'avoir à faire plusieurs constructeurs en fonction du nombre de paramètre qu'on entre
-
     public static class Builder {
         private String name;
         private List<Dish> dishes;

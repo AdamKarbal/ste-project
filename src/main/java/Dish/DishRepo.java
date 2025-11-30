@@ -3,6 +3,7 @@ package Dish;
 import Order.Order;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -17,6 +18,10 @@ public class DishRepo {
     public Dish save(Dish dish){
         dishes.put(dish.getId(),dish);
         return dish;
+    }
+
+    public List<Dish> getAllDishes(){
+        return dishes.values().stream().toList();
     }
 
     public boolean deleteById(int id){

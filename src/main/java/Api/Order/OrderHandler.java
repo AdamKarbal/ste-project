@@ -9,6 +9,8 @@ import Order.Order;
 import Order.OrderManager;
 import Order.OrderState;
 import Dish.DishNotFound;
+import Dish.DishAddedDTO;
+import Payment.PaymentDoneDTO;
 import Payment.PaymentMethod;
 import Restaurant.Restaurant;
 import Restaurant.Enum.establishmentType;
@@ -23,13 +25,7 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 
 import java.io.IOException;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.regex.Matcher;
@@ -81,7 +77,11 @@ public class OrderHandler implements HttpHandler{
             int dishId=Integer.parseInt(param[1]);
             String body = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
             boolean completed = orderManager.addItem(orderId,dishId,(Integer)mapper.readValue(body,Map.class).get("quantity"));
-            if(completed) Sender.sendResponse(exchange,200, Requester.getOrderById(orderId) +"");
+            if(completed){
+                Order currentOrder = Requester.getOrderById(orderId);
+                DishAddedDTO orderState = new DishAddedDTO(currentOrder.getId(),currentOrder.getDishes(),currentOrder.getPrice());
+                Sender.sendResponse(exchange,200, mapper.writeValueAsString(orderState));
+            }
             else{
                 Sender.sendResponse(exchange,400,"Dish not existing");
             }
@@ -101,7 +101,11 @@ public class OrderHandler implements HttpHandler{
             int orderId=Integer.parseInt(param[0]);
             int dishId=Integer.parseInt(param[1]);
             boolean completed = orderManager.removeItem(orderId,dishId);
-            if(completed) Sender.sendResponse(exchange,200, Requester.getOrderById(orderId) +"");
+            if(completed) {
+                Order currentOrder = Requester.getOrderById(orderId);
+                DishAddedDTO orderState = new DishAddedDTO(currentOrder.getId(),currentOrder.getDishes(),currentOrder.getPrice());
+                Sender.sendResponse(exchange,200, mapper.writeValueAsString(orderState));
+            }
             else{
                 Sender.sendResponse(exchange,400,"Dish not existing");
             }
@@ -117,11 +121,12 @@ public class OrderHandler implements HttpHandler{
             int orderId=Integer.parseInt(param[0]);
             PaymentMethod paymentMethod = PaymentMethod.valueOf((String) param[1].toUpperCase());
             OrderState state = orderManager.finishOrder(orderId,paymentMethod);
+            PaymentDoneDTO paymentDoneDTO = new PaymentDoneDTO(orderId,state);
             if(state==OrderState.PAID){
-                Sender.sendResponse(exchange,200,"commande payée");
+                Sender.sendResponse(exchange,200,mapper.writeValueAsString(paymentDoneDTO));
             }
             else{
-                Sender.sendResponse(exchange,401,"Erreur");
+                Sender.sendResponse(exchange,401,mapper.writeValueAsString(paymentDoneDTO));
             }
         } catch (IOException e) {
             System.out.println(e);

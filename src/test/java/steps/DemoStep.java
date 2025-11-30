@@ -1,45 +1,19 @@
 package steps;
 
-import Account.AccountUser;
 import Account.AccountService;
-import Api.AccountRepo.AccountRepoServer;
-import Api.DishRepo.DishRepoServer;
-import Api.Order.OrderServer;
-import Api.OrderRepo.OrderRepoServer;
-import Api.Restaurant.RestaurantServer;
-import Api.RestaurantRepo.RestaurantRepoServer;
 import Payment.PaymentMethod;
 import Payment.PaymentState;
-import Restaurant.*;
 import Account.AccountManager;
-import Restaurant.Exception.CuisineTypeInList;
-import Restaurant.Exception.DishAlreadyInDishes;
-import Restaurant.Exception.EstablishmentTypeAlreadySet;
 import Utils.InvalidDate;
-import com.sun.net.httpserver.HttpServer;
-import io.cucumber.java.Before;
-import io.cucumber.java.After;
-import io.cucumber.java.en.*;
 import io.cucumber.datatable.DataTable;
 
-
-import java.io.IOException;
 import java.time.LocalTime;
-import java.util.*;
 
 import Order.Order;
 import Order.OrderManager;
 
-import Account.AccountManager;
-import Account.AccountUser;
-import Api.RestaurantRepo.RestaurantRepoServer;
 import Dish.Dish;
 import Dish.DishTag;
-import Order.Order;
-import Order.OrderManager;
-import Order.OrderRepo;
-import Payment.PaymentMethod;
-import Payment.PaymentState;
 import Restaurant.Enum.CuisineType;
 import Restaurant.Enum.DayOfTheWeek;
 import Restaurant.Enum.establishmentType;
@@ -47,97 +21,43 @@ import Restaurant.Restaurant;
 import Restaurant.RestaurantFactory;
 import Restaurant.RestaurantManager;
 import Restaurant.RestaurantRepo;
-import Restaurant.RestaurantSchedule;
-import Restaurant.RestaurantScheduleManager;
 import Restaurant.RestaurantService;
-import Restaurant.Enum.*;
 import Dish.*;
-import Api.Utils.Requester;  // <-- NEW : pour relire les orders via ton service REST
+import Api.Utils.Requester;
 import org.junit.jupiter.api.Assertions;
 
-
-import Utils.InvalidDate;
-import com.sun.net.httpserver.HttpServer;
-import io.cucumber.datatable.DataTable;
-import io.cucumber.java.After;
-import io.cucumber.java.Before;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
-import org.junit.jupiter.api.Assertions;
 
-import java.io.IOException;
-import java.net.BindException;
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static steps.StartServer.catalogueInit;
+
 public class DemoStep {
+    private int currentOrderId;
 
-    private static HttpServer server;
-    private final int PORT = 8002;
-    private static boolean isServerRunning = false;
-    private RestaurantRepo repo;
-    private RestaurantService service;
-    private int currentOrderid;
-
-    private RestaurantManager manager;
-    private Restaurant currentRestaurantState;
-    private RestaurantRepo localDummyRepo;
-    private RestaurantService localDummyService;
-    private RestaurantFactory factory;
-    private String currentRestaurantName;;
+    private final AccountService accountService = new AccountService();
+    private final RestaurantManager manager = new RestaurantManager();
+    private final Map<String, AccountManager> restaurateurs = new HashMap<>();
     private OrderManager currentOrderManager;
-    private Map<String, AccountManager> restaurateurs = new HashMap<>();
-    private AccountUser client;
-    private List<Restaurant> restaurantsByType;
     private Restaurant currentRestaurant;
-    private RestaurantManager currentManager;
-    private AccountService accountService;
+    private String currentRestaurantName;
     private int currentClientId;
-    static HttpServer accountRepo;
-    static HttpServer dishRepo;
-    static HttpServer orderRepo;
-    static HttpServer orderHandler;
-    static HttpServer restoRepo;
-    static HttpServer restoHandler;
-
-    @Before(order = 0)
-    public static void setUpServers() throws IOException {
-        accountRepo= AccountRepoServer.startServer();
-        dishRepo = DishRepoServer.startServer();
-        orderRepo = OrderRepoServer.startServer();
-        orderHandler = OrderServer.startServer();
-        restoRepo = RestaurantRepoServer.startServer();
-        restoHandler = RestaurantServer.startServer();
-
-    }
-    @After(order = 0)
-    public static void stopServers(){
-        accountRepo.stop(0);
-        dishRepo.stop(0);
-        orderRepo.stop(0);
-        orderHandler.stop(0);
-        restoRepo.stop(0);
-        restoHandler.stop(0);
-    }
-
-    @Before
-    public void setup() {
-        repo = new RestaurantRepo(new ArrayList<>());
-        service = new RestaurantService(repo);
-        factory = new RestaurantFactory(service);
-        restaurateurs = new HashMap<>();
-        accountService = new AccountService();
-    }
 
     @Given("un catalogue de restos")
-    public void un_catalogue_de_restos(DataTable table) throws Exception {
-        manager=new RestaurantManager();
+    public void un_catalogue_de_restos(DataTable table) {
+        if (catalogueInit) {
+            System.out.println(">>> [Given catalogue] déjà initialisé, on ne recrée pas.");
+            return;
+        }
+        catalogueInit = true;
+
         for (Map<String, String> row : table.asMaps()) {
             String name = row.get("name");
             List<CuisineType> c = List.of(CuisineType.valueOf(row.get("cuisineType").toUpperCase()));
@@ -156,20 +76,19 @@ public class DemoStep {
                     .establishmentType(e)
                     .build();
 
+            Requester.createRestaurant(r);
+
             List<DayOfTheWeek> days = DayOfTheWeek.getRealDays();
             for (DayOfTheWeek day : days) {
-                RestaurantScheduleManager.addSchedule(r, day, hhmm(row.get("start1")), hhmm(row.get("end1")), Integer.parseInt(row.get("capacity1")));
-                RestaurantScheduleManager.addSchedule(r, day, hhmm(row.get("start2")), hhmm(row.get("end2")), Integer.parseInt(row.get("capacity2")));
+                Requester.addSchedule(name, day, hhmm(row.get("start1")), hhmm(row.get("end1")), Integer.parseInt(row.get("capacity1")));
+                Requester.addSchedule(name, day, hhmm(row.get("start2")), hhmm(row.get("end2")), Integer.parseInt(row.get("capacity2")));
             }
-            manager.saveRestaurant(r);
-            service.addRestaurant(r);
         }
     }
 
     @Given("que le restaurant {string} propose le plat {string} à {double}€")
-    public void que_le_restaurant_propose_le_plat_à_€(String restoName, String dishName, Double price) throws DishAlreadyInDishes {
-        currentRestaurant = service.getRestaurantByName(restoName);
-        currentManager = new RestaurantManager();
+    public void que_le_restaurant_propose_le_plat_à_€(String restoName, String dishName, Double price) {
+        currentRestaurant = Requester.getRestaurantByName(restoName);
 
         Assertions.assertNotNull(currentRestaurant);
 
@@ -180,10 +99,16 @@ public class DemoStep {
 
     @And("que {string} a un créneau de {int}:{int} à {int}:{int} avec une capacité de {int} repas")
     public void que_a_un_créneau_de_à_avec_une_capacité_de_repas(String restoName, Integer h1, Integer m1, Integer h2, Integer m2, Integer capacity) {
-        List<RestaurantSchedule> schedules = RestaurantScheduleManager.getSchedules(currentRestaurant);
         Assertions.assertTrue(
-                schedules.contains(new RestaurantSchedule(DayOfTheWeek.MONDAY, LocalTime.of(h1, m1), capacity))
+                Requester.getSchedules(restoName).stream().anyMatch(s ->
+                        s.getDay() == DayOfTheWeek.MONDAY &&
+                                s.getStart().equals(LocalTime.of(h1, m1)) &&
+                                s.getEnd().equals(LocalTime.of(h2, m2)) &&
+                                s.getCapacity() == capacity
+                ),
+                "Aucun créneau correspondant trouvé côté distant"
         );
+
     }
 
     @And("que le client {string} est connecté à son compte")
@@ -199,8 +124,9 @@ public class DemoStep {
 
     @When("{string} recherche les restaurants de type {string}")
     public void recherche_les_restaurants_de_type(String clientName, String typeStr) {
+        RestaurantService service = new RestaurantService(new RestaurantRepo(new ArrayList<>()));
         CuisineType type = CuisineType.valueOf(typeStr);
-        restaurantsByType = service.filterByCuisine(type);
+        List<Restaurant> restaurantsByType = service.filterByCuisine(type);
         Assertions.assertFalse(restaurantsByType.isEmpty());
     }
 
@@ -209,8 +135,9 @@ public class DemoStep {
         currentOrderManager = new OrderManager();
         // Nouveau : on passe l'ID du resto sous forme de String (ici le nom)
         Order order = currentOrderManager.createOrder(currentClientId, currentRestaurant.getName());
-        currentOrderid = order.getId();
+        currentOrderId = order.getId();
     }
+  
     @And("il ajoute {int} {string} à son panier")
     public void ilAjouteÀ€ÀSonPanier(int quantity, String dishName) throws Exception {
         // On récupère le vrai plat du restaurant par son nom
@@ -221,51 +148,43 @@ public class DemoStep {
 
         // On utilise son id pour l'OrderManager REST
         System.out.println("là"+chosenDish.getId()+"");
-        currentOrderManager.addItem(currentOrderid, chosenDish.getId(), quantity);
+        currentOrderManager.addItem(currentOrderId, chosenDish.getId(), quantity);
         System.out.println("c bon");
     }
-
-    /*@When("il choisit le créneau de {int}:{int} et valide sa commande")
-    public void il_choisit_le_créneau_de_et_valide_sa_commande(Integer h, Integer m) {
-        // Avec ton refactor actuel, chooseSchedule est commenté.
-        // Ici tu peux soit laisser vide pour l’instant, soit réimplémenter la logique
-        // dès que tu auras remis un service pour les créneaux.
-    }*/
 
     @When("il procède au paiement avec son crédit")
     public void il_procède_au_paiement_avec_son_crédit() {
         System.out.println("finsihOrder");
-        currentOrderManager.finishOrder(currentOrderid, PaymentMethod.CASH);
+        currentOrderManager.finishOrder(currentOrderId, PaymentMethod.CASH);
         System.out.println("c bon ?");
     }
 
     @Then("le paiement doit être accepté et une commande payeé par cash doit être créée pour {string}")
     public void le_paiement_doit_être_accepté_et_une_commande_n_doit_être_créée_pour(String clientName) {
-        Order order = Requester.getOrderById(currentOrderid);
+        Order order = Requester.getOrderById(currentOrderId);
         Assertions.assertNotNull(order, "Order not found");
         // On vérifie que l'historique du client contient bien un paiement PAID pour cette order
-        PaymentState state = order.getClient().getOrderHistory().get(currentOrderid).getStatus();
+        PaymentState state = order.getClient().getOrderHistory().get(currentOrderId).getStatus();
         Assertions.assertEquals(PaymentState.PAID, state);
     }
 
     @Then("l'historique de commandes de {string} doit contenir {int} commande")
     public void l_historique_de_commandes_de_doit_contenir_la_commande_n(String name, Integer expectedCount) {
-        Order order = Requester.getOrderById(currentOrderid);
+        Order order = Requester.getOrderById(currentOrderId);
         Assertions.assertNotNull(order, "Order not found");
         Assertions.assertEquals(expectedCount.intValue(), order.getClient().getOrderHistory().size());
     }
 
-    /*@Then("la capacité du créneau de {int}:{int} à {int}:{int} de {string} doit être maintenant de {int} repas")
+    @Then("la capacité du créneau de {int}:{int} à {int}:{int} de {string} doit être maintenant de {int} repas")
     public void la_capacité_du_créneau_de_à_de_doit_être_maintenant_de_repas(Integer h1, Integer m1, Integer h2, Integer m2, String restoName, Integer expectedCapacity) {
-        Order order = Requester.getOrderById(currentOrderid);
+        Order order = Requester.getOrderById(currentOrderId);
         Assertions.assertNotNull(order, "Order not found");
 
-        // ⚠️ Ce check ne sera vrai que si tu remets la logique de décrément dans ton code métier.
         Assertions.assertEquals(
-                RestaurantScheduleManager.getCapacityById(currentRestaurant, order.getIdSchedule()),
+                Requester.getScheduleCapacity(currentRestaurant.getName(), order.getIdSchedule()),
                 expectedCapacity
         );
-    }*/
+    }
 
 
     @Given("le restaurateur {string} à été enregistré")
@@ -278,14 +197,14 @@ public class DemoStep {
     public void crée_son_restaurant(String nomRestaurateur, String nomRestaurant) {
         AccountManager account = restaurateurs.get(nomRestaurateur);
         Assertions.assertNotNull(account);
-        account.createRestaurant(nomRestaurant, this.factory);
-
+        account.createRestaurant(nomRestaurant, new RestaurantFactory());
+        System.out.println(Requester.getRestaurantByName(nomRestaurant));
         currentRestaurantName = nomRestaurant;
-        currentRestaurantState = manager.getRestaurantFromRepo(nomRestaurant);
     }
 
     @When("Il le configure : cuisineType {string}")
     public void il_le_configure_cuisine_type(String type) throws Exception {
+        System.out.println(Requester.getRestaurantByName(currentRestaurantName));
         manager.addCuisineType(CuisineType.valueOf(type.toUpperCase()), currentRestaurantName);
     }
 
@@ -302,10 +221,11 @@ public class DemoStep {
 
     @When("Il ajoute un creneau de {int}:{int} à {int}:{int} avec {int} capacités")
     public void il_ajoute_un_creneau(Integer h1, Integer m1, Integer h2, Integer m2, Integer cap) {
-        manager.updateSchedule(DayOfTheWeek.MONDAY,
+        Requester.addSchedule(currentRestaurantName,
+                DayOfTheWeek.MONDAY,
                 LocalTime.of(h1, m1),
                 LocalTime.of(h2, m2),
-                cap, currentRestaurantName);
+                cap);
     }
 
     @Then("Le restaurant doit être disponible sous le nom de {string}")

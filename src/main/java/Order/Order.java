@@ -34,6 +34,7 @@ public class Order {
     private int clientId;
     private OrderDeliveryPoint deliveryPoint;
     private LocalDateTime deliveryTime;
+    private RestaurantScheduleManager scheduleManager;
     private String idSchedule;
     public Order(int clientId,String restaurantId){
         compteur++;
@@ -103,10 +104,9 @@ public class Order {
     }
 
     public RestaurantSchedule chooseSchedule(LocalTime time) {
-        RestaurantSchedule schedule = RestaurantScheduleManager
-                .getAvailableScheduleFor(Requester.getRestaurantByName(getRestaurant()), time)
+        RestaurantSchedule schedule = scheduleManager
+                .getAvailableScheduleFor(getRestaurant(), time)
                 .orElseThrow(() -> new ScheduleNoExist("Aucun créneau disponible à cette heure : " + time));
-
         setIdSchedule(schedule.getId());
         setDeliveryTime(LocalDateTime.of(LocalDate.now(), time));
         return schedule;

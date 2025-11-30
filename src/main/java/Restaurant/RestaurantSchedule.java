@@ -26,6 +26,14 @@ public class RestaurantSchedule {
         this.capacity = capacity;
     }
 
+    public RestaurantSchedule(String id, DayOfTheWeek day, LocalTime start, LocalTime end, int capacity) {
+        this.id = id;
+        this.day = day;
+        this.start = start;
+        this.end = end;
+        this.capacity = capacity;
+    }
+
     private LocalTime normalizeStartTime(LocalTime time) {
         int minute = time.getMinute();
         if (minute < 15) minute = 0;
@@ -43,7 +51,7 @@ public class RestaurantSchedule {
     public LocalTime getEnd() { return end; }
     public int getCapacity() { return capacity; }
 
-    public void setCapacity(int capacity) { this.capacity = capacity; }
+    public void setCapacity(int capacity) {this.capacity = capacity;}
 
     public void addCapacity(int capacity){
         this.capacity+=capacity;

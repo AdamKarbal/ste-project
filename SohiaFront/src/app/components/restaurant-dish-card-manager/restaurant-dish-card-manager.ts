@@ -20,7 +20,7 @@ import {
 
 export class RestaurantDishCardManagerComponent {
   @Input() dish!: Dish;
-  @Output() update = new EventEmitter<{ oldName: string, newDish: Dish }>();
+  @Output() update = new EventEmitter<{ oldId: number, newDish: Dish }>();
   @Output() delete = new EventEmitter<string>();
 
   isEditing = false;
@@ -52,13 +52,13 @@ export class RestaurantDishCardManagerComponent {
   }
 
   onSave() {
-    console.log('Enfant - Sauvegarde :', { original: this.dish.name, modified: this.tempDish });
-    if (!this.dish || !this.dish.name) {
-      console.error("Erreur : Le plat original n'a pas de nom !", this.dish);
+    console.log('Enfant - Sauvegarde :', { original: this.dish.id, modified: this.tempDish });
+    if (!this.dish || !this.dish.id) {
+      console.error("Erreur : Le plat original n'a pas d'id !", this.dish);
       return;
     }
     this.update.emit({
-      oldName: this.dish.name,
+      oldId: this.dish.id!,
       newDish: this.tempDish
     });
     this.isEditing = false;

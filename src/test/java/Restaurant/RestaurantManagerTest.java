@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static java.lang.Thread.sleep;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class RestaurantManagerTest {
@@ -98,11 +99,11 @@ public class RestaurantManagerTest {
 
     @Test
     void testUpdateDish_ReplacesOldDishWithNewOne() throws Exception {
-        Dish oldDish = new Dish(10f, "Old Dish", "", DishCategory.STARTER, DishType.MEAT, new ArrayList<>());
-        Dish newDish = new Dish(12f, "New Dish", null, null, null, new ArrayList<>());
+        Dish newDish = new Dish(12f, "New Dish", "", DishCategory.DESSERT, DishType.OTHER, new ArrayList<>());
 
-        manager.addDish(oldDish, TEST_RESTO_NAME);
-        manager.updateDish(oldDish, newDish, TEST_RESTO_NAME);
+        Dish oldDish = manager.addDish(new Dish(10f, "Old Dish", "", DishCategory.STARTER, DishType.MEAT, new ArrayList<>()), TEST_RESTO_NAME);
+        //sleep(10000);
+        manager.updateDish(oldDish.getId(), newDish, TEST_RESTO_NAME);
 
         Restaurant updatedResto = Requester.getRestaurantByName(TEST_RESTO_NAME);
 

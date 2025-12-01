@@ -102,15 +102,15 @@ export class RestaurantManagerPageComponent implements OnInit {
     });
   }
 
-  onUpdateDish(event: { oldName: string, newDish: Dish }) {
-    if (!event || !event.oldName || !event.newDish) {
+  onUpdateDish(event: { oldId: number, newDish: Dish }) {
+    if (!event || !event.oldId || !event.newDish) {
       console.error("Erreur : Données de mise à jour incomplètes", event);
       return;
     }
 
     this.service.updateDish(
       this.restaurantName,
-      event.oldName,
+      event.oldId,
       event.newDish
     ).subscribe({
       next: () => this.loadData(),

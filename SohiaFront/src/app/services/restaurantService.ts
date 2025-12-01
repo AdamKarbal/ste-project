@@ -16,6 +16,7 @@ import {orderService} from './orderService';
 })
 export class RestaurantService {
   baseUrl = 'http://localhost:8008';
+  repoUrl = 'http://localhost:8002/api/restaurantrepo/'
   private apiUrl = 'http://localhost:8009/api/restaurant'
 
   constructor(private http : HttpClient, private OrderService:orderService) {
@@ -24,7 +25,7 @@ export class RestaurantService {
   /** Obtenir tous les restaurants */
   async getAllRestaurants() {
     console.log('[Service] 📡 Chargement de tous les restaurants...');
-    const response = await fetch(`${this.baseUrl}/restaurants`);
+    const response = await fetch(this.repoUrl);
     if (!response.ok) {
       console.error(`[Service] ❌ Erreur HTTP ${response.status}`);
       throw new Error(`Erreur HTTP ${response.status}`);

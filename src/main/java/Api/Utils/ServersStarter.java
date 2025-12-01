@@ -2,7 +2,9 @@ package Api.Utils;
 
 import Api.AccountRepo.AccountRepoServer;
 import Api.Customer.CustomerServer;
+import Api.DishAi.DishAiServer;
 import Api.DishRepo.DishRepoServer;
+import Api.MockAi.MockAiServer;
 import Api.Order.OrderServer;
 import Api.OrderRepo.OrderRepoServer;
 import Api.Restaurant.RestaurantServer;
@@ -22,6 +24,8 @@ public class ServersStarter {
             RestaurantServer.startServer();
             RestaurantRepoServer.startServer();
             RestaurantScheduleServer.startServer();
+            DishAiServer.startServer();
+            MockAiServer.startServer();
         } catch (IOException e){
             e.printStackTrace();
         }

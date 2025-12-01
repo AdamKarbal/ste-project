@@ -11,7 +11,6 @@ import java.util.Locale;
 
 public class Dish {
     private double price;
-    //private static int compteur=0;
     private String name;
     private String description;
     private DishCategory category;

@@ -1,6 +1,7 @@
 package Api.Utils;
 
 import Account.AccountUser;
+import Dish.AiGeneration.DishAiResult;
 import Dish.Dish;
 import Dish.DishCreateDTO;
 import Dish.DishNotFound;
@@ -834,6 +835,41 @@ public class Requester {
             throw new RuntimeException("Erreur getScheduleCapacity(" + restaurantName + ", " + scheduleId + ")", e);
         }
     }
+
+    public static DishAiResult generateDishFromAI(String name, String image, String domain) {
+        try {
+            HttpClient client = HttpClient.newHttpClient();
+
+            // Construire le body JSON attendu par l'API DishAi
+            Map<String, Object> payload = Map.of(
+                    "name", name,
+                    "image", image,
+                    "domain", domain
+            );
+
+            String jsonBody = mapper.writeValueAsString(payload);
+
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create("http://localhost:8010/api/dishai/"))
+                    .header("Content-Type", "application/json")
+                    .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
+                    .build();
+
+            HttpResponse<String> response =
+                    client.send(request, HttpResponse.BodyHandlers.ofString());
+
+            if (response.statusCode() != 200) {
+                throw new RuntimeException("Erreur IA : code HTTP = " + response.statusCode());
+            }
+
+            // Désérialisation en DishAiResult
+            return mapper.readValue(response.body(), DishAiResult.class);
+
+        } catch (Exception e) {
+            throw new RuntimeException("Erreur lors de generateDishFromAI()", e);
+        }
+    }
+
 
     /**
      * Petit helper pour encoder proprement le nom du restaurant dans l'URL

@@ -32,6 +32,7 @@ public class DishRepoHandler implements HttpHandler {
         this.repo=repo;
         ApiRegistry.addRoute("GET","/api/dishRepo/{dishId}/",this::getDish);
         ApiRegistry.addRoute("POST","/api/dishRepo/",this::createDish);
+        ApiRegistry.addRoute("GET","/api/dishRepo/",this::getAllDishes);
     }
     private void getDish(HttpExchange exchange,String... params) throws IOException {
         try{

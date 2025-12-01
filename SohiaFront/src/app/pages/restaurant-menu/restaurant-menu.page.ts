@@ -20,7 +20,7 @@ import {DishCreateResponse} from '../../models/dishCreateResponse';
 import {orderService} from '../../services/orderService';
 import {orderStateModel} from '../../models/orderStateModel';
 import {RestaurantService} from '../../services/restaurantService';
-import {Restaurant} from '../../models/restaurant.model';
+import {RestaurantCarte} from '../../models/restaurant';
 
 interface CartItem {
   dish: Dish;
@@ -43,7 +43,7 @@ interface CartItem {
 })
 export class RestaurantMenuPage implements OnInit {
 
-  restaurant: Restaurant | null = null;
+  restaurant: RestaurantCarte | null = null;
   isLoading = true;
   errorMessage: string | null = null;
 
@@ -77,8 +77,7 @@ export class RestaurantMenuPage implements OnInit {
   private loadRestaurant(name: string): void {
     this.isLoading = true;
     this.errorMessage = null;
-
-    this.restaurantService.getRestaurantById(id).subscribe({
+    this.restaurantService.getRestaurantById(name).subscribe({
       next: (restaurant) => {
         console.log('🔍 Restaurant brut reçu depuis l’API :', restaurant);
         this.restaurant = restaurant;
@@ -90,7 +89,7 @@ export class RestaurantMenuPage implements OnInit {
         this.isLoading = false;
       }
     });
-    this.restaurantService.getSchedulesToday(id).subscribe({
+    this.restaurantService.getSchedulesToday(name).subscribe({
       next: (schedules)=>{
         console.log('schedules reçus',schedules);
         this.restaurant!.restaurantSchedules = schedules;

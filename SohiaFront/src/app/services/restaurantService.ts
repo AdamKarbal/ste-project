@@ -1,17 +1,13 @@
 import { Injectable } from '@angular/core';
-import {map, Observable, Subject, tap} from 'rxjs';
 import { HttpClient } from '@angular/common/http';
-import { Restaurant } from '../models/restaurant.model';
 import { CuisineType } from "../models/cuisine-type.model";
 import { Dish } from "../models/dish.models";
 import { EstablishmentType } from "../models/establishment-type.model";
 import {RestaurantSchedule} from '../models/restaurant-schedule.model';
-import {Observable, Subject, tap} from 'rxjs';
-import {orderCreateResponse} from '../models/orderCreateResponse';
-import {ConsoleLogger} from '@angular/compiler-cli';
 import {orderService} from './orderService';
-import {RestaurantSchedule} from '../models/restaurant-schedule.model';
-import {Restaurant} from '../models/restaurant';
+import {RestaurantCarte} from '../models/restaurant';
+import {Restaurant} from '../models/restaurant.model';
+import {map, Observable} from 'rxjs';
 
 
 @Injectable({
@@ -19,7 +15,7 @@ import {Restaurant} from '../models/restaurant';
 })
 export class RestaurantService {
   baseUrl = 'http://localhost:8008';
-  repoUrl = 'http://localhost:8002/api/restaurantrepo'
+  restoRepoUrl = 'http://localhost:8002/api/restaurantrepo'
   private apiUrl = 'http://localhost:8009/api/restaurant'
   scheduleUrl = 'http://localhost:8007/api/schedule'
   constructor(private http : HttpClient, private OrderService:orderService) {
@@ -28,7 +24,7 @@ export class RestaurantService {
   /** Obtenir tous les restaurants */
   async getAllRestaurants() {
     console.log('[Service] 📡 Chargement de tous les restaurants...');
-    const response = await fetch(this.repoUrl);
+    const response = await fetch(`${this.baseUrl}/restaurants`);
     if (!response.ok) {
       console.error(`[Service] ❌ Erreur HTTP ${response.status}`);
       throw new Error(`Erreur HTTP ${response.status}`);
@@ -186,14 +182,14 @@ export class RestaurantService {
 
     return this.http.get<RestaurantSchedule[]>(url);
   }
-  getRestaurantById(id: string): Observable<Restaurant> {
+  getRestaurantById(id: string): Observable<RestaurantCarte> {
     const url = `${this.restoRepoUrl}/${id}/`;
-    return this.http.get<Restaurant>(url).pipe(
+    return this.http.get<RestaurantCarte>(url).pipe(
       map(reponse => this.mapRestaurantToModel(reponse) )
     )
   }
 
-  mapRestaurantToModel(restaurant:Restaurant) : Restaurant{
+  mapRestaurantToModel(restaurant:RestaurantCarte) : RestaurantCarte{
     return{
       name:restaurant.name,
       dishes:restaurant.dishes

@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Payment } from '../../../models/payment.model';
 import { PaymentState } from '../../../models/payment-state.enum';
 
+
 @Component({
   selector: 'se-payment-status',
   standalone: true,
@@ -12,7 +13,7 @@ import { PaymentState } from '../../../models/payment-state.enum';
 })
 export class PaymentStatusComponent {
 
-  @Input() payment?: Payment;
+  @Input() payment: any | null = null;
   @Input() isPaying = false;
 
   PaymentState = PaymentState;

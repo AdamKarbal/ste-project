@@ -1,14 +1,37 @@
 <app-navbar></app-navbar>
 
 <main class="payment-page-container">
+
   <section class="payment-page-content">
 
     <header class="payment-header">
       <h1 class="payment-title">Paiement de la commande #{{ orderId }}</h1>
       <p class="payment-subtitle">
-        Choisis ta méthode de paiement et valide ta commande SophiaEat.
+        Choisis ta méthode de paiement, ton adresse de livraison puis valide ta commande SophiaEat.
       </p>
     </header>
+
+    <div class="payment-address-bar">
+      <div class="payment-address-info">
+        <ng-container *ngIf="deliveryAddress; else noAddress">
+          <span class="address-label">Adresse de livraison :</span>
+          <span class="address-value">
+            {{ deliveryAddress.fullName }}, {{ deliveryAddress.street }},
+            {{ deliveryAddress.postalCode }} {{ deliveryAddress.city }}
+          </span>
+        </ng-container>
+        <ng-template #noAddress>
+          <span class="address-label">Aucune adresse de livraison sélectionnée.</span>
+        </ng-template>
+      </div>
+
+      <button
+        type="button"
+        class="address-button"
+        (click)="openAddressModal()">
+        {{ deliveryAddress ? 'Modifier l’adresse' : 'Choisir une adresse de livraison' }}
+      </button>
+    </div>
 
     <div class="payment-layout">
 
@@ -23,6 +46,7 @@
           [orderId]="orderId"
           [selectedMethod]="selectedMethod"
           [totalAmount]="totalAmount"
+          [canPay]="canPay"
           (pay)="onPay()"
           [isPaying]="isPaying">
         </se-payment-summary>
@@ -30,12 +54,19 @@
 
       <section class="payment-col payment-col--right">
         <se-payment-status
+          [payment]="payment"
           [isPaying]="isPaying">
         </se-payment-status>
       </section>
 
     </div>
   </section>
-</main>
 
+  <se-delivery-address-modal
+    [visible]="isAddressModalOpen"
+    [initialAddress]="deliveryAddress"
+    (saved)="onAddressSaved($event)"
+    (closed)="onAddressModalClosed()">
+  </se-delivery-address-modal>
+</main>
 <app-footer></app-footer>

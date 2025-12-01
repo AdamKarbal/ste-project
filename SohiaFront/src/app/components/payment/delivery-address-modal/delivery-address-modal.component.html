@@ -1,0 +1,78 @@
+<div class="modal-backdrop" *ngIf="visible">
+  <div class="modal-dialog">
+    <h2 class="modal-title">Adresse de livraison</h2>
+
+    <form class="modal-form" (ngSubmit)="onSave()">
+
+      <label class="field">
+        <span>Nom complet</span>
+        <input
+          type="text"
+          [(ngModel)]="model.fullName"
+          name="fullName"
+          required
+        />
+      </label>
+
+      <label class="field">
+        <span>Adresse</span>
+        <input
+          type="text"
+          [(ngModel)]="model.street"
+          name="street"
+          required
+        />
+      </label>
+
+      <div class="field-row">
+        <label class="field">
+          <span>Code postal</span>
+          <input
+            type="text"
+            [(ngModel)]="model.postalCode"
+            name="postalCode"
+            required
+          />
+        </label>
+
+        <label class="field">
+          <span>Ville</span>
+          <input
+            type="text"
+            [(ngModel)]="model.city"
+            name="city"
+            required
+          />
+        </label>
+      </div>
+
+      <label class="field">
+        <span>Pays</span>
+        <input
+          type="text"
+          [(ngModel)]="model.country"
+          name="country"
+          required
+        />
+      </label>
+
+      <label class="field">
+        <span>Infos complémentaires (interphone, étage…)</span>
+        <textarea
+          rows="2"
+          [(ngModel)]="model.additionalInfo"
+          name="additionalInfo"
+        ></textarea>
+      </label>
+
+      <div class="modal-actions">
+        <button type="button" class="btn-secondary" (click)="onCancel()">
+          Annuler
+        </button>
+        <button type="submit" class="btn-primary">
+          Valider l'adresse
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

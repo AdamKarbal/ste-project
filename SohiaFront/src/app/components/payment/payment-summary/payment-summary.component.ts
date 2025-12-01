@@ -15,6 +15,7 @@ export class PaymentSummaryComponent {
   @Input() selectedMethod?: PaymentMethod;
   @Input() isPaying = false;
   @Input() totalAmount = 0;
+  @Input() canPay = false;
 
   @Output() pay = new EventEmitter<void>();
 }

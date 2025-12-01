@@ -101,8 +101,8 @@ public class RestaurantHandler implements HttpHandler {
         if (parts.length == 3 && parts[2].equals("dishes")) {
             try {
                 Dish dish = objectMapper.readValue(readRequestBody(exchange), Dish.class);
-                restaurantManager.addDish(dish, restaurantName);
-                sendResponse(exchange, 201, "{\"message\": \"Plat ajouté\"}");
+                Dish created = restaurantManager.addDish(dish, restaurantName);
+                sendResponse(exchange, 201, objectMapper.writeValueAsString(created));
             } catch (DishAlreadyInDishes e) {
                 sendErrorResponse(exchange, 409, e.getMessage());
             }

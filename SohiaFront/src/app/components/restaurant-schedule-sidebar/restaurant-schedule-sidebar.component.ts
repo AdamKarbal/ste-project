@@ -23,46 +23,18 @@ export class RestaurantScheduleSidebarComponent {
   /** Événement quand un créneau est sélectionné */
   @Output() scheduleSelected = new EventEmitter<RestaurantSchedule>();
 
-  /** Ordre officiel des jours (optionnel si tu veux trier) */
+  /** Ordre des jours si on veut trier par jour puis par heure */
   private readonly DAY_ORDER = ['MONDAY','TUESDAY','WEDNESDAY','THURSDAY','FRIDAY','SATURDAY','SUNDAY'];
 
-  /** Groupe les créneaux par jour */
-  get groupedSchedulesByDay(): { day: string; label: string; slots: RestaurantSchedule[] }[] {
-    const groups = new Map<string, RestaurantSchedule[]>();
-
-    for (const s of this.schedules ?? []) {
-      const day = s.day;
-      if (!groups.has(day)) {
-        groups.set(day, []);
-      }
-      groups.get(day)!.push(s);
-    }
-
-    // tri par heure de début dans chaque jour, en gérant string ou objet
-    for (const [, slots] of groups) {
-      slots.sort((a, b) => this.timeToMinutes(a.start) - this.timeToMinutes(b.start));
-    }
-
-    // si tu veux l'ordre Lundi -> Dimanche :
-    return this.DAY_ORDER.map(day => ({
-      day,
-      label: this.getDayLabel(day),
-      slots: groups.get(day) ?? []
-    }));
-  }
-
-  /** Map MONDAY, TUESDAY... -> Lundi, Mardi... */
-  private getDayLabel(day: string): string {
-    switch (day) {
-      case 'MONDAY': return 'Lundi';
-      case 'TUESDAY': return 'Mardi';
-      case 'WEDNESDAY': return 'Mercredi';
-      case 'THURSDAY': return 'Jeudi';
-      case 'FRIDAY': return 'Vendredi';
-      case 'SATURDAY': return 'Samedi';
-      case 'SUNDAY': return 'Dimanche';
-      default: return day;
-    }
+  /** Liste plate triée (jour puis heure) */
+  get sortedSchedules(): RestaurantSchedule[] {
+    if (!this.schedules) return [];
+    return [...this.schedules].sort((a, b) => {
+      const dayDiff =
+        this.DAY_ORDER.indexOf(a.day) - this.DAY_ORDER.indexOf(b.day);
+      if (dayDiff !== 0) return dayDiff;
+      return this.timeToMinutes(a.start) - this.timeToMinutes(b.start);
+    });
   }
 
   /** Format simple en "HH:mm" à partir de string ou objet LocalTime sérialisé */

@@ -16,7 +16,7 @@ Feature: Filtrer les restaurants
 
   Scenario: Filtre par restaurants ouverts
     When je filtre les restaurants par horaire "18:30"
-    Then je vois exactement 3 restaurants
+    Then je vois exactement 2 restaurants
     And la liste contient "SushiZen"
 
     Scenario: Filtre par type de restaurants

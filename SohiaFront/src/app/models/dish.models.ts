@@ -74,7 +74,7 @@ export interface Dish {
   category: DishCategory;
   type: DishType;
   dishTag: DishTag[];
-
+  id?:number;
   availableToppings?: any[];
   selectedToppings?: any[];
 }

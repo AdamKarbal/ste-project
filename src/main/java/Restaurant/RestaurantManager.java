@@ -17,16 +17,17 @@ public class RestaurantManager {
         Restaurant restaurant = getRestaurantFromRepo(name);
         if(restaurant.alreadyDish(d)) throw new DishAlreadyInDishes("Le plat "+ d+ " est déjà dans le restaurant." ) ;
         Dish created = Requester.createDish(d.toCreateDTO());
-        System.out.println(new ObjectMapper().writeValueAsString(created));
         restaurant.addDish(created);
         saveRestaurant(restaurant);
         return created;
     }
 
-    public void updateDish(Dish old, Dish replacement,String name) throws dishNoInDishes {
+    public void updateDish(Dish old, Dish replacement,String name) throws dishNoInDishes, JsonProcessingException {
         Restaurant restaurant = getRestaurantFromRepo(name);
         if(!(restaurant.alreadyDish(old))) throw new dishNoInDishes("Impossible de mettre à jour le plat, il n'est pas présent.");
         restaurant.removeDish(old);
+        System.out.println(new ObjectMapper().writeValueAsString(old));
+        Requester.updateDish(replacement.getId(),replacement);
         restaurant.addDish(replacement);
         saveRestaurant(restaurant);
     }

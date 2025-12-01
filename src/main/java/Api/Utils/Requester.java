@@ -350,6 +350,30 @@ public class Requester {
         }
     }
 
+    public static Dish updateDish(int dishId, Dish dto) {
+        try {
+            String json = mapper.writeValueAsString(dto);
+
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create("http://localhost:8004/api/dishRepo/" + dishId + "/"))
+                    .header("Content-Type", "application/json")
+                    .PUT(HttpRequest.BodyPublishers.ofString(json))
+                    .build();
+
+            HttpClient client = HttpClient.newHttpClient();
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+            if (response.statusCode() != 200) {
+                throw new RuntimeException("Erreur PUT : code " + response.statusCode());
+            }
+
+            return mapper.readValue(response.body(), Dish.class);
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 
     public static Order createOrder(Order order) {
         try {

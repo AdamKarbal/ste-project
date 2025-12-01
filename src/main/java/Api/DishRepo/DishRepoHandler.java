@@ -33,6 +33,7 @@ public class DishRepoHandler implements HttpHandler {
         ApiRegistry.addRoute("GET","/api/dishRepo/{dishId}/",this::getDish);
         ApiRegistry.addRoute("POST","/api/dishRepo/",this::createDish);
         ApiRegistry.addRoute("GET","/api/dishRepo/",this::getAllDishes);
+        ApiRegistry.addRoute("PUT","/api/dishRepo/{dishId}/",this::updateDish);
     }
     private void getDish(HttpExchange exchange,String... params) throws IOException {
         try{
@@ -90,6 +91,56 @@ public class DishRepoHandler implements HttpHandler {
             Sender.sendResponse(exchange,400,"Param manquant");
         }
     }
+
+    private void updateDish(HttpExchange exchange, String... params) throws IOException {
+        try {
+            int id = Integer.parseInt(URLDecoder.decode(params[0], StandardCharsets.UTF_8));
+            Optional<Dish> optionalDish = repo.findById(id);
+
+            if (optionalDish.isEmpty()) {
+                Sender.sendResponse(exchange, 404, "{\"error\":\"Dish not found\"}");
+                return;
+            }
+
+            Dish dish = optionalDish.get();
+
+            String body = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
+            Map<String, Object> attributes = mapper.readValue(body, Map.class);
+
+            Number priceNumber = (Number) attributes.get("price");
+            String name = (String) attributes.get("name");
+            String description = (String) attributes.get("description");
+            String categoryStr = (String) attributes.get("category");
+            String typeStr = (String) attributes.get("type");
+
+            if (priceNumber == null || name == null || description == null
+                    || categoryStr == null || typeStr == null) {
+                Sender.sendResponse(exchange, 400, "{\"error\":\"Missing parameter\"}");
+                return;
+            }
+
+            double price = priceNumber.doubleValue();
+            DishCategory category = DishCategory.valueOf(categoryStr.toUpperCase());
+            DishType type = DishType.valueOf(typeStr.toUpperCase());
+
+            dish.setPrice((float) price);
+            dish.setName(name);
+            dish.setDescription(description);
+            dish.setCategory(category);
+            dish.setType(type);
+
+            repo.save(dish);
+
+            String json = mapper.writeValueAsString(dish);
+            Sender.sendResponse(exchange, 200, json);
+
+        } catch (IllegalArgumentException e) {
+            Sender.sendResponse(exchange, 400, "{\"error\":\"Invalid category or type\"}");
+        } catch (Exception e) {
+            Sender.sendResponse(exchange, 500, "{\"error\":\"Internal server error\"}");
+        }
+    }
+
 
     @Override
     public void handle(HttpExchange exchange) throws IOException {

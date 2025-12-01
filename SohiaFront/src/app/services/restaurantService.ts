@@ -134,6 +134,7 @@ export class RestaurantService {
   addDish(restaurantName : string, dish : Dish): Observable<Dish>{
     return this.http.post<Dish>(`${this.apiUrl}/${restaurantName}/dishes`, dish);}
   updateDish(restaurantName: string, oldDishName: string, newDish: Dish): Observable<any> {
+    console.log("dish reçu : ",newDish);
     return this.http.put(`${this.apiUrl}/${restaurantName}/dishes/${encodeURIComponent(oldDishName)}`, newDish);
   }
   deleteDish(restaurantName: string, dishName: string): Observable<any> {

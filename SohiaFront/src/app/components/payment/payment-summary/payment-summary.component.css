@@ -67,3 +67,8 @@
   cursor: not-allowed;
   box-shadow: none;
 }
+.summary-warning {
+  margin: 0.3rem 0 0;
+  font-size: 0.8rem;
+  color: #f97316;
+}

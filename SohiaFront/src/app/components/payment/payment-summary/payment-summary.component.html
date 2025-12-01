@@ -22,9 +22,13 @@
       type="button"
       class="summary-button"
       (click)="pay.emit()"
-      [disabled]="isPaying"
+      [disabled]="isPaying || !canPay"
     >
       {{ isPaying ? 'Paiement en cours...' : 'Payer maintenant' }}
     </button>
+
+    <p *ngIf="!canPay" class="summary-warning">
+      Renseigne ton adresse de livraison pour pouvoir payer.
+    </p>
   </div>
 </div>

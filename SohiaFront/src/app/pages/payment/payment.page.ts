@@ -12,6 +12,8 @@ import { NavbarComponent } from '../../components/navbar/navbar';
 import { FooterComponent } from '../../components/footer/footer';
 import {finalize, Observable} from 'rxjs';
 import {PaymentDone} from '../../models/paymentDone';
+import {DeliveryAddress} from '../../models/delivery-address.model';
+import {DeliveryAddressModalComponent} from '../../components/payment/delivery-address-modal/delivery-address-modal.component';
 
 @Component({
   selector: 'se-payment-page',
@@ -22,6 +24,7 @@ import {PaymentDone} from '../../models/paymentDone';
     PaymentMethodSelectorComponent,
     PaymentStatusComponent,
     NavbarComponent,
+    DeliveryAddressModalComponent,
     FooterComponent
   ],
   templateUrl: './payment.page.html',
@@ -35,6 +38,9 @@ export class PaymentPage implements OnInit {
   selectedMethod?: PaymentMethod;
   isPaying = false;
   paymentState$! : Observable<PaymentDone|null>;
+  payment: PaymentDone | null = null;
+  deliveryAddress?: DeliveryAddress;
+  isAddressModalOpen = false;
 
   constructor(
     private route: ActivatedRoute,
@@ -62,7 +68,15 @@ export class PaymentPage implements OnInit {
 
   onPay() {
     if (!this.selectedMethod) return;
+
+    // optionnel : empêcher de payer si l'adresse n'est pas définie
+    if (!this.deliveryAddress) {
+      console.warn('Adresse de livraison manquante');
+      return;
+    }
+
     this.isPaying = true;
+
     this.paymentService.processPayment(this.orderId, this.selectedMethod)
       .pipe(
         finalize(() => {
@@ -70,9 +84,31 @@ export class PaymentPage implements OnInit {
         })
       )
       .subscribe({
+        next: (result) => {
+          // result est de type PaymentDone | null
+          this.payment = result;
+        },
         error: err => {
           console.error('Erreur lors du paiement :', err);
         }
       });
   }
+
+  openAddressModal(): void {
+    this.isAddressModalOpen = true;
+  }
+
+  onAddressSaved(addr: DeliveryAddress): void {
+    this.deliveryAddress = addr;
+    this.isAddressModalOpen = false;
+  }
+
+  onAddressModalClosed(): void {
+    this.isAddressModalOpen = false;
+  }
+  get canPay(): boolean {
+    return !!this.selectedMethod && this.totalAmount > 0 && !!this.deliveryAddress;
+  }
+
+
 }

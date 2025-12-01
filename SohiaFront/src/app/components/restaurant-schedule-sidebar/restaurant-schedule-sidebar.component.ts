@@ -1,13 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-
-export interface RestaurantSchedule {
-  id: string;
-  day: string;      // correspond à DayOfTheWeek côté Java (MONDAY, TUESDAY, ...)
-  start: string;    // ex "11:30" ou "11:30:00" selon ton API
-  end: string;      // idem
-  capacity: number;
-}
+import { RestaurantSchedule } from '../../models/restaurant-schedule.model';
 
 @Component({
   selector: 'se-restaurant-schedule-sidebar',
@@ -21,7 +14,7 @@ export class RestaurantScheduleSidebarComponent {
   /** Nom du restaurant (affiché en haut) */
   @Input() restaurantName: string | undefined;
 
-  /** Liste brute des créneaux */
+  /** Liste brute des créneaux : on utilise le modèle global */
   @Input() schedules: RestaurantSchedule[] = [];
 
   /** ID du créneau actuellement sélectionné */
@@ -30,37 +23,35 @@ export class RestaurantScheduleSidebarComponent {
   /** Événement quand un créneau est sélectionné */
   @Output() scheduleSelected = new EventEmitter<RestaurantSchedule>();
 
+  /** Ordre officiel des jours (optionnel si tu veux trier) */
+  private readonly DAY_ORDER = ['MONDAY','TUESDAY','WEDNESDAY','THURSDAY','FRIDAY','SATURDAY','SUNDAY'];
+
   /** Groupe les créneaux par jour */
   get groupedSchedulesByDay(): { day: string; label: string; slots: RestaurantSchedule[] }[] {
     const groups = new Map<string, RestaurantSchedule[]>();
 
     for (const s of this.schedules ?? []) {
-      if (!groups.has(s.day)) {
-        groups.set(s.day, []);
+      const day = s.day;
+      if (!groups.has(day)) {
+        groups.set(day, []);
       }
-      groups.get(s.day)!.push(s);
+      groups.get(day)!.push(s);
     }
 
-    // tri par heure de début dans chaque jour
+    // tri par heure de début dans chaque jour, en gérant string ou objet
     for (const [, slots] of groups) {
-      slots.sort((a, b) => a.start.localeCompare(b.start));
+      slots.sort((a, b) => this.timeToMinutes(a.start) - this.timeToMinutes(b.start));
     }
 
-    // conversion en tableau avec label pour l'affichage
-    const result: { day: string; label: string; slots: RestaurantSchedule[] }[] = [];
-    for (const [day, slots] of groups.entries()) {
-      result.push({
-        day,
-        label: this.getDayLabel(day),
-        slots
-      });
-    }
-
-    // tu peux trier les jours ici si besoin (Lundi -> Dimanche)
-    return result;
+    // si tu veux l'ordre Lundi -> Dimanche :
+    return this.DAY_ORDER.map(day => ({
+      day,
+      label: this.getDayLabel(day),
+      slots: groups.get(day) ?? []
+    }));
   }
 
-  /** Map MONDAY, TUESDAY... -> Lundi, Mardi... (adapter à ton enum si besoin) */
+  /** Map MONDAY, TUESDAY... -> Lundi, Mardi... */
   private getDayLabel(day: string): string {
     switch (day) {
       case 'MONDAY': return 'Lundi';
@@ -74,10 +65,38 @@ export class RestaurantScheduleSidebarComponent {
     }
   }
 
-  /** Format simple HH:mm à partir de "HH:mm" ou "HH:mm:ss" */
-  formatTime(time: string | undefined): string {
+  /** Format simple en "HH:mm" à partir de string ou objet LocalTime sérialisé */
+  formatTime(time: any): string {
     if (!time) return '';
-    return time.substring(0, 5); // "11:30" à partir de "11:30:00"
+
+    // Cas string : "HH:mm" ou "HH:mm:ss"
+    if (typeof time === 'string') {
+      if (time.includes('undefined')) return '';
+      return time.substring(0, 5);
+    }
+
+    // Cas objet { hour, minute, ... }
+    if (typeof time === 'object') {
+      const h = String(time.hour ?? 0).padStart(2, '0');
+      const m = String(time.minute ?? 0).padStart(2, '0');
+      return `${h}:${m}`;
+    }
+
+    return '';
+  }
+
+  /** Pour trier les horaires, quelle que soit leur forme */
+  private timeToMinutes(
+    time: string | { hour: number; minute: number; second?: number; nano?: number } | undefined
+  ): number {
+    if (!time) return 0;
+
+    if (typeof time === 'string') {
+      const [h, m] = time.split(':').map(n => parseInt(n, 10));
+      return (h || 0) * 60 + (m || 0);
+    }
+
+    return (time.hour || 0) * 60 + (time.minute || 0);
   }
 
   onSelectSchedule(schedule: RestaurantSchedule): void {

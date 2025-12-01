@@ -8,6 +8,7 @@ import Api.Utils.Sender;
 import Order.Order;
 import Order.OrderManager;
 import Order.OrderState;
+import Order.ChooseScheduleResultDTO;
 import Dish.DishNotFound;
 import Dish.DishAddedDTO;
 import Payment.PaymentDoneDTO;
@@ -40,6 +41,7 @@ public class OrderHandler implements HttpHandler{
         ApiRegistry.addRoute("POST","/api/order/{orderId}/dish/{dishId}/",this::addItem);
         ApiRegistry.addRoute("DELETE","/api/order/{orderId}/dish/{dishId}/",this::removeItem);
         ApiRegistry.addRoute("POST","/api/order/{orderId}/pay/{paymentMethod}/",this::finishOrder);
+        ApiRegistry.addRoute("POST","/api/order/{orderId}/schedule/{scheduleId}/",this::chooseSchedule);
     }
 
     private void createOrder(HttpExchange exchange, String... param) throws IOException {
@@ -131,6 +133,35 @@ public class OrderHandler implements HttpHandler{
         } catch (IOException e) {
             System.out.println(e);
             Sender.sendResponse(exchange,400,"erreur du paiement");
+        }
+    }
+
+    private void chooseSchedule(HttpExchange exchange,String ...params){
+        try{
+            System.out.println("chooseScheduleAppelé");
+            int orderId = Integer.parseInt(params[0]);
+            String scheduleId = params[1];
+            OrderManager.chooseScheduleResult result = orderManager.chooseSchedule(orderId,scheduleId);
+            if(result == OrderManager.chooseScheduleResult.SUCCESS){
+                ChooseScheduleResultDTO resultDTO = new ChooseScheduleResultDTO(orderId,scheduleId,result);
+                Sender.sendResponse(exchange,200,mapper.writeValueAsString(resultDTO));
+                return;
+            }
+            if(result == OrderManager.chooseScheduleResult.ORDER_NOT_FOUND){
+                Sender.sendResponse(exchange,401,"Order not found");
+                return;
+            }
+            if(result== OrderManager.chooseScheduleResult.SCHEDULE_NOT_FOUND){
+                Sender.sendResponse(exchange,401,"Schedule not found");
+            }
+            if(result== OrderManager.chooseScheduleResult.ERROR){
+                Sender.sendResponse(exchange,401,"Erreur");
+            }
+        }
+        catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 

@@ -3,6 +3,7 @@ import {BehaviorSubject, Observable, tap} from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import {RestaurantService} from './restaurantService';
 import {orderStateModel} from '../models/orderStateModel'
+import {ScheduleAdded} from '../models/scheduleAdded';
 
 @Injectable({
   providedIn: 'root'
@@ -45,6 +46,16 @@ export class orderService{
           } else {
             console.warn('Réponse de création de commande sans id :', order);
           }
+        })
+      );
+  }
+
+  chooseSchedule(idSchedule:string):Observable<ScheduleAdded>{
+    return this.httpClient
+      .post<ScheduleAdded>(`${this.orderUrl}${this.getCurrentOrderId()}/schedule/${idSchedule}/`, {})
+      .pipe(
+        tap((resp) => {
+          console.log('Créneau choisi pour la commande :', resp);
         })
       );
   }

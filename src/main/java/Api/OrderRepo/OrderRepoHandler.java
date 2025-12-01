@@ -6,6 +6,8 @@ import Api.Utils.Sender;
 import Order.Order;
 import Order.OrderRepo;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 
@@ -18,7 +20,9 @@ import java.util.regex.Matcher;
 
 public class OrderRepoHandler implements HttpHandler {
     private OrderRepo repo;
-    private final ObjectMapper mapper = new ObjectMapper();
+    private final ObjectMapper mapper = new ObjectMapper()
+            .registerModule(new JavaTimeModule())
+            .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
     public OrderRepoHandler(OrderRepo repo){
         this.repo=repo;
         ApiRegistry.addRoute("GET","/api/orderRepo/{orderId}/",this::getOrderById);
@@ -61,6 +65,7 @@ public class OrderRepoHandler implements HttpHandler {
         }
     }
     private void updateOrder(HttpExchange exchange, String... param) throws IOException {
+        System.out.println("appelé");
         try {
             int id = Integer.parseInt(param[0]);
 

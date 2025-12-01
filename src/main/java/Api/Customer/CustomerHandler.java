@@ -6,6 +6,8 @@ import Restaurant.Exception.RestaurantExist;
 import Restaurant.RestaurantRepo;
 import Restaurant.RestaurantService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import java.io.IOException;
@@ -21,7 +23,9 @@ import Restaurant.*;
 
 public class CustomerHandler implements HttpHandler {
     private final RestaurantService restaurantService = new RestaurantService();
-
+    private final ObjectMapper mapper = new ObjectMapper()
+            .registerModule(new JavaTimeModule())
+            .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
     public CustomerHandler() {
     }
 
@@ -47,6 +51,7 @@ public class CustomerHandler implements HttpHandler {
         if ("GET".equalsIgnoreCase(method)) {
             if (path.equals("/restaurants")) {
                 restaurants = restaurantService.getAllRestaurants();
+                System.out.println(restaurants);
             } else if (path.equals("/restaurants/filter")) {
 
                 // Lecture des paramètres multiples
@@ -211,7 +216,7 @@ public class CustomerHandler implements HttpHandler {
 
             // --- Enums ---
             else if (path.equals("/restaurants/enums/cuisines")) {
-                String response = new ObjectMapper().writeValueAsString(CuisineType.values());
+                String response = mapper.writeValueAsString(CuisineType.values());
                 exchange.getResponseHeaders().set("Content-Type", "application/json");
                 exchange.getResponseHeaders().set("Access-Control-Allow-Origin", "*");
                 exchange.getResponseHeaders().set("Access-Control-Allow-Methods", "GET, OPTIONS");
@@ -221,7 +226,7 @@ public class CustomerHandler implements HttpHandler {
                 exchange.close();
                 return;
             } else if (path.equals("/restaurants/enums/types")) {
-                String response = new ObjectMapper().writeValueAsString(establishmentType.values());
+                String response = mapper.writeValueAsString(establishmentType.values());
                 exchange.getResponseHeaders().set("Content-Type", "application/json");
                 exchange.getResponseHeaders().set("Access-Control-Allow-Origin", "*");
                 exchange.getResponseHeaders().set("Access-Control-Allow-Methods", "GET, OPTIONS");
@@ -237,7 +242,6 @@ public class CustomerHandler implements HttpHandler {
         }
 
         // Réponse JSON
-        ObjectMapper mapper = new ObjectMapper();
         String response = mapper.writeValueAsString(restaurants != null ? restaurants : new ArrayList<>());
 
         exchange.getResponseHeaders().set("Content-Type", "application/json");

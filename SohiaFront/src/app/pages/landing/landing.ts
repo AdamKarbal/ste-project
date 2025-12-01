@@ -17,6 +17,6 @@ export class LandingPageComponent {
   }
 
   goToOwner() {
-    alert('Espace restaurateur à venir 🍳');
+    this.router.navigate(['/restaurant-manager/La%20pizza%20roma']);
   }
 }

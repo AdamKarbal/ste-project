@@ -1,0 +1,25 @@
+.menu-page-container { min-height: 100vh; background-color: #f3f4f6; padding: 2rem; }
+.menu-page-content { max-width: 1200px; margin: 0 auto; }
+.menu-layout { display: grid; grid-template-columns: 260px 1fr 300px; gap: 2rem; align-items: start; }
+
+/* Formulaire Création */
+.create-dish-box { background: white; padding: 1.5rem; border-radius: 12px; margin-bottom: 1.5rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); border: 1px solid #e5e7eb; }
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
+.form-group { display: flex; flex-direction: column; gap: 5px; }
+.full-width { grid-column: span 2; }
+
+label { font-size: 0.85em; font-weight: bold; color: #4b5563; }
+.input-field { padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 0.95em; }
+
+.form-actions { display: flex; gap: 10px; justify-content: flex-end; }
+.btn-save { background: #22c55e; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; }
+.btn-cancel { background: #9ca3af; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; }
+
+/* Tags Selector */
+.tags-selector { display: flex; flex-wrap: wrap; gap: 5px; }
+.tag-chip { padding: 5px 10px; border-radius: 20px; background: #f3f4f6; cursor: pointer; font-size: 0.8em; user-select: none; border: 1px solid transparent; }
+.tag-chip.selected { background: #dbeafe; color: #2563eb; border-color: #2563eb; font-weight: bold; }
+
+.dish-list-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem; }
+
+@media (max-width: 1024px) { .menu-layout { grid-template-columns: 1fr; } }

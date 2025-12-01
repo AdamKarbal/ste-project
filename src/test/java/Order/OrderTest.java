@@ -235,3 +235,4 @@ class OrderTest {
         assertDoesNotThrow(() -> order.setState(OrderState.CREATED));
     }
 }
+

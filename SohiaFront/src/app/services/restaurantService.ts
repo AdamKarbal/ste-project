@@ -1,25 +1,34 @@
 import { Injectable } from '@angular/core';
 import {map, Observable, Subject, tap} from 'rxjs';
 import { HttpClient } from '@angular/common/http';
+import { Restaurant } from '../models/restaurant.model';
+import { CuisineType } from "../models/cuisine-type.model";
+import { Dish } from "../models/dish.models";
+import { EstablishmentType } from "../models/establishment-type.model";
+import {RestaurantSchedule} from '../models/restaurant-schedule.model';
+import {Observable, Subject, tap} from 'rxjs';
 import {orderCreateResponse} from '../models/orderCreateResponse';
 import {ConsoleLogger} from '@angular/compiler-cli';
 import {orderService} from './orderService';
 import {RestaurantSchedule} from '../models/restaurant-schedule.model';
 import {Restaurant} from '../models/restaurant';
 
+
 @Injectable({
   providedIn: 'root'
 })
 export class RestaurantService {
-  baseUrl = 'http://localhost:8001';
-  restoRepoUrl = 'http://localhost:8002/api/restaurantrepo'
+  baseUrl = 'http://localhost:8008';
+  repoUrl = 'http://localhost:8002/api/restaurantrepo'
+  private apiUrl = 'http://localhost:8009/api/restaurant'
   scheduleUrl = 'http://localhost:8007/api/schedule'
-  constructor(private OrderService:orderService,private client:HttpClient) {
+  constructor(private http : HttpClient, private OrderService:orderService) {
   }
+
   /** Obtenir tous les restaurants */
   async getAllRestaurants() {
     console.log('[Service] 📡 Chargement de tous les restaurants...');
-    const response = await fetch(`${this.baseUrl}/restaurants`);
+    const response = await fetch(this.repoUrl);
     if (!response.ok) {
       console.error(`[Service] ❌ Erreur HTTP ${response.status}`);
       throw new Error(`Erreur HTTP ${response.status}`);
@@ -122,6 +131,35 @@ export class RestaurantService {
     return { cuisines, establishments };
   }
 
+  getRestaurant(name: string): Observable<Restaurant> {
+    return this.http.get<Restaurant>(`${this.apiUrl}/${name}`);
+  }
+
+  addDish(restaurantName : string, dish : Dish): Observable<any>{
+    return this.http.post(`${this.apiUrl}/${restaurantName}/dishes`, dish);}
+  updateDish(restaurantName: string, oldDishName: string, newDish: Dish): Observable<any> {
+    return this.http.put(`${this.apiUrl}/${restaurantName}/dishes/${encodeURIComponent(oldDishName)}`, newDish);
+  }
+  deleteDish(restaurantName: string, dishName: string): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/${restaurantName}/dishes/${encodeURIComponent(dishName)}`);
+  }
+  addCuisineType(restaurantName: string, type: CuisineType): Observable<any> {
+    return this.http.post(`${this.apiUrl}/${restaurantName}/cuisine-types`, JSON.stringify(type), {
+      headers: { 'Content-Type': 'application/json' }
+    });
+  }
+  removeCuisineType(restaurantName: string, type: CuisineType): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/${restaurantName}/cuisine-types/${type}`);
+  }
+  setEstablishmentType(restaurantName: string, type: EstablishmentType): Observable<any> {
+    return this.http.put(`${this.apiUrl}/${restaurantName}/establishment-type`, JSON.stringify(type), {
+      headers: { 'Content-Type': 'application/json' }
+    });
+  }
+
+  removeEstablishmentType(restaurantName: string): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/${restaurantName}/establishment-type`);
+  }
   createOrder(body: any): Observable<number> {
     return this.OrderService.createOrder(body);
   }
@@ -146,11 +184,11 @@ export class RestaurantService {
   getSchedulesToday(restaurantName: string): Observable<RestaurantSchedule[]> {
     const url = `${this.scheduleUrl}/${restaurantName}/today`;
 
-    return this.client.get<RestaurantSchedule[]>(url);
+    return this.http.get<RestaurantSchedule[]>(url);
   }
   getRestaurantById(id: string): Observable<Restaurant> {
     const url = `${this.restoRepoUrl}/${id}/`;
-    return this.client.get<Restaurant>(url).pipe(
+    return this.http.get<Restaurant>(url).pipe(
       map(reponse => this.mapRestaurantToModel(reponse) )
     )
   }

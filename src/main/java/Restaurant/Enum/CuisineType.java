@@ -19,7 +19,8 @@ public enum CuisineType {
     BRESILIENNE("bresilienne"),
     COREENNE("coreenne"),
     ALLEMANDE("allemande"),
-    RUSSE("russe");
+    RUSSE("russe"),
+    IRANIENNE("iranienne"),;
 
     private final String label;
 

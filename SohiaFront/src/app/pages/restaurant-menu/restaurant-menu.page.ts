@@ -2,18 +2,25 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
-import { NavbarComponent } from '../../components/navbar/navbar';
-import { FooterComponent } from '../../components/footer/footer';
-import { RestaurantDishListComponent } from '../../components/restaurant-dish-list/restaurant-dish-list.component';
-import { RestaurantScheduleSidebarComponent } from '../../components/restaurant-schedule-sidebar/restaurant-schedule-sidebar.component';
-import { OrderCartComponent } from '../../components/order-card/order-cart.component';
+import {NavbarComponent} from '../../components/navbar/navbar';
+import {FooterComponent} from '../../components/footer/footer';
+import {RestaurantDishListComponent} from '../../components/restaurant-dish-list/restaurant-dish-list.component';
+import {
+  RestaurantScheduleSidebarComponent
+} from '../../components/restaurant-schedule-sidebar/restaurant-schedule-sidebar.component';
+import {OrderCartComponent} from '../../components/order-card/order-cart.component';
 
-import { Dish } from '../../models/dish.models';
-import { RestaurantSchedule } from '../../models/restaurant-schedule.model';
-import { orderService } from '../../services/orderService';
-import { orderStateModel } from '../../models/orderStateModel';
-import {Restaurant} from '../../models/restaurant';
-import { RestaurantService} from '../../services/restaurantService';
+import {Dish, DishCategory, DishTag, DishType} from '../../models/dish.models';
+import {RestaurantSchedule} from '../../models/restaurant-schedule.model';
+
+import {Observable, of, tap} from 'rxjs';
+import {HttpClient} from '@angular/common/http';
+import {DishModel} from '../../models/DishModel';
+import {DishCreateResponse} from '../../models/dishCreateResponse';
+import {orderService} from '../../services/orderService';
+import {orderStateModel} from '../../models/orderStateModel';
+import {RestaurantService} from '../../services/restaurantService';
+import {Restaurant} from '../../models/restaurant.model';
 
 interface CartItem {
   dish: Dish;
@@ -48,6 +55,7 @@ export class RestaurantMenuPage implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private restaurantService: RestaurantService,
+    private httpClient: HttpClient,
     private orderService: orderService,
     private router: Router
   ) {}
@@ -66,7 +74,7 @@ export class RestaurantMenuPage implements OnInit {
     });
   }
 
-  private loadRestaurant(id: string): void {
+  private loadRestaurant(name: string): void {
     this.isLoading = true;
     this.errorMessage = null;
 
@@ -99,19 +107,16 @@ export class RestaurantMenuPage implements OnInit {
       return;
     }
 
-    const dishesMap = this.orderState.dishes; // { [dishId]: quantity }
+    const dishesMap = this.orderState.dishes;
     const items: CartItem[] = [];
 
+    // Attention : Il faudra gérer la correspondance ID <-> Nom si ton Dish n'a pas d'ID
+    // Pour l'instant on suppose que ça marche ou on ignore
+    /*
     Object.entries(dishesMap).forEach(([dishIdStr, quantity]) => {
-      const dishId = Number(dishIdStr);
-      const dish = this.restaurant!.dishes.find(d => (d as any).id === dishId);
-      if (!dish) {
-        console.warn('Dish id', dishId, 'introuvable dans restaurant.dishes');
-        return;
-      }
-      items.push({ dish, quantity });
+       // Logique de reconstruction du panier à adapter selon ton backend Order
     });
-
+    */
     this.cartItems = items;
   }
 

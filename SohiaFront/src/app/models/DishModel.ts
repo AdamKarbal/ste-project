@@ -1,12 +1,13 @@
 import {Dish} from './dish.models';
+import {DishCategory, DishType, DishTag} from './dish.models';
 
 export class DishModel implements Dish {
   price: number;
   name: string;
   description: string;
-  category: string;
-  type: string;
-  dishTag?: string[];
+  category: DishCategory;
+  type: DishType;
+  dishTag: DishTag[];
   availableToppings?: string[];
   selectedToppings: string[];
   id : number;

@@ -25,7 +25,7 @@ public class RestaurantScheduleServer {
         server.setExecutor(null);
         server.start();
 
-        System.out.println("RestaurantScheduleService en ligne sur http://localhost:" + port + path);
+        System.out.println("✅ RestaurantScheduleService en ligne sur http://localhost:" + port + path);
         return server;
     }
 }

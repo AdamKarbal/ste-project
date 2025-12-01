@@ -98,7 +98,7 @@ public class RestaurantManagerTest {
 
     @Test
     void testUpdateDish_ReplacesOldDishWithNewOne() throws Exception {
-        Dish oldDish = new Dish(10f, "Old Dish", null, null, null, new ArrayList<>());
+        Dish oldDish = new Dish(10f, "Old Dish", "", DishCategory.STARTER, DishType.MEAT, new ArrayList<>());
         Dish newDish = new Dish(12f, "New Dish", null, null, null, new ArrayList<>());
 
         manager.addDish(oldDish, TEST_RESTO_NAME);

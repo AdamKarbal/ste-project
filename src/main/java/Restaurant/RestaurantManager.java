@@ -5,19 +5,22 @@ import Dish.suggest.Suggestion;
 import Restaurant.Enum.CuisineType;
 import Restaurant.Enum.establishmentType;
 import Restaurant.Exception.*;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class RestaurantManager {
     private final SmartDishFactory smartDishFactory = new SmartDishFactory();
 
     public RestaurantManager(){}
 
-    public void addDish(Dish d, String name) throws DishAlreadyInDishes {
+    public Dish addDish(Dish d, String name) throws DishAlreadyInDishes, JsonProcessingException {
         Restaurant restaurant = getRestaurantFromRepo(name);
         if(restaurant.alreadyDish(d)) throw new DishAlreadyInDishes("Le plat "+ d+ " est déjà dans le restaurant." ) ;
-        restaurant.addDish(d);
-        /*System.out.println(d);
-        Requester.createDish(d.toCreateDTO());*/
+        Dish created = Requester.createDish(d.toCreateDTO());
+        System.out.println(new ObjectMapper().writeValueAsString(created));
+        restaurant.addDish(created);
         saveRestaurant(restaurant);
+        return created;
     }
 
     public void updateDish(Dish old, Dish replacement,String name) throws dishNoInDishes {
@@ -76,7 +79,7 @@ public class RestaurantManager {
         return smartDishFactory.suggest(nameOrKeyword);
     }
 
-    public Dish createDish(DishInput input, String restoName) throws DishAlreadyInDishes {
+    public Dish createDish(DishInput input, String restoName) throws DishAlreadyInDishes, JsonProcessingException {
         Dish dish = smartDishFactory.create(input);
         this.addDish(dish, restoName);
 

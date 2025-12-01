@@ -106,16 +106,19 @@ export class RestaurantMenuPage implements OnInit {
       return;
     }
 
-    const dishesMap = this.orderState.dishes;
+    const dishesMap = this.orderState.dishes; // { [dishId]: quantity }
     const items: CartItem[] = [];
 
-    // Attention : Il faudra gérer la correspondance ID <-> Nom si ton Dish n'a pas d'ID
-    // Pour l'instant on suppose que ça marche ou on ignore
-    /*
     Object.entries(dishesMap).forEach(([dishIdStr, quantity]) => {
-       // Logique de reconstruction du panier à adapter selon ton backend Order
+      const dishId = Number(dishIdStr);
+      const dish = this.restaurant!.dishes.find(d => (d as any).id === dishId);
+      if (!dish) {
+        console.warn('Dish id', dishId, 'introuvable dans restaurant.dishes');
+        return;
+      }
+      items.push({ dish, quantity });
     });
-    */
+
     this.cartItems = items;
   }
 

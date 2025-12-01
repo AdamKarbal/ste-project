@@ -215,7 +215,7 @@ public class DemoStep {
 
     @When("Il ajoute le plat {string} à {double}€")
     public void il_ajoute_le_plat_à_€(String nomPlat, Double prix) throws Exception {
-        Dish plat = new Dish(prix, nomPlat, null, null, null, null);
+        Dish plat = new Dish(prix, nomPlat, "gabribinks", DishCategory.STARTER, DishType.MEAT, null);
         manager.addDish(plat, currentRestaurantName);
     }
 

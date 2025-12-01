@@ -25,10 +25,12 @@ public class RestaurantManager {
     public void updateDish(Dish old, Dish replacement,String name) throws dishNoInDishes, JsonProcessingException {
         Restaurant restaurant = getRestaurantFromRepo(name);
         if(!(restaurant.alreadyDish(old))) throw new dishNoInDishes("Impossible de mettre à jour le plat, il n'est pas présent.");
-        restaurant.removeDish(old);
         System.out.println(new ObjectMapper().writeValueAsString(old));
-        Requester.updateDish(replacement.getId(),replacement);
-        restaurant.addDish(replacement);
+
+        Dish updated = Requester.updateDish(old.getId(),replacement);
+        restaurant.removeDish(old);
+        restaurant.addDish(updated);
+
         saveRestaurant(restaurant);
     }
 

@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import {map, Observable, Subject, tap} from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { Restaurant } from '../models/restaurant.model';
 import { CuisineType } from "../models/cuisine-type.model";
@@ -9,6 +10,8 @@ import {Observable, Subject, tap} from 'rxjs';
 import {orderCreateResponse} from '../models/orderCreateResponse';
 import {ConsoleLogger} from '@angular/compiler-cli';
 import {orderService} from './orderService';
+import {RestaurantSchedule} from '../models/restaurant-schedule.model';
+import {Restaurant} from '../models/restaurant';
 
 
 @Injectable({
@@ -16,15 +19,16 @@ import {orderService} from './orderService';
 })
 export class RestaurantService {
   baseUrl = 'http://localhost:8008';
+  repoUrl = 'http://localhost:8002/api/restaurantrepo'
   private apiUrl = 'http://localhost:8009/api/restaurant'
-
+  scheduleUrl = 'http://localhost:8007/api/schedule'
   constructor(private http : HttpClient, private OrderService:orderService) {
   }
 
   /** Obtenir tous les restaurants */
   async getAllRestaurants() {
     console.log('[Service] 📡 Chargement de tous les restaurants...');
-    const response = await fetch(`${this.baseUrl}/restaurants`);
+    const response = await fetch(this.repoUrl);
     if (!response.ok) {
       console.error(`[Service] ❌ Erreur HTTP ${response.status}`);
       throw new Error(`Erreur HTTP ${response.status}`);
@@ -175,5 +179,25 @@ export class RestaurantService {
     console.log('[Service] 🍽️ Restaurant complet reçu :', restaurant);
 
     return restaurant;
+  }
+
+  getSchedulesToday(restaurantName: string): Observable<RestaurantSchedule[]> {
+    const url = `${this.scheduleUrl}/${restaurantName}/today`;
+
+    return this.http.get<RestaurantSchedule[]>(url);
+  }
+  getRestaurantById(id: string): Observable<Restaurant> {
+    const url = `${this.restoRepoUrl}/${id}/`;
+    return this.http.get<Restaurant>(url).pipe(
+      map(reponse => this.mapRestaurantToModel(reponse) )
+    )
+  }
+
+  mapRestaurantToModel(restaurant:Restaurant) : Restaurant{
+    return{
+      name:restaurant.name,
+      dishes:restaurant.dishes
+      //restaurantSchedules:restaurant.restaurantSchedules
+    }
   }
 }

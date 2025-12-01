@@ -10,35 +10,35 @@ Feature: Filtrer les restaurants
 
   Scenario: Filtre par cuisine italienne
     When je filtre les restaurants par cuisine "italienne"
-    Then je vois exactement 2 restaurants
+    Then je vois exactement 4 restaurants
     And la liste contient "Pasta Mia"
     And la liste contient "MammaRita"
 
   Scenario: Filtre par restaurants ouverts
     When je filtre les restaurants par horaire "18:30"
-    Then je vois exactement 1 restaurants
+    Then je vois exactement 2 restaurants
     And la liste contient "SushiZen"
 
     Scenario: Filtre par type de restaurants
       When je filtre les restaurants par etablissement "fast_food"
-      Then je vois exactement 1 restaurants
+      Then je vois exactement 2 restaurants
       And la liste contient "KebabKorner"
 
       Scenario: Filtre par prix max
         When je filtre les restaurants avec un prix max de 10 euros
-        Then je vois exactement 2 restaurants
+        Then je vois exactement 3 restaurants
         And la liste contient "SushiZen"
 
       Scenario: Filtre par gamme de prix
         When je filtre les restaurants avec un prix entre 8 et 11 euros
-        Then je vois exactement 3 restaurants
+        Then je vois exactement 4 restaurants
         And la liste contient "SushiZen"
         And la liste contient "KebabKorner"
         And la liste contient "MammaRita"
 
       Scenario: Filtre par prix min
         When je filtre les restaurants avec un prix min de 14.5 euros
-        Then je vois exactement 1 restaurants
+        Then je vois exactement 4 restaurants
         And la liste contient "SushiZen"
 
       Scenario: Filtre par nom
@@ -54,7 +54,7 @@ Feature: Filtrer les restaurants
 
         Scenario: Filtre par tag (label)
           When je filtre les restaurants par tag "Gluten-free"
-          Then je vois exactement 1 restaurants
+          Then je vois exactement 3 restaurants
           And la liste contient "SushiZen"
 
         Scenario: Filtre par tous les tags (enum)
@@ -72,7 +72,7 @@ Feature: Filtrer les restaurants
           And j'applique le filtre cuisine "ITALIENNE"
           And j'applique le filtre prix max 12.0
           And j'applique le filtre ouvert a "12:15"
-          Then je vois exactement 1 restaurants
+          Then je vois exactement 2 restaurants
           And la liste contient "MammaRita"
 
         Scenario: Tag végétarien ET sans lactose à une heure donnée

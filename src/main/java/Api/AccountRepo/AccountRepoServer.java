@@ -12,12 +12,8 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 
 public class AccountRepoServer {
-    public static void main(String[] args){
-        try{
-            startServer();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public static void main(String[] args) throws IOException {
+        startServer();
     }
 
     public static HttpServer startServer() throws IOException{
@@ -29,7 +25,7 @@ public class AccountRepoServer {
         server.setExecutor(null);
         server.start();
 
-        System.out.println("✅ RestaurantRepo en ligne sur http://localhost:" + port + path);
+        System.out.println("✅ AccountRepo en ligne sur http://localhost:" + port + path);
         return  server;
     }
 }

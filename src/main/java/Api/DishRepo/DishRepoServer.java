@@ -10,12 +10,8 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 
 public class DishRepoServer {
-    public static void main(String[] args){
-        try{
-            startServer();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+    public static void main(String[] args) throws IOException {
+        startServer();
     }
 
     public static HttpServer startServer() throws IOException{

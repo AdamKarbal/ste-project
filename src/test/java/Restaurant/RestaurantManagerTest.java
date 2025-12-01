@@ -1,5 +1,6 @@
 package Restaurant;
 
+import Api.DishRepo.DishRepoServer;
 import Api.RestaurantRepo.RestaurantRepoServer;
 import Api.RestaurantSchedule.RestaurantScheduleServer;
 import Api.Utils.Requester;
@@ -36,6 +37,7 @@ public class RestaurantManagerTest {
 
     private static HttpServer serverRepo;
     private static HttpServer serverSchedule;
+    private static HttpServer dishRepo;
     private static boolean isServerRunning = false;
     private RestaurantManager manager;
     private final String TEST_RESTO_NAME = "Chez akhi ali";
@@ -46,6 +48,7 @@ public class RestaurantManagerTest {
             try {
                 serverRepo = RestaurantRepoServer.startServer();
                 serverSchedule = RestaurantScheduleServer.startServer();
+                dishRepo = DishRepoServer.startServer();
                 isServerRunning = true;
             } catch (java.net.BindException e) {
                 System.out.println(" Serveur déjà lancé ");
@@ -61,6 +64,9 @@ public class RestaurantManagerTest {
         }
         if (serverSchedule != null) {
             serverSchedule.stop(0);
+        }
+        if(dishRepo!=null){
+            dishRepo.stop(0);
         }
     }
 

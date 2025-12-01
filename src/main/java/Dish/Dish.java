@@ -3,7 +3,7 @@ package Dish;
 
 import Restaurant.Restaurant;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
+import java.util.UUID;
 import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.List;
@@ -11,7 +11,7 @@ import java.util.Locale;
 
 public class Dish {
     private double price;
-    private static int compteur=0;
+    //private static int compteur=0;
     private String name;
     private String description;
     private DishCategory category;
@@ -24,7 +24,7 @@ public class Dish {
     public Dish() {
     }
     public Dish(double price, String name, String description, DishCategory category, DishType type,List<DishTag> dishTag) {
-        this.id=++compteur;
+        this.id=UUID.randomUUID().hashCode();
         this.price = price;
         this.name = name;
         this.description = description;
@@ -117,6 +117,11 @@ public class Dish {
             total += t.getPrice();
         }
         return total;
+    }
+
+    @Override
+    public String toString(){
+        return name+id+"";
     }
 
     private static String norm(String s) {

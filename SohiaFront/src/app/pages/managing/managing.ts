@@ -94,7 +94,8 @@ export class RestaurantManagerPageComponent implements OnInit {
 
   createDish() {
     if (!this.newDish.name) return;
-    this.service.addDish(this.restaurantName, this.newDish).subscribe(() => {
+    this.service.addDish(this.restaurantName, this.newDish).subscribe((dish) => {
+      console.log("dish reçu",dish);
       this.loadData();
       this.isCreatingDish = false;
       this.newDish = this.getEmptyDish();

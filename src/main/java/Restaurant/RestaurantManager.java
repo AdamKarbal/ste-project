@@ -54,8 +54,6 @@ public class RestaurantManager {
 
     public void setEstablishmentType(establishmentType e, String name) {
         Restaurant restaurant = getRestaurantFromRepo(name);
-        if (restaurant.getEstablishmentType() != null && restaurant.getEstablishmentType() != establishmentType.DEFAULT)
-            throw new EstablishmentTypeAlreadySet("Le restaurant a déjà un type d'établissement défini.");
         restaurant.setEstablishmentType(e);
         saveRestaurant(restaurant);
     }

@@ -6,7 +6,7 @@ public enum DishTag {
     VEGAN("Vegan"),
     HALAL("Halal"),
     KOSHER("Kosher"),
-
+    CONTAINS_FROZEN_PRODUCTS("CONTAINS_FROZEN_PRODUCTS"),
     // ---- Profil nutritionnel / santé ----
     ORGANIC("Organic"),
     LOW_CALORIE("Low calorie"),

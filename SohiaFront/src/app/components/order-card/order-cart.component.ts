@@ -17,8 +17,10 @@ export interface CartItem {
 })
 export class OrderCartComponent {
 
-  /** Contenu du panier */
+  /** Montant total (calculé côté parent) */
   @Input() orderTotal?: number;
+
+  /** Contenu du panier */
   @Input() items: CartItem[] = [];
 
   /** Créneau choisi pour la livraison */
@@ -29,9 +31,9 @@ export class OrderCartComponent {
   @Output() dishRemoved = new EventEmitter<Dish>();
   @Output() confirmOrder = new EventEmitter<void>();
 
-  /** Total calculé à partir des items */
+  /** Total affiché */
   get totalPrice(): number {
-    return this.orderTotal??0;
+    return this.orderTotal ?? 0;
   }
 
   /** Formatage du prix */
@@ -61,9 +63,19 @@ export class OrderCartComponent {
     }
   }
 
-  private formatTime(time: string | undefined): string {
+  /** time peut être une string "HH:mm:ss" ou un objet LocalTime */
+  private formatTime(
+    time: string | { hour: number; minute: number; second?: number; nano?: number } | undefined
+  ): string {
     if (!time) return '';
-    return time.substring(0, 5); // "HH:mm"
+
+    if (typeof time === 'string') {
+      return time.substring(0, 5); // "HH:mm"
+    }
+
+    const h = String(time.hour).padStart(2, '0');
+    const m = String(time.minute ?? 0).padStart(2, '0');
+    return `${h}:${m}`;
   }
 
   // --------- actions utilisateur ----------

@@ -15,7 +15,6 @@ public class RestaurantManager {
         Restaurant restaurant = getRestaurantFromRepo(name);
         if(restaurant.alreadyDish(d)) throw new DishAlreadyInDishes("Le plat "+ d+ " est déjà dans le restaurant." ) ;
         restaurant.addDish(d);
-        Requester.createDish(d.toCreateDTO());
         saveRestaurant(restaurant);
     }
 

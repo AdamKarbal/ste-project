@@ -8,7 +8,6 @@ import {orderService} from './orderService';
 import {RestaurantCarte} from '../models/restaurant';
 import {Restaurant} from '../models/restaurant.model';
 import {map, Observable} from 'rxjs';
-import {DishModel} from '../models/DishModel';
 
 
 @Injectable({
@@ -132,8 +131,8 @@ export class RestaurantService {
     return this.http.get<Restaurant>(`${this.apiUrl}/${name}`);
   }
 
-  addDish(restaurantName : string, dish : Dish): Observable<DishModel>{
-    return this.http.post<DishModel>(`${this.apiUrl}/${restaurantName}/dishes`, dish);}
+  addDish(restaurantName : string, dish : Dish): Observable<Dish>{
+    return this.http.post<Dish>(`${this.apiUrl}/${restaurantName}/dishes`, dish);}
   updateDish(restaurantName: string, oldDishName: string, newDish: Dish): Observable<any> {
     return this.http.put(`${this.apiUrl}/${restaurantName}/dishes/${encodeURIComponent(oldDishName)}`, newDish);
   }

@@ -1,0 +1,69 @@
+<aside class="schedule-sidebar">
+  <div class="sidebar-header">
+    <h2 class="sidebar-title">
+      {{ restaurantName || 'Créneaux de livraison' }}
+    </h2>
+    <p class="sidebar-subtitle">
+      Gérer les créneaux de livraison.
+    </p>
+  </div>
+
+  <div class="schedule-list" *ngIf="groupedSchedulesByDay.length > 0; else noSchedule">
+    <div
+      class="day-group"
+      *ngFor="let group of groupedSchedulesByDay"
+    >
+      <div class="day-header">
+        {{ group.label }}
+      </div>
+
+      <div class="slot-list" *ngIf="group.slots.length > 0; else emptyDay">
+        <button
+          type="button"
+          class="slot-chip"
+          *ngFor="let slot of group.slots; trackBy: trackByScheduleId"
+          [class.slot-chip--selected]="slot.id === selectedScheduleId"
+          (click)="onSelectSchedule(slot)"
+        >
+          <div class="slot-main">
+            <div class="slot-time">
+              {{ formatTime(slot.start) }} - {{ formatTime(slot.end) }}
+            </div>
+            <div class="slot-capacity">
+              Capacité : {{ slot.capacity }}
+            </div>
+          </div>
+
+          <div class="slot-actions">
+            <button
+              type="button"
+              class="slot-action slot-action--edit"
+              (click)="onEditClick(slot); $event.stopPropagation()"
+            >
+              Modifier
+            </button>
+            <button
+              type="button"
+              class="slot-action slot-action--delete"
+              (click)="onDeleteClick(slot); $event.stopPropagation()"
+            >
+              Supprimer
+            </button>
+          </div>
+        </button>
+      </div>
+
+      <ng-template #emptyDay>
+        <div class="empty-day">
+          Aucun créneau pour ce jour.
+        </div>
+      </ng-template>
+    </div>
+  </div>
+
+  <ng-template #noSchedule>
+    <div class="empty-state">
+      Aucun créneau pour ce restaurant.
+    </div>
+  </ng-template>
+</aside>

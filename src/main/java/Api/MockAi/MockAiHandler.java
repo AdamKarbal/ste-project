@@ -26,6 +26,18 @@ public class MockAiHandler implements HttpHandler {
         String name = (String) req.get("name");
         String domain = (String) req.get("domain");
 
+        String image = (String) req.get("image");
+
+        if (image != null) {
+            System.out.println("MockAI: image reçue → longueur=" + image.length());
+
+            if (image.startsWith("data:image")) {
+                System.out.println("MockAI: format = base64");
+            } else if (image.startsWith("http")) {
+                System.out.println("MockAI: format = URL");
+            }
+        }
+
         List<Map<String,String>> suggestions = generateSuggestions(name, domain);
 
         Map<String, Object> response = Map.of(

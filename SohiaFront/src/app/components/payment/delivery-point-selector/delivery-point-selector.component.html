@@ -1,0 +1,12 @@
+<h3 class="dp-title">Point de livraison</h3>
+
+<div class="dp-list">
+  <button
+    *ngFor="let point of points"
+    class="dp-item"
+    [ngClass]="{ 'dp-item--selected': point === selectedPoint }"
+    (click)="select(point)"
+  >
+    {{ labels[point] }}
+  </button>
+</div>

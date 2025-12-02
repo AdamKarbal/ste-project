@@ -11,27 +11,12 @@
       </p>
     </header>
 
-    <div class="payment-address-bar">
-      <div class="payment-address-info">
-        <ng-container *ngIf="deliveryAddress; else noAddress">
-          <span class="address-label">Adresse de livraison :</span>
-          <span class="address-value">
-            {{ deliveryAddress.fullName }}, {{ deliveryAddress.street }},
-            {{ deliveryAddress.postalCode }} {{ deliveryAddress.city }}
-          </span>
-        </ng-container>
-        <ng-template #noAddress>
-          <span class="address-label">Aucune adresse de livraison sélectionnée.</span>
-        </ng-template>
-      </div>
-
-      <button
-        type="button"
-        class="address-button"
-        (click)="openAddressModal()">
-        {{ deliveryAddress ? 'Modifier l’adresse' : 'Choisir une adresse de livraison' }}
-      </button>
-    </div>
+    <section class="payment-col payment-col--left">
+      <se-delivery-point-selector
+        [selectedPoint]="selectedDeliveryPoint"
+        (pointSelected)="onDeliveryPointSelected($event)">
+      </se-delivery-point-selector>
+    </section>
 
     <div class="payment-layout">
 

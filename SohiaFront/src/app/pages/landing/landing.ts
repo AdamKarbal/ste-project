@@ -17,6 +17,6 @@ export class LandingPageComponent {
   }
 
   goToOwner() {
-    this.router.navigate(['/restaurant-manager/La%20pizza%20roma']);
+    this.router.navigate(['/restaurant-manager/Chez%20Mario']);
   }
 }

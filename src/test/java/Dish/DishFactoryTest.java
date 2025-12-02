@@ -102,7 +102,7 @@ class DishFactoryTest {
                         "Burger",
                         "Burger maison",
                         null,
-                        DishType.SANDWICH
+                        DishType.BURGER
                 )
         );
         assertEquals("La catégorie du plat est obligatoire.", exception.getMessage());

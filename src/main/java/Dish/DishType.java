@@ -10,6 +10,7 @@ public enum DishType {
     SOUP("Soup"),
     SEAFOOD("Seafood"),
     SANDWICH("Sandwich"),
+    BURGER("Burger"),
     OTHER("Other");
 
     private final String label;

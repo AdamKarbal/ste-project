@@ -18,6 +18,7 @@ import {
   DishTag, DishTagLabel,
   DishType, DishTypeLabel
 } from '../../models/dish.models';
+import {NavbarManagingComponent} from '../../components/navbarmanaging/navbarmanaging';
 
 @Component({
   selector: 'app-restaurant-manager-page',
@@ -26,7 +27,7 @@ import {
     CommonModule, FormsModule,
     RestaurantDishCardManagerComponent,
     RestaurantSettingsComponent,
-    RestaurantScheduleSidebarManagerComponent
+    RestaurantScheduleSidebarManagerComponent, NavbarManagingComponent
   ],
   templateUrl: './managing.html',
   styleUrls: ['./managing.css']

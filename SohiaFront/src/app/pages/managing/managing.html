@@ -1,8 +1,12 @@
-<main class="menu-page-container" style="border-top: 5px solid #f59e0b;">
+<div style="min-height: 100vh; background-color: #f3f4f6;">
 
-  <div class="status" *ngIf="!restaurant">Chargement...</div>
+  <app-navbarmanaging></app-navbarmanaging>
 
-  <section class="menu-page-content" *ngIf="restaurant">
+  <main class="menu-page-container" style="border-top: 5px solid #f59e0b; margin-top: 0;">
+
+    <div class="status" *ngIf="!restaurant">Chargement...</div>
+
+    <section class="menu-page-content" *ngIf="restaurant">
     <header class="menu-header" style="display: flex; justify-content: space-between; align-items: center;">
       <div>
         <h1 class="menu-title">

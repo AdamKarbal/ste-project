@@ -841,11 +841,10 @@ public class Requester {
             HttpClient client = HttpClient.newHttpClient();
 
             // Construire le body JSON attendu par l'API DishAi
-            Map<String, Object> payload = Map.of(
-                    "name", name,
-                    "image", image,
-                    "domain", domain
-            );
+            Map<String, Object> payload = new HashMap<>();
+            payload.put("name", name);
+            if (image != null) payload.put("image", image);
+            payload.put("domain", domain);
 
             String jsonBody = mapper.writeValueAsString(payload);
 

@@ -16,8 +16,8 @@ import { AuthService } from '../../services/authService';
 export class RestaurantCardComponent {
   @Input() restaurant: any;
   isLoggedIn = false;
-  constructor(private router: Router,private restaurantService : RestaurantService,private accountService:AccountService,private auth: AuthService) {
-    this.auth.isLoggedIn$.subscribe((status: boolean) => {
+  constructor(private router: Router,private restaurantService : RestaurantService,private accountService:AccountService,private authService: AuthService) {
+    this.authService.isLoggedIn$.subscribe((status: boolean) => {
       this.isLoggedIn = status;
     });
   }
@@ -37,19 +37,18 @@ export class RestaurantCardComponent {
     this.router.navigate(['/restaurant-detail', this.restaurant.name]);
   }
   createOrder() { // absolument changer la création du client synchronisée avec la création de l'Order (à faire plus tard qd y aura un vrai système d'auth)
-    this.accountService.createUser("ClientTest")
+    this.authService.lastUserId$
       .pipe(
-        switchMap(client =>
+        switchMap(id =>
           this.restaurantService.createOrder({
-            clientId: client.id,
+            clientId: id,
             restaurantId: this.restaurant.name
           })
         )
       )
       .subscribe({
-        next: res => console.log("Commande créée :", res),
+        next: res => console.log("Commande créée pour l'user :",res),
         error: err => console.error("Erreur API :", err)
       });
-
   }
 }

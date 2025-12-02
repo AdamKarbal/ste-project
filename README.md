@@ -14,6 +14,10 @@ QA & PO : MADANDAR ARANI Ali (FISE)
 -   [Rendue D0](doc/D0.pdf)
 -   [Rendue D1](doc/TeamO-renduD1.pdf)
 
+## Répartition des points 
+
+-   [Repartition](doc/repartition.md)
+-   
 ## Stratégie de gestion des branches
 
 Nous appliquons la stratégie suivante pour le développement :

@@ -21,6 +21,10 @@ public class Dish {
     private int id;
 
     public Dish() {
+        this.id = Math.abs(UUID.randomUUID().hashCode());
+        this.dishTag = new ArrayList<>();
+        this.availableToppings = new ArrayList<>();
+        this.selectedToppings = new ArrayList<>();
     }
     public Dish(double price, String name, String description, DishCategory category, DishType type,List<DishTag> dishTag) {
         this.id=UUID.randomUUID().hashCode();
@@ -55,7 +59,9 @@ public class Dish {
     public int getId(){
         return id;
     }
-
+    public void setId(int id) {
+        this.id = id;
+    }
     public DishCategory getCategory() {
         return category;
     }

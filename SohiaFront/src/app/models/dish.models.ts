@@ -25,6 +25,7 @@ export enum DishType {
   SOUP = 'SOUP',
   SEAFOOD = 'SEAFOOD',
   SANDWICH = 'SANDWICH',
+  BURGER = 'BURGER',
   OTHER = 'OTHER'
 }
 
@@ -38,7 +39,8 @@ export const DishTypeLabel: Record<DishType, string> = {
   [DishType.SOUP]: 'Soupe',
   [DishType.SEAFOOD]: 'Fruits de mer',
   [DishType.SANDWICH]: 'Sandwich',
-  [DishType.OTHER]: 'Autre'
+  [DishType.OTHER]: 'Autre',
+  [DishType.BURGER] : 'Burger',
 };
 
 export enum DishTag {

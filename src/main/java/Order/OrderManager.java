@@ -27,13 +27,20 @@ import java.util.Optional;
 
 
 public class OrderManager {
-    private ObjectMapper mapper = new ObjectMapper();
 
     public OrderManager() {
     }
 
 
-
+    public chooseLocationResult chooseDeliveryLocation(int orderId,OrderDeliveryPoint location){
+        Order order = Requester.getOrderById(orderId);
+        if(order==null){
+            return chooseLocationResult.ORDER_NOT_FOUND;
+        }
+        order.setDeliveryPoint(location);
+        Requester.updateOrder(orderId,order);
+        return chooseLocationResult.SUCCESS;
+    }
 
     public Order createOrder(int clientId, String restaurantId) { // api faite mais manque la ref au service du client
         Order order = new Order(clientId, restaurantId);
@@ -163,6 +170,10 @@ public class OrderManager {
         SCHEDULE_NOT_FOUND,
         SUCCESS,
         ERROR
+    }
+    public enum chooseLocationResult{
+        ORDER_NOT_FOUND,
+        SUCCESS
     }
 }
 

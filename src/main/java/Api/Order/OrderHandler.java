@@ -7,6 +7,7 @@ import Api.Utils.RouteInfo;
 import Api.Utils.Sender;
 import Order.Order;
 import Order.OrderManager;
+import Order.OrderDeliveryPoint;
 import Order.OrderState;
 import Order.ChooseScheduleResultDTO;
 import Dish.DishNotFound;
@@ -42,15 +43,17 @@ public class OrderHandler implements HttpHandler{
         ApiRegistry.addRoute("DELETE","/api/order/{orderId}/dish/{dishId}/",this::removeItem);
         ApiRegistry.addRoute("POST","/api/order/{orderId}/pay/{paymentMethod}/",this::finishOrder);
         ApiRegistry.addRoute("POST","/api/order/{orderId}/schedule/{scheduleId}/",this::chooseSchedule);
+        ApiRegistry.addRoute("POST","/api/order/{orderId}/delivery/{location}/",this::chooseDeliveryLocation);
     }
 
     private void createOrder(HttpExchange exchange, String... param) throws IOException {
         try {
             String body = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
             Map<String, Object> data = mapper.readValue(body, Map.class);
-            AccountUser iencli = new AccountUser("Iencli smr"); // à changer ça pour prendre le vrai id
-            iencli.setCredit(900);
-            Order order=orderManager.createOrder(iencli.getId(), (String)data.get("restaurantId"));
+            Order order=orderManager.createOrder((Integer) data.get("clientId"), (String)data.get("restaurantId"));
+            if(order==null){
+                Sender.sendResponse(exchange,400,"Param not found");
+            }
             Sender.sendResponse(exchange,200,order.getId()+"");
         } catch (Exception e) {
             e.printStackTrace();
@@ -121,7 +124,7 @@ public class OrderHandler implements HttpHandler{
         try{
             System.out.println("finish reçu");
             int orderId=Integer.parseInt(param[0]);
-            PaymentMethod paymentMethod = PaymentMethod.valueOf((String) param[1].toUpperCase());
+            PaymentMethod paymentMethod = PaymentMethod.valueOf(param[1].toUpperCase());
             OrderState state = orderManager.finishOrder(orderId,paymentMethod);
             PaymentDoneDTO paymentDoneDTO = new PaymentDoneDTO(orderId,state);
             if(state==OrderState.PAID){
@@ -161,6 +164,24 @@ public class OrderHandler implements HttpHandler{
         catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void chooseDeliveryLocation(HttpExchange exchange,String... params) throws IOException {
+        try{
+            int orderId = Integer.parseInt(params[0]);
+            OrderDeliveryPoint deliveryLocation = OrderDeliveryPoint.valueOf(params[1].toUpperCase());
+            OrderManager.chooseLocationResult result = orderManager.chooseDeliveryLocation(orderId,deliveryLocation);
+            if(result == OrderManager.chooseLocationResult.ORDER_NOT_FOUND){
+                Sender.sendResponse(exchange,400,"Commande pas trouvée");
+                return;
+            }
+            if(result == OrderManager.chooseLocationResult.SUCCESS){
+                Sender.sendResponse(exchange,200,"Livraison changée avec succès");
+            }
+        } catch (IOException e) {
+            Sender.sendResponse(exchange,500,"Erreur serveur");
             throw new RuntimeException(e);
         }
     }

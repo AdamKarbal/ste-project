@@ -5,6 +5,8 @@ public class DishAiRequest {
     private String image;   // optionnel, peut être null
     private String domain;  // ex : "italian" (optionnel)
 
+    public DishAiRequest() {}
+
     public DishAiRequest(String name, String image, String domain) {
         this.name = name;
         this.image = image;

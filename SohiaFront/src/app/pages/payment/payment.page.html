@@ -46,12 +46,5 @@
 
     </div>
   </section>
-
-  <se-delivery-address-modal
-    [visible]="isAddressModalOpen"
-    [initialAddress]="deliveryAddress"
-    (saved)="onAddressSaved($event)"
-    (closed)="onAddressModalClosed()">
-  </se-delivery-address-modal>
 </main>
 <app-footer></app-footer>

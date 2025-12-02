@@ -18,6 +18,8 @@ import {OrderDeliveryPoint} from '../../models/order-delivery-point.enum';
 import {
   DeliveryPointSelectorComponent
 } from '../../components/payment/delivery-point-selector/delivery-point-selector.component';
+import {orderService} from '../../services/orderService';
+
 
 @Component({
   selector: 'se-payment-page',
@@ -28,7 +30,6 @@ import {
     PaymentMethodSelectorComponent,
     PaymentStatusComponent,
     NavbarComponent,
-    DeliveryAddressModalComponent,
     FooterComponent,
     DeliveryPointSelectorComponent
   ],
@@ -44,14 +45,14 @@ export class PaymentPage implements OnInit {
   isPaying = false;
   paymentState$! : Observable<PaymentDone|null>;
   payment: PaymentDone | null = null;
-  deliveryAddress?: DeliveryAddress;
   isAddressModalOpen = false;
   selectedDeliveryPoint?: OrderDeliveryPoint;
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private paymentService: PaymentService
+    private paymentService: PaymentService,
+    private orderService : orderService
   ) {}
 
   ngOnInit(): void {
@@ -75,8 +76,7 @@ export class PaymentPage implements OnInit {
   onPay() {
     if (!this.selectedMethod) return;
 
-    // optionnel : empêcher de payer si l'adresse n'est pas définie
-    if (!this.deliveryAddress) {
+    if (!this.selectedDeliveryPoint) {
       console.warn('Adresse de livraison manquante');
       return;
     }
@@ -91,7 +91,6 @@ export class PaymentPage implements OnInit {
       )
       .subscribe({
         next: (result) => {
-          // result est de type PaymentDone | null
           this.payment = result;
         },
         error: err => {
@@ -105,16 +104,13 @@ export class PaymentPage implements OnInit {
   }
   onDeliveryPointSelected(point: OrderDeliveryPoint) {
     this.selectedDeliveryPoint = point;
+    this.orderService.chooseLocation(point).subscribe({
+      next: ()=>console.log("Livraison ajoutée",point),
+      error : (error) => console.log(error)
+    })
   }
 
-  onAddressSaved(addr: DeliveryAddress): void {
-    this.deliveryAddress = addr;
-    this.isAddressModalOpen = false;
-  }
 
-  onAddressModalClosed(): void {
-    this.isAddressModalOpen = false;
-  }
   get canPay(): boolean {
     return !!this.selectedMethod && this.totalAmount > 0 && !!this.selectedDeliveryPoint;
   }

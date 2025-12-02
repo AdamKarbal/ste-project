@@ -36,7 +36,7 @@ export class RestaurantCardComponent {
     if (!this.restaurant?.name) return;
     this.router.navigate(['/restaurant-detail', this.restaurant.name]);
   }
-  createOrder() { // absolument changer la création du client synchronisée avec la création de l'Order (à faire plus tard qd y aura un vrai système d'auth)
+  createOrder() {
     this.authService.lastUserId$
       .pipe(
         switchMap(id =>
@@ -47,7 +47,7 @@ export class RestaurantCardComponent {
         )
       )
       .subscribe({
-        next: res => console.log("Commande créée pour l'user :",res),
+        next: res => console.log("Commande créée avec l'id",res),
         error: err => console.error("Erreur API :", err)
       });
   }

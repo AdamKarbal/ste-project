@@ -1,14 +1,11 @@
 <app-navbar></app-navbar>
 
-<!-- 🧠 SECTION HERO -->
 <section class="hero">
   <div class="overlay"></div>
 
   <div class="hero-content">
     <h1>Découvrez les meilleures saveurs près de chez vous 🍕</h1>
     <p>Commandez depuis vos restaurants préférés en quelques clics.</p>
-
-    <!-- 🔍 Barre de recherche -->
     <div class="search-bar">
       <button class="filter-btn" (click)="toggleFilters()">
         <svg xmlns="http://www.w3.org/2000/svg" height="22" width="22" viewBox="0 0 24 24" fill="#E53935">
@@ -25,9 +22,7 @@
       <button (click)="onSearch()">🔍</button>
     </div>
 
-    <!-- 🎛️ PANNEAU DE FILTRES -->
     <div class="filter-panel" *ngIf="showFilters">
-      <!-- 🍽️ Cuisine -->
       <h3>🍽️ Type de cuisine</h3>
       <div class="filter-tags">
         <span
@@ -39,7 +34,6 @@
         </span>
       </div>
 
-      <!-- 🏠 Type d’établissement -->
       <h3>🏠 Type d’établissement</h3>
       <div class="filter-tags">
         <span
@@ -51,7 +45,6 @@
         </span>
       </div>
 
-      <!-- 💰 Prix -->
       <h3>💰 Fourchette de prix (€)</h3>
       <div class="price-filters">
         <input
@@ -68,15 +61,12 @@
         />
       </div>
 
-      <!-- 🕒 Horaires -->
       <h3>🕒 Horaires</h3>
       <div class="filter-time">
         <label>
           <input type="checkbox" [(ngModel)]="filters.openNow" />
           Ouverts maintenant
         </label>
-
-        <!-- Si non coché : choix jour + heure -->
         <div class="time-input" *ngIf="!filters.openNow">
           <label for="openDay">Jour :</label>
           <select id="openDay" [(ngModel)]="filters.openDay">
@@ -90,7 +80,6 @@
       </div>
 
 
-      <!-- 🎯 Actions -->
       <div class="filter-actions">
         <button (click)="applyFilters()">Appliquer</button>
         <button class="clear" (click)="clearFilters()">Réinitialiser</button>
@@ -99,19 +88,14 @@
   </div>
 </section>
 
-<!-- 🍽️ SECTION RESTAURANTS -->
 <section class="restaurant-section">
   <h2>🍴 Restaurants disponibles</h2>
 
   <div class="restaurant-list">
     <app-loader *ngIf="loading"></app-loader>
-
-    <!-- 🧩 Message si aucun résultat -->
     <div *ngIf="!loading && restaurants.length === 0" class="no-results">
       😔 Aucun restaurant ne correspond à vos filtres pour le moment.
     </div>
-
-    <!-- 🏪 Liste des restaurants -->
     <app-restaurant-card
       *ngFor="let resto of restaurants"
       [restaurant]="resto"
@@ -119,5 +103,4 @@
   </div>
 </section>
 
-<!-- 🦶 FOOTER -->
 <app-footer></app-footer>

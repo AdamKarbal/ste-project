@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Dish } from '../../models/dish.models';  // <-- modèle commun
+import { Dish } from '../../models/dish.models';
 import { RestaurantDishCardComponent } from '../restaurant-dish-card/restaurant-dish-card.component';
 
 @Component({
@@ -10,7 +10,7 @@ import { RestaurantDishCardComponent } from '../restaurant-dish-card/restaurant-
   imports: [
     CommonModule,
     FormsModule,
-    RestaurantDishCardComponent  // <-- pour que <se-restaurant-dish-card> soit connu
+    RestaurantDishCardComponent
   ],
   templateUrl: './restaurant-dish-list.component.html',
   styleUrls: ['./restaurant-dish-list.component.css']

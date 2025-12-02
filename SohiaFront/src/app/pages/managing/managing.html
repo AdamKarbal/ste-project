@@ -3,9 +3,7 @@
   <app-navbarmanaging></app-navbarmanaging>
 
   <main class="menu-page-container" style="border-top: 5px solid #f59e0b; margin-top: 0;">
-
     <div class="status" *ngIf="!restaurant">Chargement...</div>
-
     <section class="menu-page-content" *ngIf="restaurant">
     <header class="menu-header" style="display: flex; justify-content: space-between; align-items: center;">
       <div>
@@ -19,11 +17,7 @@
     </header>
 
     <div class="menu-layout">
-
-      <!-- Ligne du haut : Plats | Réglages -->
       <div class="menu-layout-top">
-
-        <!-- Colonne PLATS -->
         <section class="menu-col menu-col--center">
 
           <button *ngIf="!isCreatingDish"
@@ -92,7 +86,6 @@
           </div>
         </section>
 
-        <!-- Colonne RÉGLAGES -->
         <se-restaurant-settings
           class="menu-col menu-col--right"
           [restaurant]="restaurant"
@@ -103,7 +96,6 @@
 
       </div>
 
-      <!-- SECTION CRENEAUX -->
       <section class="schedule-section">
         <h2 class="schedule-title">Créneaux de livraison</h2>
 
@@ -123,7 +115,6 @@
               </h3>
 
               <div class="form-grid">
-                <!-- Jour : visible uniquement en création -->
                 <div class="form-group" *ngIf="!editingSchedule">
                   <label>Jour</label>
                   <select [(ngModel)]="scheduleForm.day" class="input-field">
@@ -132,20 +123,14 @@
                     </option>
                   </select>
                 </div>
-
-                <!-- Heure de début : uniquement en création -->
                 <div class="form-group" *ngIf="!editingSchedule">
                   <label>Heure de début</label>
                   <input [(ngModel)]="scheduleForm.start" type="time" class="input-field">
                 </div>
-
-                <!-- Heure de fin : uniquement en création -->
                 <div class="form-group" *ngIf="!editingSchedule">
                   <label>Heure de fin</label>
                   <input [(ngModel)]="scheduleForm.end" type="time" class="input-field">
                 </div>
-
-                <!-- Capacité : toujours visible (création + édition) -->
                 <div class="form-group">
                   <label>Capacité</label>
                   <input [(ngModel)]="scheduleForm.capacity" type="number" min="1" class="input-field">
@@ -166,7 +151,6 @@
               </div>
             </div>
           </div>
-
           <se-restaurant-schedule-sidebar-manager
             class="schedule-sidebar-wrapper"
             [restaurantName]="restaurant.name"
@@ -181,7 +165,6 @@
     </div>
   </section>
 
-  <!-- POPIN DE SUPPRESSION DE CRENEAU -->
   <div class="modal-backdrop" *ngIf="isDeleteDialogOpen">
     <div class="modal-card">
       <h3 class="modal-title">Supprimer ce créneau ?</h3>

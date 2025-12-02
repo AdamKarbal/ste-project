@@ -3,7 +3,7 @@
   display: flex;
   flex-direction: column;
   padding: 1rem 1.5rem 2rem;
-  background-color: #f3f4f6; /* même fond que la page commande */
+  background-color: #f3f4f6;
 }
 
 .payment-page-content {
@@ -12,7 +12,6 @@
   margin: 0 auto;
 }
 
-/* Header */
 
 .payment-header {
   margin-bottom: 1rem;

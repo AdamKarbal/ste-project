@@ -7,7 +7,6 @@ export enum OrderDeliveryPoint {
   PARKING = 'PARKING'
 }
 
-// Pour afficher un label humain
 export const OrderDeliveryPointLabels: Record<OrderDeliveryPoint, string> = {
   [OrderDeliveryPoint.MAIN_ENTRANCE]: 'Entrée principale',
   [OrderDeliveryPoint.LIBRARY]: 'Bibliothèque',

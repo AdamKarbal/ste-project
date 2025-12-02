@@ -13,11 +13,8 @@ import { Dish } from '../../models/dish.models';
 export class RestaurantDishCardComponent {
 
   @Input() dish!: Dish;
-
-  /** quantité choisie pour ce plat */
   quantity = 1;
 
-  /** Quand on ajoute ce plat au panier */
   @Output() add = new EventEmitter<number>();
 
   onIncrease(): void {

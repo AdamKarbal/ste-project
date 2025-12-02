@@ -6,8 +6,6 @@
   background-color: #f3f4f6;
 }
 
-/* Status (loading / error) */
-
 .status {
   display: flex;
   justify-content: center;
@@ -26,8 +24,6 @@
   background-color: #fef2f2;
   color: #b91c1c;
 }
-
-/* Contenu principal */
 
 .menu-page-content {
   max-width: 1200px;
@@ -52,16 +48,12 @@
   color: #6b7280;
 }
 
-/* Layout 3 colonnes */
-
 .menu-layout {
   display: grid;
   grid-template-columns: 260px minmax(0, 1fr) 280px;
   gap: 1rem;
   align-items: flex-start;
 }
-
-/* Colonnes */
 
 .menu-col {
   width: 100%;
@@ -70,8 +62,6 @@
 .menu-col--center {
   min-height: 300px;
 }
-
-/* Responsive */
 
 @media (max-width: 1024px) {
   .menu-layout {

@@ -1,6 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
 
-/* --- BASE --- */
 :host {
   font-family: 'Poppins', sans-serif;
   background-color: #F9F6F2;
@@ -8,7 +7,6 @@
   display: block;
 }
 
-/* --- HERO SECTION --- */
 .hero {
   position: relative;
   height: 65vh;
@@ -44,7 +42,6 @@
   margin-bottom: 2rem;
 }
 
-/* --- SEARCH BAR --- */
 .search-bar {
   display: flex;
   justify-content: center;
@@ -62,7 +59,6 @@
   outline: none;
 }
 
-/* --- FILTER BUTTON (entonnoir) --- */
 .filter-btn {
   display: flex;
   justify-content: center;
@@ -93,7 +89,6 @@
   transform: rotate(-10deg);
 }
 
-/* --- SEARCH BUTTON --- */
 .search-bar button:not(.filter-btn) {
   background: #fff;
   border: none;
@@ -110,7 +105,6 @@
   color: white;
 }
 
-/* --- FILTER PANEL --- */
 .filter-panel {
   position: absolute;
   top: 10vh;
@@ -126,14 +120,12 @@
   animation: slideDown 0.3s ease;
 }
 
-/* Quand la fenêtre devient trop basse (<800px de haut), on descend le panel */
 @media (max-height: 800px) {
   .filter-panel {
     top: 15vh; /* au lieu de 10 */
   }
 }
 
-/* Et si c’est vraiment minuscule (genre mobile paysage) */
 @media (max-height: 500px) {
   .filter-panel {
     top: 50vh;
@@ -160,7 +152,6 @@
   text-align: left;
 }
 
-/* --- FILTER TAGS --- */
 .filter-tags {
   display: flex;
   flex-wrap: wrap;
@@ -191,7 +182,6 @@
   transform: scale(1.05);
 }
 
-/* --- PRICE FILTERS --- */
 .price-filters {
   display: flex;
   justify-content: space-between;
@@ -215,7 +205,6 @@
   box-shadow: 0 0 5px rgba(229, 57, 53, 0.3);
 }
 
-/* --- TIME FILTERS (jour + heure) --- */
 .filter-time {
   display: flex;
   flex-direction: column;
@@ -262,7 +251,6 @@
   box-shadow: 0 0 5px rgba(229, 57, 53, 0.3);
 }
 
-/* --- ACTION BUTTONS --- */
 .filter-actions {
   display: flex;
   justify-content: space-between;
@@ -294,7 +282,6 @@
   color: #333;
 }
 
-/* --- RESPONSIVE --- */
 @media (max-width: 1024px) {
   .filter-panel {
     width: 85%;
@@ -313,7 +300,6 @@
   }
 }
 
-/* --- RESTAURANTS --- */
 .restaurant-section {
   padding: 3rem 2rem;
   text-align: center;
@@ -336,7 +322,6 @@
   padding: 20px;
 }
 
-/* --- MESSAGE SI VIDE --- */
 .no-results {
   font-size: 1.2rem;
   color: #777;

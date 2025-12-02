@@ -28,7 +28,6 @@
   color: #6b7280;
 }
 
-/* Emploi du temps : une colonne par jour sur desktop */
 
 .schedule-list {
   display: grid;
@@ -52,8 +51,6 @@
   letter-spacing: 0.04em;
   text-align: center;
 }
-
-/* Liste des créneaux d'un jour */
 
 .slot-list {
   display: flex;

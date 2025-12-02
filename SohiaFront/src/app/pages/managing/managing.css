@@ -4,10 +4,8 @@
   padding: 2rem;
 }
 .menu-page-container {
-  /* Si ta navbar fait environ 60px de haut, ajoute un padding-top */
-  /* Si elle n'est pas fixed, laisse comme c'était */
   padding-top: 20px;
-  min-height: calc(100vh - 60px); /* Ajuste selon la hauteur de ta nav */
+  min-height: calc(100vh - 60px);
 }
 
 

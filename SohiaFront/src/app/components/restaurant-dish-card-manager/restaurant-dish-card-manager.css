@@ -16,7 +16,6 @@
 .meta-type { background: #fff7ed; color: #9a3412; }
 .tag-badge { background: #f3f4f6; color: #374151; padding: 2px 8px; border-radius: 99px; font-size: 0.75rem; border: 1px solid #e5e7eb;}
 
-/* Formulaire Édition */
 .edit-form { display: flex; flex-direction: column; gap: 8px; }
 .field-label { font-size: 0.75rem; font-weight: bold; color: #6b7280; text-transform: uppercase; margin-bottom: -4px; margin-top: 4px;}
 .edit-input { padding: 8px; border: 1px solid #d1d5db; border-radius: 6px; width: 100%; box-sizing: border-box; font-size: 0.9rem; }
@@ -24,13 +23,11 @@
 .row { display: flex; gap: 10px; }
 .col { flex: 1; }
 
-/* Chips Tags */
 .tags-selector { display: flex; flex-wrap: wrap; gap: 5px; }
 .tag-chip { padding: 4px 10px; border-radius: 15px; background: #f3f4f6; cursor: pointer; font-size: 0.75rem; border: 1px solid transparent; transition: 0.1s; }
 .tag-chip:hover { background: #e5e7eb; }
 .tag-chip.selected { background: #dbeafe; color: #2563eb; border-color: #2563eb; font-weight: bold; }
 
-/* Boutons */
 .manager-actions { display: flex; gap: 10px; margin-top: auto; }
 .manager-actions button { flex: 1; border: none; padding: 8px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.9rem; transition: 0.2s; }
 .btn-edit { background: #eff6ff; color: #2563eb; }

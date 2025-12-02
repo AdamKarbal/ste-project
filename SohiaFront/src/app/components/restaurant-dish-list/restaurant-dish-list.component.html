@@ -1,5 +1,4 @@
 <div class="dish-list">
-  <!-- Barre de filtres -->
   <div class="dish-list-filters">
     <input
       type="text"
@@ -30,7 +29,6 @@
     </div>
   </div>
 
-  <!-- Liste des plats -->
   <div class="dish-list-grid" *ngIf="filteredDishes.length > 0; else noDish">
     <se-restaurant-dish-card
       *ngFor="let dish of filteredDishes"

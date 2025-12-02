@@ -12,8 +12,6 @@ import { RestaurantSchedule } from '../../models/restaurant-schedule.model';
 export class RestaurantScheduleSidebarManagerComponent {
 
   @Input() restaurantName: string | undefined;
-
-  /** ATTENTION : on utilise bien le modèle global */
   @Input() schedules: RestaurantSchedule[] = [];
 
   @Input() selectedScheduleId: string | undefined;
@@ -22,25 +20,19 @@ export class RestaurantScheduleSidebarManagerComponent {
   @Output() editSchedule = new EventEmitter<RestaurantSchedule>();
   @Output() deleteSchedule = new EventEmitter<RestaurantSchedule>();
 
-  /** ordre officiel des jours */
   private readonly DAY_ORDER = ['MONDAY','TUESDAY','WEDNESDAY','THURSDAY','FRIDAY','SATURDAY','SUNDAY'];
 
   get groupedSchedulesByDay(): { day: string; label: string; slots: RestaurantSchedule[] }[] {
-    console.log("📌 DEBUG SCHEDULES REÇUS :", JSON.parse(JSON.stringify(this.schedules)));
+    console.log("DEBUG SCHEDULES REÇUS :", JSON.parse(JSON.stringify(this.schedules)));
     const groups = new Map<string, RestaurantSchedule[]>();
-
     for (const s of this.schedules ?? []) {
       const d = s.day;
       if (!groups.has(d)) groups.set(d, []);
       groups.get(d)!.push(s);
     }
-
-    // tri par heure dans chaque jour
     for (const [, slots] of groups) {
       slots.sort((a, b) => this.timeToMinutes(a.start) - this.timeToMinutes(b.start));
     }
-
-    // on renvoie TOUS les jours, même vides, dans le bon ordre
     return this.DAY_ORDER.map(day => ({
       day,
       label: this.getDayLabel(day),
@@ -64,16 +56,11 @@ export class RestaurantScheduleSidebarManagerComponent {
   /** Convertit toutes les formes de temps en "HH:mm" */
   formatTime(time: any): string {
     console.log('⏱️ DEBUG formatTime input:', time);
-
     if (!time) return '-';
-
-    // Cas le plus courant : string "HH:mm" ou "HH:mm:ss"
     if (typeof time === 'string') {
       if (time.includes('undefined')) return '-';
       return time.substring(0, 5);
     }
-
-    // Cas objet LocalTime sérialisé { hour, minute, ... }
     if (typeof time === 'object') {
       const h = String(time.hour ?? 0).padStart(2, '0');
       const m = String(time.minute ?? 0).padStart(2, '0');
@@ -84,7 +71,6 @@ export class RestaurantScheduleSidebarManagerComponent {
   }
 
 
-  /** Pour trier les créneaux */
   private timeToMinutes(
     time: string | { hour: number; minute: number; second?: number; nano?: number } | undefined
   ): number {

@@ -37,7 +37,6 @@ export class RestaurantManagerPageComponent implements OnInit {
   restaurantName = '';
   restaurant: Restaurant | null = null;
 
-  // ---------- PLATS ----------
   isCreatingDish = false;
   newDish: Dish = this.getEmptyDish();
   categories = Object.values(DishCategory);
@@ -47,13 +46,11 @@ export class RestaurantManagerPageComponent implements OnInit {
   typeLabels = DishTypeLabel;
   tagLabels = DishTagLabel;
 
-  // ---------- CRÉNEAUX ----------
   schedules: RestaurantSchedule[] = [];
   selectedScheduleId?: string;
   isCreatingSchedule = false;
   editingSchedule: RestaurantSchedule | null = null;
 
-  // petite popin de suppression
   scheduleToDelete: RestaurantSchedule | null = null;
   isDeleteDialogOpen = false;
 
@@ -99,7 +96,6 @@ export class RestaurantManagerPageComponent implements OnInit {
     });
   }
 
-  /* ---------- PLATS ---------- */
 
   getEmptyDish(): Dish {
     return {
@@ -176,8 +172,6 @@ export class RestaurantManagerPageComponent implements OnInit {
     this.service.removeCuisineType(this.restaurantName, type).subscribe(() => this.loadData());
   }
 
-  /* ---------- CRÉNEAUX ---------- */
-
   loadSchedules(): void {
     if (!this.restaurantName) return;
 
@@ -194,7 +188,6 @@ export class RestaurantManagerPageComponent implements OnInit {
     this.selectedScheduleId = s.id;
   }
 
-  // clic sur "Modifier" dans la sidebar → on ouvre le form en mode EDIT
   onEditSchedule(s: RestaurantSchedule) {
     this.isCreatingSchedule = true;
     this.editingSchedule = s;
@@ -208,31 +201,25 @@ export class RestaurantManagerPageComponent implements OnInit {
     };
   }
 
-  // clic sur "Supprimer" → on ouvre une petite popin
   onDeleteSchedule(s: RestaurantSchedule): void {
     this.scheduleToDelete = s;
     this.isDeleteDialogOpen = true;
   }
 
-  // bouton "Annuler" de la popin
   cancelDeleteSchedule(): void {
     this.isDeleteDialogOpen = false;
     this.scheduleToDelete = null;
   }
-
-  // bouton "Supprimer" de la popin
   confirmDeleteSchedule(): void {
     if (!this.scheduleToDelete) return;
 
-    const idToDelete = this.scheduleToDelete.id; // on capture l'id AVANT
+    const idToDelete = this.scheduleToDelete.id;
 
     this.scheduleService.deleteSchedule(this.restaurantName, idToDelete).subscribe({
       next: () => {
         this.loadSchedules();
         this.isDeleteDialogOpen = false;
         this.scheduleToDelete = null;
-
-        // on utilise l'id capturé, pas this.scheduleToDelete
         if (this.selectedScheduleId === idToDelete) {
           this.selectedScheduleId = undefined;
         }
@@ -240,12 +227,8 @@ export class RestaurantManagerPageComponent implements OnInit {
       error: (err) => console.error('Erreur suppression créneau :', err)
     });
   }
-
-  // sauvegarde : création OU édition
   saveSchedule(): void {
     const { id, day, start, end, capacity } = this.scheduleForm;
-
-    // 🟢 MODE EDITION : on ne modifie QUE la capacité
     if (this.editingSchedule && id) {
       this.scheduleService.updateScheduleCapacity(
         this.restaurantName,
@@ -261,8 +244,6 @@ export class RestaurantManagerPageComponent implements OnInit {
       });
       return;
     }
-
-    // 🆕 MODE CREATION : on doit avoir jour + heures
     if (!day || !start || !end) {
       return;
     }
@@ -298,7 +279,6 @@ export class RestaurantManagerPageComponent implements OnInit {
     };
   }
 
-  /* === création de créneau comme pour les plats === */
 
   startScheduleCreation(): void {
     this.isCreatingSchedule = true;
@@ -316,7 +296,6 @@ export class RestaurantManagerPageComponent implements OnInit {
     this.editingSchedule = null;
   }
 
-  // utile pour formatter dans le HTML (et dans la popin)
   toTimeString(
     time: string | { hour: number; minute: number; second?: number; nano?: number } | undefined
   ): string {

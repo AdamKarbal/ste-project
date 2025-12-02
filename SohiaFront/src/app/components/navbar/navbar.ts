@@ -21,20 +21,14 @@ export class NavbarComponent {
       this.isLoggedIn = status;
     });
   }
-
-
-
-  /** Navigation vers l’espace restaurateur */
   goToOwner() {
     this.router.navigate(['/owner']);
   }
-
-  /** Connexion / déconnexion */
   toggleLogin() {
     if (this.isLoggedIn) {
-      this.auth.logout(); //  Déconnexion + redirection vers /home
+      this.auth.logout();
     } else {
-      this.auth.login(); //  Connexion instantanée
+      this.auth.login();
     }
   }
 

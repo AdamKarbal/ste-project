@@ -11,22 +11,13 @@ import { RestaurantSchedule } from '../../models/restaurant-schedule.model';
 })
 export class RestaurantScheduleSidebarComponent {
 
-  /** Nom du restaurant (affiché en haut) */
   @Input() restaurantName: string | undefined;
-
-  /** Liste brute des créneaux : on utilise le modèle global */
   @Input() schedules: RestaurantSchedule[] = [];
-
-  /** ID du créneau actuellement sélectionné */
   @Input() selectedScheduleId: string | undefined;
 
-  /** Événement quand un créneau est sélectionné */
   @Output() scheduleSelected = new EventEmitter<RestaurantSchedule>();
-
-  /** Ordre des jours si on veut trier par jour puis par heure */
   private readonly DAY_ORDER = ['MONDAY','TUESDAY','WEDNESDAY','THURSDAY','FRIDAY','SATURDAY','SUNDAY'];
 
-  /** Liste plate triée (jour puis heure) */
   get sortedSchedules(): RestaurantSchedule[] {
     if (!this.schedules) return [];
     return [...this.schedules].sort((a, b) => {
@@ -37,17 +28,12 @@ export class RestaurantScheduleSidebarComponent {
     });
   }
 
-  /** Format simple en "HH:mm" à partir de string ou objet LocalTime sérialisé */
   formatTime(time: any): string {
     if (!time) return '';
-
-    // Cas string : "HH:mm" ou "HH:mm:ss"
     if (typeof time === 'string') {
       if (time.includes('undefined')) return '';
       return time.substring(0, 5);
     }
-
-    // Cas objet { hour, minute, ... }
     if (typeof time === 'object') {
       const h = String(time.hour ?? 0).padStart(2, '0');
       const m = String(time.minute ?? 0).padStart(2, '0');
@@ -57,7 +43,6 @@ export class RestaurantScheduleSidebarComponent {
     return '';
   }
 
-  /** Pour trier les horaires, quelle que soit leur forme */
   private timeToMinutes(
     time: string | { hour: number; minute: number; second?: number; nano?: number } | undefined
   ): number {

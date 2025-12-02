@@ -4,8 +4,6 @@
   gap: 1rem;
 }
 
-/* Filtres */
-
 .dish-list-filters {
   display: flex;
   flex-direction: column;
@@ -50,8 +48,6 @@
   border-color: transparent;
   color: #ffffff;
 }
-
-/* Grille des plats */
 
 .dish-list-grid {
   display: grid;

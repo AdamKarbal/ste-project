@@ -106,7 +106,7 @@ export class RestaurantMenuPage implements OnInit {
       return;
     }
 
-    const dishesMap = this.orderState.dishes; // { [dishId]: quantity }
+    const dishesMap = this.orderState.dishes;
     const items: CartItem[] = [];
 
     Object.entries(dishesMap).forEach(([dishIdStr, quantity]) => {
@@ -122,8 +122,6 @@ export class RestaurantMenuPage implements OnInit {
     this.cartItems = items;
   }
 
-  // --------- Gestion des créneaux ---------
-
   onScheduleSelected(schedule: RestaurantSchedule): void {
     this.selectedSchedule = schedule;
     this.orderService.chooseSchedule(schedule.id).subscribe({
@@ -131,8 +129,6 @@ export class RestaurantMenuPage implements OnInit {
       error: (err) => console.error(err)
     });
   }
-
-  // --------- Gestion du panier ---------
 
   onAddDish(event: { dish: Dish; quantity: number }): void {
     const { dish } = event;

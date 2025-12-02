@@ -1,8 +1,6 @@
 <app-navbar></app-navbar>
 
 <main class="menu-page-container">
-
-  <!-- État de chargement / erreur -->
   <div class="status" *ngIf="isLoading || errorMessage">
     <div *ngIf="isLoading" class="status-message">
       Chargement du restaurant...
@@ -24,7 +22,6 @@
     </header>
 
     <div class="menu-layout">
-      <!-- Colonne gauche : créneaux -->
       <se-restaurant-schedule-sidebar
         class="menu-col menu-col--left"
         [restaurantName]="restaurant.name"
@@ -33,8 +30,6 @@
         (scheduleSelected)="onScheduleSelected($event)"
       >
       </se-restaurant-schedule-sidebar>
-
-      <!-- Colonne centre : plats -->
       <section class="menu-col menu-col--center">
         <se-restaurant-dish-list
           [dishes]="restaurant.dishes || []"
@@ -42,8 +37,6 @@
         >
         </se-restaurant-dish-list>
       </section>
-
-      <!-- Colonne droite : panier -->
       <se-order-cart
         class="menu-col menu-col--right"
         [items]="cartItems"

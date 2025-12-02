@@ -5,8 +5,6 @@
       Ajoutez des plats pour démarrer votre commande.
     </p>
   </header>
-
-  <!-- Créneau sélectionné -->
   <div class="cart-schedule" *ngIf="selectedScheduleLabel">
     <div class="cart-schedule-label">
       Créneau choisi :
@@ -15,8 +13,6 @@
       {{ selectedScheduleLabel }}
     </div>
   </div>
-
-  <!-- Liste des items -->
   <div class="cart-items" *ngIf="items.length > 0; else emptyCart">
     <div
       class="cart-item"
@@ -58,8 +54,6 @@
       Votre panier est vide.
     </div>
   </ng-template>
-
-  <!-- Résumé & bouton de confirmation -->
   <footer class="cart-footer" *ngIf="items.length > 0">
     <div class="cart-total">
       <span>Total</span>

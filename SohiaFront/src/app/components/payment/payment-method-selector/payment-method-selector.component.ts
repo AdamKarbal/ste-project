@@ -11,7 +11,6 @@ import { PaymentMethod } from '../../../models/payment-method.enum';
 })
 export class PaymentMethodSelectorComponent {
 
-  // 🔹 On précise bien le type du tableau :
   methods: PaymentMethod[] = Object.values(PaymentMethod) as PaymentMethod[];
 
   @Output() methodSelected = new EventEmitter<PaymentMethod>();

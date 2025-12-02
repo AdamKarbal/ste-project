@@ -16,7 +16,7 @@ import { FooterComponent } from '../../components/footer/footer';
 export class RestaurantDetailPage implements OnInit {
 
   restaurantName = '';
-  restaurant: any = null; // ⭐ Restaurant complet
+  restaurant: any = null;
   isLoggedIn = false;
   loading = true;
 
@@ -47,8 +47,6 @@ export class RestaurantDetailPage implements OnInit {
     this.restaurantName = this.route.snapshot.paramMap.get('name') || '';
 
     this.auth.isLoggedIn$.subscribe((state) => (this.isLoggedIn = state));
-
-    // ⭐ Chargement du restaurant complet (dishes + toppings + horaires)
     this.restaurant = await this.service.getRestaurantDetails(this.restaurantName);
 
     this.loading = false;

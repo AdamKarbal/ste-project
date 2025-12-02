@@ -2,11 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { Dish } from '../../models/dish.models';
 import { RestaurantSchedule } from '../../models/restaurant-schedule.model';
-
-export interface CartItem {
-  dish: Dish;
-  quantity: number;
-}
+import {CartItem} from '../../models/cartItem';
 
 @Component({
   selector: 'se-order-cart',
@@ -17,31 +13,22 @@ export interface CartItem {
 })
 export class OrderCartComponent {
 
-  /** Montant total (calculé côté parent) */
   @Input() orderTotal?: number;
-
-  /** Contenu du panier */
   @Input() items: CartItem[] = [];
-
-  /** Créneau choisi pour la livraison */
   @Input() selectedSchedule?: RestaurantSchedule;
 
-  /** Événements vers le parent */
   @Output() quantityChanged = new EventEmitter<{ dish: Dish; quantity: number }>();
   @Output() dishRemoved = new EventEmitter<Dish>();
   @Output() confirmOrder = new EventEmitter<void>();
 
-  /** Total affiché */
   get totalPrice(): number {
     return this.orderTotal ?? 0;
   }
 
-  /** Formatage du prix */
   formatPrice(value: number): string {
     return `${value.toFixed(2)} €`;
   }
 
-  /** Affichage du créneau sélectionné */
   get selectedScheduleLabel(): string | null {
     if (!this.selectedSchedule) return null;
     const day = this.getDayLabel(this.selectedSchedule.day);
@@ -63,7 +50,6 @@ export class OrderCartComponent {
     }
   }
 
-  /** time peut être une string "HH:mm:ss" ou un objet LocalTime */
   private formatTime(
     time: string | { hour: number; minute: number; second?: number; nano?: number } | undefined
   ): string {
@@ -78,7 +64,6 @@ export class OrderCartComponent {
     return `${h}:${m}`;
   }
 
-  // --------- actions utilisateur ----------
 
   onIncrease(item: CartItem): void {
     const newQuantity = item.quantity + 1;

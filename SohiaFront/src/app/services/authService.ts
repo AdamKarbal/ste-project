@@ -11,7 +11,6 @@ export class AuthService {
   lastUserId$ = this.lastUserIdSubject.asObservable();
   constructor(private router: Router,private accountService : AccountService) {}
 
-  /** Connexion instantanée */
   login(): void {
     const clientName = 'client'+(this.lastUserIdSubject.value ?? 0);
     this.accountService.createUser(clientName).subscribe({
@@ -23,8 +22,6 @@ export class AuthService {
     });
     alert('👋 Team O — Vous êtes maintenant connecté !');
   }
-
-  /** Déconnexion avec redirection */
   logout(): void {
     this.isLoggedInSubject.next(false);
     this.router.navigate(['/home']);

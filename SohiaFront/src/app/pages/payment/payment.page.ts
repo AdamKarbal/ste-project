@@ -14,6 +14,10 @@ import {finalize, Observable} from 'rxjs';
 import {PaymentDone} from '../../models/paymentDone';
 import {DeliveryAddress} from '../../models/delivery-address.model';
 import {DeliveryAddressModalComponent} from '../../components/payment/delivery-address-modal/delivery-address-modal.component';
+import {OrderDeliveryPoint} from '../../models/order-delivery-point.enum';
+import {
+  DeliveryPointSelectorComponent
+} from '../../components/payment/delivery-point-selector/delivery-point-selector.component';
 
 @Component({
   selector: 'se-payment-page',
@@ -25,7 +29,8 @@ import {DeliveryAddressModalComponent} from '../../components/payment/delivery-a
     PaymentStatusComponent,
     NavbarComponent,
     DeliveryAddressModalComponent,
-    FooterComponent
+    FooterComponent,
+    DeliveryPointSelectorComponent
   ],
   templateUrl: './payment.page.html',
   styleUrls: ['./payment.page.css']
@@ -41,6 +46,7 @@ export class PaymentPage implements OnInit {
   payment: PaymentDone | null = null;
   deliveryAddress?: DeliveryAddress;
   isAddressModalOpen = false;
+  selectedDeliveryPoint?: OrderDeliveryPoint;
 
   constructor(
     private route: ActivatedRoute,
@@ -97,6 +103,9 @@ export class PaymentPage implements OnInit {
   openAddressModal(): void {
     this.isAddressModalOpen = true;
   }
+  onDeliveryPointSelected(point: OrderDeliveryPoint) {
+    this.selectedDeliveryPoint = point;
+  }
 
   onAddressSaved(addr: DeliveryAddress): void {
     this.deliveryAddress = addr;
@@ -107,7 +116,7 @@ export class PaymentPage implements OnInit {
     this.isAddressModalOpen = false;
   }
   get canPay(): boolean {
-    return !!this.selectedMethod && this.totalAmount > 0 && !!this.deliveryAddress;
+    return !!this.selectedMethod && this.totalAmount > 0 && !!this.selectedDeliveryPoint;
   }
 
 

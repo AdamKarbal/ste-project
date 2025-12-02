@@ -27,7 +27,6 @@ export class AuthService {
   /** Déconnexion avec redirection */
   logout(): void {
     this.isLoggedInSubject.next(false);
-    alert('👋 Vous êtes maintenant déconnecté !');
     this.router.navigate(['/home']);
   }
 }

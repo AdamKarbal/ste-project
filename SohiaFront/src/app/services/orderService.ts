@@ -4,6 +4,7 @@ import { HttpClient } from '@angular/common/http';
 import {RestaurantService} from './restaurantService';
 import {orderStateModel} from '../models/orderStateModel'
 import {ScheduleAdded} from '../models/scheduleAdded';
+import {OrderDeliveryPoint} from '../models/order-delivery-point.enum';
 
 @Injectable({
   providedIn: 'root'
@@ -41,7 +42,7 @@ export class orderService{
       .pipe(
         tap((order) => {
           if (order) {
-            console.log(order);
+            console.log("Order d'id",order);
             this.currentOrderIdSubject.next(order);
           } else {
             console.warn('Réponse de création de commande sans id :', order);
@@ -58,6 +59,10 @@ export class orderService{
           console.log('Créneau choisi pour la commande :', resp);
         })
       );
+  }
+
+  chooseLocation(deliveryPoint:OrderDeliveryPoint){
+    return this.httpClient.post(`${this.orderUrl}${this.getCurrentOrderId()}/delivery/${deliveryPoint}/`,null)
   }
 
 }

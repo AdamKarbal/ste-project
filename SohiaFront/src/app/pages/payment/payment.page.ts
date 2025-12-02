@@ -14,6 +14,12 @@ import {finalize, Observable} from 'rxjs';
 import {PaymentDone} from '../../models/paymentDone';
 import {DeliveryAddress} from '../../models/delivery-address.model';
 import {DeliveryAddressModalComponent} from '../../components/payment/delivery-address-modal/delivery-address-modal.component';
+import {OrderDeliveryPoint} from '../../models/order-delivery-point.enum';
+import {
+  DeliveryPointSelectorComponent
+} from '../../components/payment/delivery-point-selector/delivery-point-selector.component';
+import {orderService} from '../../services/orderService';
+
 
 @Component({
   selector: 'se-payment-page',
@@ -24,8 +30,8 @@ import {DeliveryAddressModalComponent} from '../../components/payment/delivery-a
     PaymentMethodSelectorComponent,
     PaymentStatusComponent,
     NavbarComponent,
-    DeliveryAddressModalComponent,
-    FooterComponent
+    FooterComponent,
+    DeliveryPointSelectorComponent
   ],
   templateUrl: './payment.page.html',
   styleUrls: ['./payment.page.css']
@@ -39,13 +45,14 @@ export class PaymentPage implements OnInit {
   isPaying = false;
   paymentState$! : Observable<PaymentDone|null>;
   payment: PaymentDone | null = null;
-  deliveryAddress?: DeliveryAddress;
   isAddressModalOpen = false;
+  selectedDeliveryPoint?: OrderDeliveryPoint;
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private paymentService: PaymentService
+    private paymentService: PaymentService,
+    private orderService : orderService
   ) {}
 
   ngOnInit(): void {
@@ -69,8 +76,7 @@ export class PaymentPage implements OnInit {
   onPay() {
     if (!this.selectedMethod) return;
 
-    // optionnel : empêcher de payer si l'adresse n'est pas définie
-    if (!this.deliveryAddress) {
+    if (!this.selectedDeliveryPoint) {
       console.warn('Adresse de livraison manquante');
       return;
     }
@@ -85,7 +91,6 @@ export class PaymentPage implements OnInit {
       )
       .subscribe({
         next: (result) => {
-          // result est de type PaymentDone | null
           this.payment = result;
         },
         error: err => {
@@ -97,17 +102,17 @@ export class PaymentPage implements OnInit {
   openAddressModal(): void {
     this.isAddressModalOpen = true;
   }
-
-  onAddressSaved(addr: DeliveryAddress): void {
-    this.deliveryAddress = addr;
-    this.isAddressModalOpen = false;
+  onDeliveryPointSelected(point: OrderDeliveryPoint) {
+    this.selectedDeliveryPoint = point;
+    this.orderService.chooseLocation(point).subscribe({
+      next: ()=>console.log("Livraison ajoutée",point),
+      error : (error) => console.log(error)
+    })
   }
 
-  onAddressModalClosed(): void {
-    this.isAddressModalOpen = false;
-  }
+
   get canPay(): boolean {
-    return !!this.selectedMethod && this.totalAmount > 0 && !!this.deliveryAddress;
+    return !!this.selectedMethod && this.totalAmount > 0 && !!this.selectedDeliveryPoint;
   }
 
 

@@ -40,9 +40,11 @@ public class RestaurantRepo {
         if (file.exists()) {
             try {
                 List<Restaurant> loaded = mapper.readValue(file, new TypeReference<List<Restaurant>>() {});
-                this.restaurants.clear();
-                this.restaurants.addAll(loaded);
-                System.out.println("Données chargées depuis " + file.getAbsolutePath() + " (" + restaurants.size() + " restos)");
+                if (loaded != null) {
+                    this.restaurants.clear();
+                    this.restaurants.addAll(loaded);
+                    System.out.println("Données chargées depuis " + file.getAbsolutePath() + " (" + restaurants.size() + " restos)");
+                }
             } catch (IOException e) {
                 System.err.println("Impossible de lire le fichier (sera écrasé) : " + e.getMessage());
             }
@@ -85,6 +87,11 @@ public class RestaurantRepo {
 
         saveToFile();
         return existed;
+    }
+
+    public void clearFile(){
+        this.restaurants.clear();
+        saveToFile();
     }
 
     public void clear(){

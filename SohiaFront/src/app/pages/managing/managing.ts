@@ -1,15 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
-
 import { RestaurantService } from '../../services/restaurantService';
 import { Restaurant } from '../../models/restaurant.model';
 import { CuisineType } from '../../models/cuisine-type.model';
 import { EstablishmentType } from '../../models/establishment-type.model';
 import { RestaurantSchedule } from '../../models/restaurant-schedule.model';
 import { RestaurantScheduleService } from '../../services/restaurant-schedule.service';
-
+import { ActivatedRoute } from '@angular/router';
 import { RestaurantDishCardManagerComponent } from '../../components/restaurant-dish-card-manager/restaurant-dish-card-manager';
 import { RestaurantSettingsComponent } from '../../components/restaurant-settings.component/restaurant-settings.component';
 import { RestaurantScheduleSidebarManagerComponent } from '../../components/restaurant-schedule-sidebar-manager/restaurant-schedule-sidebar-manager.component';
@@ -20,6 +18,7 @@ import {
   DishTag, DishTagLabel,
   DishType, DishTypeLabel
 } from '../../models/dish.models';
+import {NavbarManagingComponent} from '../../components/navbarmanaging/navbarmanaging';
 
 @Component({
   selector: 'app-restaurant-manager-page',
@@ -28,11 +27,12 @@ import {
     CommonModule, FormsModule,
     RestaurantDishCardManagerComponent,
     RestaurantSettingsComponent,
-    RestaurantScheduleSidebarManagerComponent
+    RestaurantScheduleSidebarManagerComponent, NavbarManagingComponent
   ],
   templateUrl: './managing.html',
   styleUrls: ['./managing.css']
 })
+
 export class RestaurantManagerPageComponent implements OnInit {
   restaurantName = '';
   restaurant: Restaurant | null = null;
@@ -94,7 +94,7 @@ export class RestaurantManagerPageComponent implements OnInit {
         this.loadData();
         this.loadSchedules();
       } else {
-        console.error('Aucun nom de restaurant fourni dans l\'URL !');
+        console.error("Aucun nom de restaurant fourni dans l'URL !");
       }
     });
   }
@@ -114,12 +114,11 @@ export class RestaurantManagerPageComponent implements OnInit {
 
   loadData() {
     this.service.getRestaurant(this.restaurantName).subscribe({
-      next: (data) => {
-        this.restaurant = data;
-      },
+      next: (data) => this.restaurant = data,
       error: (err) => console.error(err)
     });
   }
+
 
   startCreation() { this.isCreatingDish = true; }
 
@@ -147,15 +146,15 @@ export class RestaurantManagerPageComponent implements OnInit {
     });
   }
 
-  onUpdateDish(event: { oldName: string, newDish: Dish }) {
-    if (!event || !event.oldName || !event.newDish) {
-      console.error('Erreur : Données de mise à jour incomplètes', event);
+  onUpdateDish(event: { oldId: number, newDish: Dish }) {
+    if (!event || !event.oldId || !event.newDish) {
+      console.error("Erreur : Données de mise à jour incomplètes", event);
       return;
     }
 
     this.service.updateDish(
       this.restaurantName,
-      event.oldName,
+      event.oldId,
       event.newDish
     ).subscribe({
       next: () => this.loadData(),
@@ -170,11 +169,9 @@ export class RestaurantManagerPageComponent implements OnInit {
   onUpdateEstablishment(type: EstablishmentType) {
     this.service.setEstablishmentType(this.restaurantName, type).subscribe(() => this.loadData());
   }
-
   onAddCuisine(type: CuisineType) {
     this.service.addCuisineType(this.restaurantName, type).subscribe(() => this.loadData());
   }
-
   onRemoveCuisine(type: CuisineType) {
     this.service.removeCuisineType(this.restaurantName, type).subscribe(() => this.loadData());
   }

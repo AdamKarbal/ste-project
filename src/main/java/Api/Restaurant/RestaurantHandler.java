@@ -138,15 +138,15 @@ public class RestaurantHandler implements HttpHandler {
                 sendErrorResponse(exchange, 409, e.getMessage());
             }
         } else if (parts.length == 4 && parts[2].equals("dishes")) {
-            String oldDishName = URLDecoder.decode(parts[3], StandardCharsets.UTF_8);
+            int dishId = Integer.parseInt(parts[3]);
             try {
                 Dish newDish = objectMapper.readValue(readRequestBody(exchange), Dish.class);
-                Dish oldDishDummy = new Dish();
-                oldDishDummy.setName(oldDishName);
-                restaurantManager.updateDish(oldDishDummy, newDish, restaurantName);
+                restaurantManager.updateDish(dishId, newDish, restaurantName);
                 sendResponse(exchange, 200, "{\"message\": \"Plat mis à jour\"}");
             } catch (dishNoInDishes e) {
                 sendErrorResponse(exchange, 404, e.getMessage());
+            } catch (InterruptedException e) {
+                sendErrorResponse(exchange,401,"Erreur de traitement");
             }
         }
         else {

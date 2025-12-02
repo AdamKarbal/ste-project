@@ -8,6 +8,8 @@ import Restaurant.Exception.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import java.io.IOException;
+
 public class RestaurantManager {
     private final SmartDishFactory smartDishFactory = new SmartDishFactory();
 
@@ -22,15 +24,14 @@ public class RestaurantManager {
         return created;
     }
 
-    public void updateDish(Dish old, Dish replacement,String name) throws dishNoInDishes, JsonProcessingException {
+    public void updateDish(int oldId, Dish replacement,String name) throws dishNoInDishes, IOException, InterruptedException {
         Restaurant restaurant = getRestaurantFromRepo(name);
+        Dish old = Requester.getDishById(oldId);
         if(!(restaurant.alreadyDish(old))) throw new dishNoInDishes("Impossible de mettre à jour le plat, il n'est pas présent.");
-        System.out.println(new ObjectMapper().writeValueAsString(old));
-
-        Dish updated = Requester.updateDish(old.getId(),replacement);
         restaurant.removeDish(old);
-        restaurant.addDish(updated);
-
+        System.out.println(new ObjectMapper().writeValueAsString(old));
+        Requester.updateDish(oldId,replacement);
+        restaurant.addDish(replacement);
         saveRestaurant(restaurant);
     }
 

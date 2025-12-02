@@ -30,6 +30,7 @@ export class RestaurantDetailPage implements OnInit {
     KOSHER: "Casher",
     LACTOSE_FREE: "Sans lactose",
     ORGANIC: "Bio",
+    CONTAINS_MILK: "Contient du lait",
     SPICY: "Épicé"
   };
 

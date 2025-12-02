@@ -24,8 +24,8 @@ public class ServersStarter {
             RestaurantServer.startServer();
             RestaurantRepoServer.startServer();
             RestaurantScheduleServer.startServer();
-            DishAiServer.startServer();
             MockAiServer.startServer();
+            DishAiServer.startServer();
         } catch (IOException e){
             e.printStackTrace();
         }

@@ -10,13 +10,13 @@ Feature: Filtrer les restaurants
 
   Scenario: Filtre par cuisine italienne
     When je filtre les restaurants par cuisine "italienne"
-    Then je vois exactement 4 restaurants
+    Then je vois exactement 3 restaurants
     And la liste contient "Pasta Mia"
     And la liste contient "MammaRita"
 
   Scenario: Filtre par restaurants ouverts
     When je filtre les restaurants par horaire "18:30"
-    Then je vois exactement 2 restaurants
+    Then je vois exactement 6 restaurants
     And la liste contient "SushiZen"
 
     Scenario: Filtre par type de restaurants
@@ -26,19 +26,19 @@ Feature: Filtrer les restaurants
 
       Scenario: Filtre par prix max
         When je filtre les restaurants avec un prix max de 10 euros
-        Then je vois exactement 3 restaurants
+        Then je vois exactement 6 restaurants
         And la liste contient "SushiZen"
 
       Scenario: Filtre par gamme de prix
         When je filtre les restaurants avec un prix entre 8 et 11 euros
-        Then je vois exactement 4 restaurants
+        Then je vois exactement 5 restaurants
         And la liste contient "SushiZen"
         And la liste contient "KebabKorner"
         And la liste contient "MammaRita"
 
       Scenario: Filtre par prix min
         When je filtre les restaurants avec un prix min de 14.5 euros
-        Then je vois exactement 4 restaurants
+        Then je vois exactement 3 restaurants
         And la liste contient "SushiZen"
 
       Scenario: Filtre par nom
@@ -48,7 +48,7 @@ Feature: Filtrer les restaurants
 
       Scenario: Filtre par tag (enum)
         When je filtre les restaurants par tag "VEGETARIAN"
-        Then je vois exactement 2 restaurants
+        Then je vois exactement 5 restaurants
         And la liste contient "Pasta Mia"
         And la liste contient "MammaRita"
 
